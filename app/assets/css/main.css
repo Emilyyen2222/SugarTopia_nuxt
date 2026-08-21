@@ -40,3 +40,18 @@ input[type="checkbox"]:checked::before {
   color: white;
   font-size: 16px;
 }
+
+/* 全站的鍵盤/滑鼠點擊焦點框改用品牌橘色，不用瀏覽器預設的藍色（搜尋欄、
+   輪播的左右箭頭點下去都看得到）。用 :focus-visible 而不是整個拿掉
+   outline：鍵盤操作（Tab 切換）還是需要看得到焦點在哪，只是顏色換成跟
+   網站配色一致，不是隨瀏覽器預設的藍色。Swiper 的上一頁/下一頁按鈕另外
+   加一個 outline-offset，不然圓形按鈕的焦點框會被裁到看起來像方形。 */
+:focus-visible {
+  outline: 2px solid #f9a726;
+  outline-offset: 2px;
+}
+
+.swiper-button-prev:focus-visible,
+.swiper-button-next:focus-visible {
+  outline-offset: 4px;
+}

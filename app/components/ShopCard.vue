@@ -36,9 +36,13 @@ const imageSrc = computed(() => resolveShopImage(props.shop.image));
     </div>
     <div class="ml-5 flex-1">
       <h2 class="mb-2.5 text-[1.25rem] font-bold text-brand-brown">{{ index + 1 }}. {{ shop.name }}</h2>
-      <div class="text-base text-brand-orange">
-        <span>{{ buildStars(shop.rating) }}</span>
-        <span class="ml-2.5 text-[0.875rem] text-[#777]">{{ shop.rating.toFixed(1) }} ({{ shop.reviews }})</span>
+      <!-- 跟 shop_detail 頁一樣：style.css 有一條全站通用的 `.rating span`
+           規則（specificity 比 `.rating-score` 這種自己的規則高），會把
+           這裡原本想要的橘色星星／灰色分數蓋成統一的綠色、x-small（約
+           10px）小字——這是既有的 CSS cascade 巧合，照實際渲染結果遷移。 -->
+      <div class="text-base">
+        <span class="text-[10px] text-brand-green">{{ buildStars(shop.rating) }}</span>
+        <span class="ml-2.5 text-[10px] text-brand-green">{{ shop.rating.toFixed(1) }} ({{ shop.reviews }})</span>
       </div>
       <div class="my-2.5 flex flex-wrap gap-2">
         <span v-for="tag in shop.tags" :key="tag" class="category">

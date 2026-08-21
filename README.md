@@ -20,7 +20,7 @@ vanilla 版本累積到現在，已經明顯感受到「同一段 HTML 要手動
 依照複雜度由淺入深，明確排除在這次遷移之外的：`admin_places.html`（Google Places 內部工具，繼續用現有的獨立靜態頁）、首頁的 Instagram 照片牆／電子報訂閱區塊（純展示、沒接後端）、`aboutus_*.html`（純靜態頁，優先度較低）。
 
 - [x] **Phase 0** 專案建置、Tailwind + 品牌顏色／字體、`useApi`／`useAuth` composables
-- [ ] **Phase 1** 依序遷移（進度見下方）：
+- [x] **Phase 1** 依序遷移（全部完成，明細見下方）：
   - [x] Login/Signup（`app/pages/login.vue`、`signup.vue`，含 `useSiteMessage` 訊息提示元件，已用 Playwright 實測畫面對照 vanilla、signup→login→已登入導回首頁→錯誤訊息全部跑過一輪）
   - [x] Header + Categories 選單元件（`app/components/HeaderNav.vue`、`CategoriesDropdown.vue`，已套進 `app/layouts/default.vue`，全站共用）。用 CSS Grid 三欄置中取代 vanilla 版本的 `position: fixed` logo，用 Playwright 在 375〜1440px 之間量測，確認任何寬度下 header-left 都不會撞到 logo、也沒有橫向 overflow；登入/未登入兩種狀態、漢堡選單開關、Categories 下拉互動都實測過。`@nuxt/icon` 模組在 SSR 一直載入失敗（裝了 `@iconify-json/mdi` 也一樣），改用 inline SVG 並移除該模組。**注意**：實測發現 vanilla 版本本身就有一個既有 bug——手機版透過漢堡選單點開 Categories 時，因為 `.nav-menu.active` 有 `overflow: hidden`，下拉的分類清單其實會被裁切、根本不會顯示出來；這裡是照原樣忠實遷移這個行為（沒有動 vanilla 檔案），之後如果要修可以再另外討論。
   - [x] category.html（`app/pages/category.vue`、`app/components/ShopCard.vue`、`app/composables/useShops.ts`）。q／location 交給後端 `GET /api/shops` 篩選，rating／features 在前端用 computed 再篩一次（跟 vanilla 版本的 filterState 邏輯一樣，不用重新打 API）；篩選結果變動時地圖自動 focus 到第一間有經緯度的店，點 View on map 可以手動切換、並反白對應卡片。跟 vanilla 版本比對時發現：(1) `buildShopCardHtml()` 實際產生的卡片內容跟 category.html 檔案裡寫死的靜態佔位內容其實不一樣（少了一顆完全沒接事件、屬於死碼的 Start order 按鈕），照真正會被使用者看到的動態版本遷移；(2) Tailwind 的任意值中斷點語法 `max-[880px]:hidden`（地圖在窄螢幕隱藏）在這個專案的建置環境下編譯不出來，原因不明，改用具名斷點（`tailwind.config.ts` 新增 `map-hide`）解決——這個問題後來在 shop_detail 頁又發生一次（見下一項），確認是這個專案的建置環境本身就不支援任意值斷點語法，不是單一頁面的偶發問題，之後每個頁面遇到「螢幕寬度收合」需求都直接用具名斷點，不再嘗試任意值語法。用 Playwright 對照 vanilla 版本畫面、測過篩選（rating／category／features 各自與組合情境）、View on map 手動選取、800px 寬度不換行不 overflow、header 搜尋列直接串到這頁的整個流程。**事後修正**：`ShopCard.vue` 的星等原本用橘色／16px（`text-brand-orange text-base`），後來做 shop_detail 頁才發現 vanilla 版本這裡其實也被同一條 `.rating span` 規則蓋成綠色／10px（跟下面 shop_detail 那條註記是同一個 cascade 巧合），回頭用 Playwright 量測 category.html 的真實 computed style 確認後修正——這次教訓：光看 CSS 原始碼判斷「這個 selector 應該長怎樣」不夠，凡是有 `<span>` 在 class 叫 `.rating` 的容器裡，都要實際量測，不能只看該元素自己的 class 對應規則。
@@ -33,13 +33,15 @@ vanilla 版本累積到現在，已經明顯感受到「同一段 HTML 要手動
     - AI 問答（`gemini-chat.js` 對應邏輯直接寫在 `index.vue` 裡，因為這段 vanilla 版本本來就只有首頁在用）：發現 `gemini-chat.js` 是全部 JS 檔案裡唯一一個沒有做本機/正式環境切換、直接寫死 Cloud Run 網址的地方（其餘檔案都有），判斷是遺漏不是刻意設計，改用跟其他頁面一致的 `useApi()`，本機開發也能測到本機後端的 AI 回覆。已用 Playwright 實測真的問一句話、等真實 Gemini 回覆、確認訊息正確顯示在對話框裡。
     - Latest Reviews／Categories 兩個 grid 一樣被 `.rating span` 那條全站規則影響（星等變綠色小字），照實際渲染結果遷移，跟 shop 卡片、shop_detail 頁的做法一致。
     - 用 Playwright 對照 vanilla 版本桌機／400px 手機寬度畫面（AI 問答/輪播上下堆疊、swiper 因為 order 排到最上面）、實測 AI 問答真的送出訊息拿到真實回覆、Latest Reviews／Categories 兩個區塊資料正確渲染，全程零 console 錯誤。
-  - [ ] write_review.html
+  - [x] write_review.html（`app/pages/write-review.vue`）。網址帶 `?id=` 時鎖定店家（純文字顯示店名），沒帶的話載入全部店家給下拉選單選。**星等選擇器刻意照抄一個「有點特別」的既有行為**：vanilla 版本用 5 個 radio（DOM 順序是反過來的，第一顆 value=5、最後一顆 value=1）搭配 `input:checked ~ label{color:orange}` 這個常見 CSS 技巧做填色，但沒有搭配一般會一起用的 `flex-direction:row-reverse`；實際用 Playwright 點開真的頁面測過，點第 3 顆星（從左數，value=3）填色的是「從點擊位置往右填到底」（第 3、4、5 顆亮），不是一般直覺以為的「從最左邊往點擊位置填」。Vue 版本沒有用同一個 CSS 技巧（改用 JS 算比較好維護），但特地算出跟 vanilla 版本完全一樣的視覺結果，不是自己覺得「這樣比較合理」的常見版本。照片上傳欄位跟 vanilla 版本一樣是純裝飾，`submitReview()` 只送評分和文字，不會真的上傳照片。用 Playwright 測過：未登入時送出會被導去 `/login`、登入後真的送出評論並確認後端資料庫真的多了一筆、送出後導回對應店家的詳情頁。
 - [ ] **Phase 2** Playwright 測試遷移（選擇器改指向新 DOM）、全站回歸測試、正式上線切換
 
 ## 踩過的雷
 
 - **CORS**：後端（`SugarTopia_backend/main.py`）原本的 `allow_origins` 清單只列了 vanilla 版本用的 5500/5501 port，沒有 Nuxt 預設的 3000，第一次測 signup 時瀏覽器直接擋掉請求。已經把 `http://localhost:3000`／`http://127.0.0.1:3000` 加進允許清單，兩個前端現在可以共用同一個後端本機開發。
 - **checkbox 樣式**：vanilla 版本在 `CSS/style.css` 有全站套用的自訂 checkbox 樣式（橘色圓角方框、選中打勾），不是瀏覽器預設樣式，這條規則放進 `app/assets/css/main.css` 全域套用，不要在每個用到 checkbox 的頁面重複寫。
+- **Focus 框線顏色**：使用者發現搜尋欄／輪播箭頭點下去會出現瀏覽器預設的藍色 focus 外框，這其實 vanilla 版本也有（從來沒特別處理過），但使用者要求這裡順便改掉。在 `main.css` 加一條全站 `:focus-visible { outline: #f9a726 }` 規則，用網站自己的橘色取代瀏覽器預設藍色，用 `:focus-visible` 而不是整個拿掉 outline，鍵盤操作（Tab）還是看得到焦點在哪。這是刻意跟 vanilla 版本不一樣的地方（使用者要求的改善，不是遷移疏漏），只在這個 Nuxt 專案做，沒有回頭改 vanilla 版本。
+- **Vue SFC 的 `<template>` 忘記寫結束標籤**：這次遷移過程中三次忘記幫新建的 `.vue` 檔案加上結束的 `</template>`（`SiteFooter.vue`、`ScrollToTopButton.vue` 各一次，`shop/[id].vue` 一次），編譯錯誤訊息一開始容易誤導成別的問題（例如指向完全不相關的一行）。之後新增檔案前都會先跑一個小 Python 腳本數開始/結束標籤有沒有配對，養成習慣再啟動 dev server，不要等編譯報錯才發現。
 
 ## 本機開發
 

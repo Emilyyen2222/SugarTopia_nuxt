@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 全站預設字體維持跟 vanilla 版本一致（Poppins），body 背景用品牌的淺色調 */
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+/* 對應 vanilla 版本 CSS/style.css 的全站 checkbox 樣式（登入/註冊的
+   remember me、terms 勾選框都共用這個）：橘色圓角方框、選中時實心橘色
+   加打勾符號，不是瀏覽器預設的方形 checkbox。放在全域 CSS 而不是逐個
+   元件重複寫 Tailwind class，因為這是 vanilla 版本裡本來就是全站套用的
+   規則，之後很多頁面（收藏、篩選、條款勾選）都會用到同一個樣子。 */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  border: 2px solid #f9a726;
+  border-radius: 5px;
+  background-color: white;
+  position: relative;
+  cursor: pointer;
+}
+
+input[type="checkbox"]:checked {
+  background-color: #f9a726;
+  border-color: #f9a726;
+}
+
+input[type="checkbox"]:checked::before {
+  content: "\2713";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 16px;
+}

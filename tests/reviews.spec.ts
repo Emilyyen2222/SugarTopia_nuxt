@@ -27,7 +27,10 @@ test.describe.configure({ mode: "serial" });
 
 test.describe("評論功能", () => {
   test("店家詳情頁還沒有評論時，顯示友善的空狀態而不是假評論", async ({ page }) => {
-    await page.goto("/shop/cloud-nine-gelato");
+    // 用 caramel-pudding-lab 而不是 cloud-nine-gelato：後者現在有一筆
+    // 使用者要求留著的展示評論（demo 帳號寫的），不再是空的，改用目前還
+    // 沒有任何評論的店家測「空狀態」這件事。
+    await page.goto("/shop/caramel-pudding-lab");
     await expect(page.getByRole("heading", { name: "No reviews yet" })).toBeVisible();
   });
 

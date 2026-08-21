@@ -99,7 +99,7 @@ async function handleLogout() {
             v-model="searchQuery"
             type="text"
             placeholder="Search Dessert Shops"
-            class="search-input h-10 w-[150px] rounded border border-[#ddd] px-2 text-[0.85rem] nav-sm:hidden"
+            class="search-input h-10 w-[160px] rounded border border-[#ddd] px-2 text-[0.8rem] nav-sm:hidden"
             @keydown.enter="handleSearchSubmit"
           />
           <button

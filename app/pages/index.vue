@@ -172,7 +172,7 @@ onMounted(() => {
           id="chatInput"
           v-model="chatInput"
           type="text"
-          placeholder="e.g. Matcha dessert recommendations?"
+          placeholder="e.g. Matcha dessert?"
           autocomplete="off"
           :disabled="chatBusy"
           class="box-border min-w-0 flex-1 rounded-xl border border-brand-border px-[14px] py-[13px] text-base text-brand-brown"
@@ -197,8 +197,8 @@ onMounted(() => {
       <h1 class="m-0 text-base font-bold text-brand-brown">Latest Reviews</h1>
     </div>
     <div v-if="reviews.length" class="review-grid grid grid-cols-4 gap-5 detail-md:grid-cols-2 nav-sm:grid-cols-1">
-      <div v-for="review in reviews" :key="review.id" class="review-card w-full">
-        <div class="rounded-2xl bg-brand-gold p-[15px]">
+      <div v-for="review in reviews" :key="review.id" class="review-card h-full w-full">
+        <div class="flex h-full flex-col rounded-2xl bg-brand-gold p-[15px]">
           <div class="flex items-center gap-[15px]">
             <img src="/img/profile.jpg" :alt="review.reviewerName" class="h-[50px] w-[50px] rounded-full object-cover" />
             <div class="text-left">

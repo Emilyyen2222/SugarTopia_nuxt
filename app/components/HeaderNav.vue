@@ -99,12 +99,12 @@ async function handleLogout() {
             v-model="searchQuery"
             type="text"
             placeholder="Search Dessert Shops"
-            class="search-input w-[150px] rounded border border-[#ddd] p-2 text-[0.85rem] nav-sm:hidden"
+            class="search-input h-10 w-[150px] rounded border border-[#ddd] px-2 text-[0.85rem] nav-sm:hidden"
             @keydown.enter="handleSearchSubmit"
           />
           <button
             type="button"
-            class="flex items-center rounded bg-brand-orange px-3 py-2 text-white"
+            class="flex h-10 items-center rounded bg-brand-orange px-3 text-white"
             @click="handleSearchSubmit"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -240,7 +240,13 @@ async function handleLogout() {
     z-index: 1000;
     padding: 10px 0;
     border-radius: 0 0 12px 12px;
-    overflow: hidden;
+    /* 這裡原本跟 vanilla 版本一樣有 overflow: hidden，圓角裁切乾淨是好看，
+       但也會把 CategoriesDropdown 裡絕對定位的分類子選單一起裁掉，點開
+       Categories 完全看不到任何分類——這是 vanilla 版本自己就有的既有
+       bug（見 README），使用者這次實際點開發現後要求順便修掉，拿掉
+       overflow: hidden 讓子選單可以正常顯示，換來的代價只是面板本身的
+       圓角在極少數情況下可能被裡面的方形子選單邊緣蓋到一點點，比起「這個
+       功能完全打不開」是划算的取捨。 */
   }
 }
 

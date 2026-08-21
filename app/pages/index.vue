@@ -135,13 +135,14 @@ onMounted(() => {
     <div class="pointer-events-none absolute right-0 top-0 h-full w-1/2 -z-10 bg-brand-orange detail-md:hidden" />
 
     <div class="left-side z-[1] flex w-1/2 flex-col items-start justify-center px-[150px] py-10 box-border detail-md:order-2 detail-md:w-full detail-md:px-5 detail-md:pt-6">
-      <p class="overlay-text mb-5 max-w-[400px] text-left text-[1.2rem] font-bold leading-[1.4] text-brand-brown">
+      <!-- 先暫時拿掉看效果，之後再決定要不要留（使用者要求，非遷移疏漏）。 -->
+      <p v-if="false" class="overlay-text mb-5 max-w-[400px] text-left text-[1.2rem] font-bold leading-[1.4] text-brand-brown">
         Let's Make Life Sweet, One Dessert at a Time.
       </p>
 
       <div class="ai-chat-heading mb-4 max-w-[420px] text-left">
         <span class="mb-1.5 inline-block text-[13px] font-bold uppercase text-brand-orange">SugarTopia AI</span>
-        <h2 class="m-0 mb-1.5 text-[21px] leading-[1.3] text-brand-brown">Ask for a dessert recommendation</h2>
+        <h2 class="m-0 mb-1.5 text-[19px] leading-[1.3] text-brand-brown">Ask for a dessert recommendation</h2>
       </div>
 
       <div id="chatMessages" ref="chatMessagesEl" class="chat-messages box-border w-full max-w-[420px] min-h-[180px] max-h-[280px] overflow-y-auto rounded-[20px] border border-brand-border bg-white p-[18px]" aria-live="polite">

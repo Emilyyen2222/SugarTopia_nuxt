@@ -138,7 +138,7 @@ async function handleLogout() {
       <!-- 中欄：logo，Grid 天生置中，不用 position: fixed -->
       <div class="logo-container justify-self-center">
         <NuxtLink to="/">
-          <img src="/img/logo.svg" alt="Sugar.Topia" class="h-[clamp(40px,13vw,70px)] w-auto nav-sm:h-[clamp(32px,11vw,70px)]" />
+          <img src="/img/logo.svg" alt="Sugar.Topia" class="h-[clamp(40px,13vw,70px)] w-auto transition-transform nav-sm:h-[clamp(32px,11vw,70px)] hover:scale-90" />
         </NuxtLink>
       </div>
 

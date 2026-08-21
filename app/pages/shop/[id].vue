@@ -136,7 +136,7 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
 
     <template v-else-if="shop">
       <!-- 店家標題區塊 -->
-      <div class="flex items-start gap-2 detail-md:flex-col">
+      <div class="flex items-stretch gap-2 detail-md:flex-col">
         <div class="relative flex-1 overflow-hidden rounded-[20px] bg-[#FCDC94] p-[30px] shadow-[0_4px_15px_rgba(0,0,0,0.05)] detail-md:w-full detail-xs:mx-2.5 detail-xs:w-auto">
           <h1 class="mb-[15px] text-[0.8rem] font-bold text-brand-brown">{{ shop.name }}</h1>
           <p class="text-base text-brand-brown">{{ shop.description }}</p>
@@ -177,7 +177,7 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
           <img
             :src="resolveShopImage(shop.image)"
             :alt="shop.name"
-            class="h-[220px] w-full rounded-xl object-cover transition-transform duration-300 hover:scale-[1.02]"
+            class="h-full min-h-[220px] w-full rounded-xl object-cover transition-transform duration-300 hover:scale-[1.02]"
           />
         </div>
       </div>

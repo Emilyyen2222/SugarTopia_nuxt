@@ -2,6 +2,10 @@
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
+  // 原本有裝 @nuxt/icon，但 SSR 一直出現「failed to load icon」的警告，
+  // 圖示也沒畫出來，即使裝了 @iconify-json/mdi 還是一樣，所以整個放棄
+  // 這個模組，header 裡用到的圖示都改成穩定的 inline SVG（見
+  // app/components/ExternalLinkIcon.vue 跟 HeaderNav.vue 內的 svg）。
   modules: ["@nuxtjs/tailwindcss"],
   css: ["~/assets/css/main.css"],
   app: {

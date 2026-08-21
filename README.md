@@ -22,7 +22,7 @@ vanilla 版本累積到現在，已經明顯感受到「同一段 HTML 要手動
 - [x] **Phase 0** 專案建置、Tailwind + 品牌顏色／字體、`useApi`／`useAuth` composables
 - [ ] **Phase 1** 依序遷移（進度見下方）：
   - [x] Login/Signup（`app/pages/login.vue`、`signup.vue`，含 `useSiteMessage` 訊息提示元件，已用 Playwright 實測畫面對照 vanilla、signup→login→已登入導回首頁→錯誤訊息全部跑過一輪）
-  - [ ] Header + Categories 選單元件（全站共用，這一步做完後 login/signup 也會補上 header）
+  - [x] Header + Categories 選單元件（`app/components/HeaderNav.vue`、`CategoriesDropdown.vue`，已套進 `app/layouts/default.vue`，全站共用）。用 CSS Grid 三欄置中取代 vanilla 版本的 `position: fixed` logo，用 Playwright 在 375〜1440px 之間量測，確認任何寬度下 header-left 都不會撞到 logo、也沒有橫向 overflow；登入/未登入兩種狀態、漢堡選單開關、Categories 下拉互動都實測過。`@nuxt/icon` 模組在 SSR 一直載入失敗（裝了 `@iconify-json/mdi` 也一樣），改用 inline SVG 並移除該模組。**注意**：實測發現 vanilla 版本本身就有一個既有 bug——手機版透過漢堡選單點開 Categories 時，因為 `.nav-menu.active` 有 `overflow: hidden`，下拉的分類清單其實會被裁切、根本不會顯示出來；這裡是照原樣忠實遷移這個行為（沒有動 vanilla 檔案），之後如果要修可以再另外討論。
   - [ ] category.html（搜尋/篩選/店卡/地圖）
   - [ ] shop_detail.html（收藏/評論）
   - [ ] favorites.html

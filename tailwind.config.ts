@@ -14,6 +14,18 @@ export default <Partial<Config>>{
   ],
   theme: {
     extend: {
+      // 對應 vanilla 版本 header 在不同寬度下的收合邏輯（CSS/style.css）。
+      // vanilla 版本原本是三個各自獨立的 max-width 媒體查詢，這裡統一
+      // 命名成三個斷點，之後任何元件要用同一套收合邏輯都能直接引用同一個
+      // 名字，不用到處重複寫 1024px／1380px／480px 這種魔術數字。
+      // 用 { max: ... } 是因為 vanilla 版本的邏輯是「螢幕比這個寬度窄的時候」
+      // （max-width），不是 Tailwind 預設 sm/md/lg 那種「比這個寬度寬的時候」
+      // （min-width），兩種語意不一樣，不能直接借用 Tailwind 內建的斷點名稱。
+      screens: {
+        "nav-lg": { max: "1380px" }, // Categories 收進漢堡選單
+        "nav-md": { max: "1024px" }, // Login/Sign Up 收成 avatar 圖示，write a review／cupertino.keki 收進漢堡選單
+        "nav-sm": { max: "480px" }, // 搜尋欄收成只剩按鈕
+      },
       colors: {
         brand: {
           orange: "#F9A726", // 主色：按鈕、強調色

@@ -172,7 +172,7 @@ onMounted(() => {
           id="chatInput"
           v-model="chatInput"
           type="text"
-          placeholder="e.g. Matcha dessert?"
+          placeholder="e.g. Matcha dessert"
           autocomplete="off"
           :disabled="chatBusy"
           class="box-border min-w-0 flex-1 rounded-xl border border-brand-border px-[14px] py-[13px] text-base text-brand-brown"
@@ -212,8 +212,8 @@ onMounted(() => {
             <div class="mb-2.5 text-base">
               <span class="text-[10px] text-brand-green">{{ buildStars(review.rating) }}</span>
             </div>
-            <img v-if="review.shopImage" :src="resolveShopImage(review.shopImage)" :alt="review.shopName" class="my-2.5 block w-full rounded-lg" />
-            <p class="review-text my-2.5 text-[0.9375rem] text-[#555]">{{ review.text }}</p>
+            <img v-if="review.shopImage" :src="resolveShopImage(review.shopImage)" :alt="review.shopName" class="my-2.5 block h-[130px] w-full rounded-lg object-cover" />
+            <p class="review-text my-2.5 line-clamp-3 text-[0.9375rem] text-[#555]">{{ review.text }}</p>
             <NuxtLink :to="`/shop/${review.shopId}`" class="read-more text-sm text-brand-green no-underline hover:underline">Read more</NuxtLink>
           </div>
         </div>

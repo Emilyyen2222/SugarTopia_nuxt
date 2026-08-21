@@ -26,6 +26,20 @@ export interface Shop {
   googleMapsUrl?: string;
 }
 
+// 後端存的圖片路徑是相對路徑（例如 "img/lp.jpg"），這在 vanilla 版本沒問題，
+// 因為每個 HTML 頁面都在網站根目錄，相對路徑一定會解析成 /img/lp.jpg。
+// 但 Nuxt 這邊有些頁面是巢狀路由（例如 /shop/matcha-mori-house），瀏覽器
+// 解析相對路徑時會拿掉網址最後一段當作「目錄」，結果變成錯的
+// /shop/img/lp.jpg，圖片整個 404。統一在這裡補成絕對路徑（開頭加「/」），
+// 不管頁面路由巢不巢狀都不會壞。
+export function resolveShopImage(path?: string | null) {
+  if (!path || !path.trim()) return "/img/no-photo.svg";
+  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("/")) {
+    return path;
+  }
+  return `/${path}`;
+}
+
 export function useShops() {
   const { apiFetch } = useApi();
 

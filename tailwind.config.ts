@@ -28,6 +28,14 @@ export default <Partial<Config>>{
         // 對應 category.html 分類頁的地圖側欄（CSS/category.css）：螢幕比
         // 這個窄的時候地圖直接整個隱藏，讓結果列表獨佔畫面寬度。
         "map-hide": { max: "880px" },
+        // 對應 shop_detail.html 店家詳情頁（CSS/shop_detail.css）的三個
+        // 響應式斷點：768 是 shop-header 從左右並排改成上下堆疊，500 是
+        // shop-image 置中縮寬，430 是 shop-info 兩側留白。任意值語法
+        // （例如 max-[768px]:）在這個專案編譯不出來（原因不明，跟
+        // map-hide 那次遇到的問題一樣），所以一律用具名斷點。
+        "detail-md": { max: "768px" },
+        "detail-sm": { max: "500px" },
+        "detail-xs": { max: "430px" },
       },
       colors: {
         brand: {

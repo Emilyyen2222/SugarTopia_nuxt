@@ -21,7 +21,7 @@ const emit = defineEmits<{ viewOnMap: [] }>();
 const { buildStars } = useShops();
 
 const hasCoordinates = computed(() => props.shop.lat != null && props.shop.lng != null);
-const imageSrc = computed(() => (props.shop.image && props.shop.image.trim() ? props.shop.image : "/img/no-photo.svg"));
+const imageSrc = computed(() => resolveShopImage(props.shop.image));
 </script>
 
 <template>

@@ -228,4 +228,6 @@ const ratingOptions = [5, 4, 3, 2, 1];
       />
     </div>
   </div>
+
+  <ScrollToTopButton />
 </template>

@@ -9,6 +9,11 @@ export interface Review {
   text: string;
   createdAt: string;
   reviewerName: string;
+  // 只有 GET /api/reviews/latest（首頁 Latest Reviews 用）才有這兩個欄位，
+  // GET /api/shops/{id}/reviews（店家詳情頁用）沒有——因為店家詳情頁的
+  // 評論已經知道自己在哪間店，不需要在每則評論裡重複附上店名/店照。
+  shopName?: string;
+  shopImage?: string;
 }
 
 export function useReviews() {

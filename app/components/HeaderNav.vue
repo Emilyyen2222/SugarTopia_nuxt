@@ -19,6 +19,7 @@ const searchQuery = ref("");
 const mobileMenuOpen = ref(false);
 const headerLeftEl = ref<HTMLElement | null>(null);
 const router = useRouter();
+const route = useRoute();
 const { show } = useSiteMessage();
 
 function toggleMobileMenu() {
@@ -28,6 +29,16 @@ function toggleMobileMenu() {
 function closeMobileMenu() {
   mobileMenuOpen.value = false;
 }
+
+// 點漢堡選單裡任何一個會換頁的連結（Categories 面板裡的分類、write a
+// review）都要收合選單，不是只有點外面才收合。原本只靠個別連結各自的
+// @click="closeMobileMenu"，Categories 面板裡的連結是 CategoriesDropdown
+// 元件自己管的、沒有接手這個父層的收合邏輯，直接監看路由變化更保險、
+// 不用每個連結都手動接一次。
+watch(
+  () => route.fullPath,
+  () => closeMobileMenu()
+);
 
 function handleClickOutside(event: MouseEvent) {
   if (headerLeftEl.value && !headerLeftEl.value.contains(event.target as Node)) {

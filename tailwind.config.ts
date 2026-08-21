@@ -25,6 +25,9 @@ export default <Partial<Config>>{
         "nav-lg": { max: "1380px" }, // Categories 收進漢堡選單
         "nav-md": { max: "1024px" }, // Login/Sign Up 收成 avatar 圖示，write a review／cupertino.keki 收進漢堡選單
         "nav-sm": { max: "480px" }, // 搜尋欄收成只剩按鈕
+        // 對應 category.html 分類頁的地圖側欄（CSS/category.css）：螢幕比
+        // 這個窄的時候地圖直接整個隱藏，讓結果列表獨佔畫面寬度。
+        "map-hide": { max: "880px" },
       },
       colors: {
         brand: {

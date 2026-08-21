@@ -23,7 +23,7 @@ vanilla 版本累積到現在，已經明顯感受到「同一段 HTML 要手動
 - [ ] **Phase 1** 依序遷移（進度見下方）：
   - [x] Login/Signup（`app/pages/login.vue`、`signup.vue`，含 `useSiteMessage` 訊息提示元件，已用 Playwright 實測畫面對照 vanilla、signup→login→已登入導回首頁→錯誤訊息全部跑過一輪）
   - [x] Header + Categories 選單元件（`app/components/HeaderNav.vue`、`CategoriesDropdown.vue`，已套進 `app/layouts/default.vue`，全站共用）。用 CSS Grid 三欄置中取代 vanilla 版本的 `position: fixed` logo，用 Playwright 在 375〜1440px 之間量測，確認任何寬度下 header-left 都不會撞到 logo、也沒有橫向 overflow；登入/未登入兩種狀態、漢堡選單開關、Categories 下拉互動都實測過。`@nuxt/icon` 模組在 SSR 一直載入失敗（裝了 `@iconify-json/mdi` 也一樣），改用 inline SVG 並移除該模組。**注意**：實測發現 vanilla 版本本身就有一個既有 bug——手機版透過漢堡選單點開 Categories 時，因為 `.nav-menu.active` 有 `overflow: hidden`，下拉的分類清單其實會被裁切、根本不會顯示出來；這裡是照原樣忠實遷移這個行為（沒有動 vanilla 檔案），之後如果要修可以再另外討論。
-  - [ ] category.html（搜尋/篩選/店卡/地圖）
+  - [x] category.html（`app/pages/category.vue`、`app/components/ShopCard.vue`、`app/composables/useShops.ts`）。q／location 交給後端 `GET /api/shops` 篩選，rating／features 在前端用 computed 再篩一次（跟 vanilla 版本的 filterState 邏輯一樣，不用重新打 API）；篩選結果變動時地圖自動 focus 到第一間有經緯度的店，點 View on map 可以手動切換、並反白對應卡片。跟 vanilla 版本比對時發現：(1) `buildShopCardHtml()` 實際產生的卡片內容跟 category.html 檔案裡寫死的靜態佔位內容其實不一樣（少了一顆完全沒接事件、屬於死碼的 Start order 按鈕），照真正會被使用者看到的動態版本遷移；(2) Tailwind 的任意值中斷點語法 `max-[880px]:hidden`（地圖在窄螢幕隱藏）在這個專案的建置環境下編譯不出來，原因不明，改用具名斷點（`tailwind.config.ts` 新增 `map-hide`）解決，這是目前唯一一處沒辦法用任意值語法、要另外具名定義的斷點。用 Playwright 對照 vanilla 版本畫面、測過篩選（rating／category／features 各自與組合情境）、View on map 手動選取、800px 寬度不換行不 overflow、header 搜尋列直接串到這頁的整個流程。
   - [ ] shop_detail.html（收藏/評論）
   - [ ] favorites.html
   - [ ] 首頁（hero/AI 問答/輪播/Latest Reviews）

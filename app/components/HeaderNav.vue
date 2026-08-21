@@ -83,8 +83,9 @@ async function handleLogout() {
 
     <div class="relative z-[1] mx-auto grid h-full max-w-[1200px] grid-cols-[1fr_auto_1fr] items-center px-5">
       <!-- 左欄：漢堡、搜尋欄、Categories -->
-      <div ref="headerLeftEl" class="flex items-center gap-[22px] nav-sm:gap-2">
+      <div ref="headerLeftEl" class="header-left flex items-center gap-[22px] nav-sm:gap-2">
         <div
+          id="mobile-menu"
           class="menu-toggle hidden cursor-pointer flex-col rounded-[0.3rem] border-[3px] border-brand-orange bg-white px-[0.4rem] py-[0.2rem] hover:scale-105 hover:bg-brand-gold hover:shadow-md nav-lg:flex"
           @click.stop="toggleMobileMenu"
         >
@@ -135,7 +136,7 @@ async function handleLogout() {
       </div>
 
       <!-- 中欄：logo，Grid 天生置中，不用 position: fixed -->
-      <div class="justify-self-center">
+      <div class="logo-container justify-self-center">
         <NuxtLink to="/">
           <img src="/img/logo.svg" alt="Sugar.Topia" class="h-[clamp(40px,13vw,70px)] w-auto nav-sm:h-[clamp(32px,11vw,70px)]" />
         </NuxtLink>
@@ -186,9 +187,14 @@ async function handleLogout() {
           </NuxtLink>
         </template>
 
-        <!-- 窄螢幕（≤1024px）用一顆帳號 icon 取代上面那排文字按鈕 -->
+        <!-- 窄螢幕（≤1024px）用一顆帳號 icon 取代上面那排文字按鈕。
+             vanilla 版本這顆按鈕（.login_avatar／.auth-favorites）也沒有
+             aria-label，純圖示連結沒有可讀的名字，這裡順便補上，螢幕
+             閱讀器使用者才知道這顆按鈕是做什麼的；同時也讓測試有穩定的
+             文字可以定位，不用另外接一個只為了測試用的 class。 -->
         <NuxtLink
           :to="isLoggedIn ? '/favorites' : '/login'"
+          :aria-label="isLoggedIn ? 'My Favorites' : 'Log In'"
           class="hidden h-[47px] w-[47px] items-center justify-center rounded-lg border-2 border-brand-avatar bg-brand-avatar text-[1.6rem] text-brand-orange hover:scale-105 hover:text-white hover:shadow-md nav-md:flex"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-[1.6rem] w-[1.6rem]">

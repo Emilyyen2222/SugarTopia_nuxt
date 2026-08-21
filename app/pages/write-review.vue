@@ -115,7 +115,7 @@ async function handleSubmit() {
         <p v-else-if="shopFieldFailed" class="m-0">
           Could not find this shop. <NuxtLink to="/category" class="text-brand-orange underline">Browse all shops</NuxtLink>.
         </p>
-        <p v-else-if="lockedShop" class="m-0">{{ lockedShop.name }}</p>
+        <p v-else-if="lockedShop" data-testid="locked-shop-name" class="m-0">{{ lockedShop.name }}</p>
         <select
           v-else
           id="dessert-shop-id"
@@ -165,7 +165,7 @@ async function handleSubmit() {
 
       <button
         type="submit"
-        :disabled="submitting"
+        :disabled="submitting || shopFieldFailed"
         class="w-full rounded-[5px] bg-brand-orange px-5 py-[10px] text-base text-white transition-colors hover:bg-[#e89615] disabled:opacity-60"
       >
         Submit Review

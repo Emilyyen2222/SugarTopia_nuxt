@@ -127,36 +127,37 @@ onMounted(() => {
   </div>
 
   <!-- Hero：AI 問答 + 輪播 -->
-  <section class="relative z-[1] box-border w-full pt-20 min-h-[calc(100vh-80px)] flex items-stretch detail-md:min-h-0 detail-md:flex-col detail-md:items-stretch detail-md:pb-8 detail-md:pt-[100px]">
+  <section class="split-section relative z-[1] box-border w-full pt-20 min-h-[calc(100vh-80px)] flex items-stretch detail-md:min-h-0 detail-md:flex-col detail-md:items-stretch detail-md:pb-8 detail-md:pt-[100px]">
     <div
       class="pointer-events-none absolute left-0 top-0 h-full w-1/2 -z-10 detail-md:w-full"
       style="background: linear-gradient(to left, #fcdc94, #fff)"
     />
     <div class="pointer-events-none absolute right-0 top-0 h-full w-1/2 -z-10 bg-brand-orange detail-md:hidden" />
 
-    <div class="z-[1] flex w-1/2 flex-col items-start justify-center px-[150px] py-10 box-border detail-md:order-2 detail-md:w-full detail-md:px-5 detail-md:pt-6">
-      <p class="mb-5 max-w-[400px] text-left text-[1.2rem] font-bold leading-[1.4] text-brand-brown">
+    <div class="left-side z-[1] flex w-1/2 flex-col items-start justify-center px-[150px] py-10 box-border detail-md:order-2 detail-md:w-full detail-md:px-5 detail-md:pt-6">
+      <p class="overlay-text mb-5 max-w-[400px] text-left text-[1.2rem] font-bold leading-[1.4] text-brand-brown">
         Let's Make Life Sweet, One Dessert at a Time.
       </p>
 
-      <div class="mb-4 max-w-[420px] text-left">
+      <div class="ai-chat-heading mb-4 max-w-[420px] text-left">
         <span class="mb-1.5 inline-block text-[13px] font-bold uppercase text-brand-orange">SugarTopia AI</span>
         <h2 class="m-0 mb-1.5 text-[21px] leading-[1.3] text-brand-brown">Ask for a dessert recommendation</h2>
       </div>
 
-      <div ref="chatMessagesEl" class="box-border w-full max-w-[420px] min-h-[180px] max-h-[280px] overflow-y-auto rounded-[20px] border border-brand-border bg-white p-[18px]" aria-live="polite">
+      <div id="chatMessages" ref="chatMessagesEl" class="chat-messages box-border w-full max-w-[420px] min-h-[180px] max-h-[280px] overflow-y-auto rounded-[20px] border border-brand-border bg-white p-[18px]" aria-live="polite">
         <div
           v-for="(message, i) in chatMessages"
           :key="i"
-          class="mb-3 w-fit max-w-[82%] break-words rounded-2xl px-[14px] py-[11px] text-base leading-[1.6]"
+          class="chat-message mb-3 w-fit max-w-[82%] break-words rounded-2xl px-[14px] py-[11px] text-base leading-[1.6]"
           :class="message.role === 'user' ? 'ml-auto bg-brand-orange text-white' : 'mr-auto bg-brand-chat-assistant text-brand-brown'"
         >
           {{ message.text }}
         </div>
       </div>
 
-      <form class="mt-3.5 flex w-full max-w-[420px] gap-2.5" @submit.prevent="submitChat">
+      <form id="chatForm" class="chat-form mt-3.5 flex w-full max-w-[420px] gap-2.5" @submit.prevent="submitChat">
         <input
+          id="chatInput"
           v-model="chatInput"
           type="text"
           placeholder="e.g. Matcha dessert recommendations?"
@@ -179,12 +180,12 @@ onMounted(() => {
   </section>
 
   <!-- Latest Reviews -->
-  <div class="mx-auto max-w-[1000px] px-5 py-16 text-center">
-    <div class="mb-8 flex items-center justify-between text-left">
+  <div class="latest_review_section mx-auto max-w-[1000px] px-5 py-16 text-center">
+    <div class="review-header mb-8 flex items-center justify-between text-left">
       <h1 class="m-0 text-base font-bold text-brand-brown">Latest Reviews</h1>
     </div>
-    <div v-if="reviews.length" class="grid grid-cols-4 gap-5 detail-md:grid-cols-2 nav-sm:grid-cols-1">
-      <div v-for="review in reviews" :key="review.id" class="w-full">
+    <div v-if="reviews.length" class="review-grid grid grid-cols-4 gap-5 detail-md:grid-cols-2 nav-sm:grid-cols-1">
+      <div v-for="review in reviews" :key="review.id" class="review-card w-full">
         <div class="rounded-2xl bg-brand-gold p-[15px]">
           <div class="flex items-center gap-[15px]">
             <img src="/img/profile.jpg" :alt="review.reviewerName" class="h-[50px] w-[50px] rounded-full object-cover" />
@@ -200,8 +201,8 @@ onMounted(() => {
               <span class="text-[10px] text-brand-green">{{ buildStars(review.rating) }}</span>
             </div>
             <img v-if="review.shopImage" :src="resolveShopImage(review.shopImage)" :alt="review.shopName" class="my-2.5 block w-full rounded-lg" />
-            <p class="my-2.5 text-[0.9375rem] text-[#555]">{{ review.text }}</p>
-            <NuxtLink :to="`/shop/${review.shopId}`" class="text-sm text-brand-green no-underline hover:underline">Read more</NuxtLink>
+            <p class="review-text my-2.5 text-[0.9375rem] text-[#555]">{{ review.text }}</p>
+            <NuxtLink :to="`/shop/${review.shopId}`" class="read-more text-sm text-brand-green no-underline hover:underline">Read more</NuxtLink>
           </div>
         </div>
       </div>
@@ -213,17 +214,17 @@ onMounted(() => {
   </div>
 
   <!-- Categories -->
-  <section class="mx-auto max-w-[1000px] px-5 py-14 text-center">
-    <div class="mb-8 flex items-center justify-between text-left">
+  <section class="dessert_categories_section mx-auto max-w-[1000px] px-5 py-14 text-center">
+    <div class="category-header mb-8 flex items-center justify-between text-left">
       <h2 class="m-0 text-base font-bold text-brand-brown">Categories</h2>
-      <NuxtLink to="/category" class="text-sm text-brand-orange no-underline hover:underline">View All</NuxtLink>
+      <NuxtLink to="/category" class="category-view-all text-sm text-brand-orange no-underline hover:underline">View All</NuxtLink>
     </div>
-    <div class="grid grid-cols-4 gap-5 detail-md:grid-cols-2 nav-sm:grid-cols-1">
+    <div class="category-grid grid grid-cols-4 gap-5 detail-md:grid-cols-2 nav-sm:grid-cols-1">
       <NuxtLink
         v-for="tile in categoryTiles"
         :key="tile.query"
         :to="`/category?q=${encodeURIComponent(tile.query)}`"
-        class="flex flex-col items-center rounded-2xl p-2.5 transition hover:scale-[0.98] hover:bg-[rgba(249,168,38,0.2)]"
+        class="category-card flex flex-col items-center rounded-2xl p-2.5 transition hover:scale-[0.98] hover:bg-[rgba(249,168,38,0.2)]"
       >
         <img :src="`/img/${tile.image}`" :alt="tile.label" class="w-full max-w-[200px] rounded-lg object-cover transition-transform hover:scale-95" />
       </NuxtLink>

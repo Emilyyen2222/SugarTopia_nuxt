@@ -48,10 +48,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="rootEl" class="relative">
+  <div ref="rootEl" class="nav-categories relative" :class="{ 'is-open': isOpen }">
     <button
       type="button"
-      class="flex items-center gap-2 bg-transparent px-1 py-2 font-medium text-brand-brown hover:text-brand-gold"
+      class="nav-categories-toggle flex items-center gap-2 bg-transparent px-1 py-2 font-medium text-brand-brown hover:text-brand-gold"
       @click.stop="toggle"
     >
       Categories
@@ -75,7 +75,7 @@ onUnmounted(() => {
 
     <div
       v-if="isOpen"
-      class="absolute left-0 top-[calc(100%+8px)] z-[1100] grid w-[360px] grid-cols-2 gap-1 rounded-2xl border border-brand-panel bg-white p-4 shadow-[0_12px_32px_rgba(58,37,19,0.18)]"
+      class="nav-categories-panel absolute left-0 top-[calc(100%+8px)] z-[1100] grid w-[360px] grid-cols-2 gap-1 rounded-2xl border border-brand-panel bg-white p-4 shadow-[0_12px_32px_rgba(58,37,19,0.18)]"
     >
       <NuxtLink
         v-for="category in categories"

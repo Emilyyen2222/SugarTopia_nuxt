@@ -218,6 +218,7 @@ const ratingOptions = [5, 4, 3, 2, 1];
     <div class="mb-10 w-[400px] shrink-0 sticky top-[100px] h-[600px] map-hide:hidden">
       <p class="mb-2 min-h-5 px-1 text-sm font-semibold text-brand-brown">{{ mapLabel }}</p>
       <iframe
+        id="shopMapEmbed"
         ref="mapEmbedEl"
         :src="mapSrc"
         title="Shop location map"

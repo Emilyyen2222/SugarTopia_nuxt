@@ -26,6 +26,7 @@ const imageSrc = computed(() => resolveShopImage(props.shop.image));
 
 <template>
   <div
+    data-testid="shop-card"
     class="flex border-b border-[#ddd] py-5 first:pt-0"
     :class="isActiveOnMap ? '-ml-5 border-l-4 border-l-brand-orange bg-brand-cream pl-4' : ''"
   >

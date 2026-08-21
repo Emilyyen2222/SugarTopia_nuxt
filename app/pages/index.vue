@@ -108,6 +108,18 @@ const categoryTiles = [
   { label: "Alcohol infused", query: "Alcohol", image: "c8.svg" },
 ];
 
+// Instagram 社群展示 --------------------------------------------------
+// 跟 vanilla 版本用同一組圖片（img/lp.jpg 重複用了兩次，也是照抄原本的
+// 寫法，不是筆誤）。純展示、沒有真的接 Instagram API。
+const instagramPhotos = [
+  "lp.jpg",
+  "mae-mu-74HGrqRby2Q-unsplash.jpg",
+  "slide3.jpg",
+  "rens-d-6LTAljmu2cY-unsplash.jpg",
+  "profile2.jpg",
+  "lp.jpg",
+];
+
 // 載入畫面 -----------------------------------------------------------
 // 對應 Js/loader.js：進站先蓋一層全版滿版的載入畫面，500ms 後淡出。
 const showLoader = ref(true);
@@ -135,8 +147,7 @@ onMounted(() => {
     <div class="pointer-events-none absolute right-0 top-0 h-full w-1/2 -z-10 bg-brand-orange detail-md:hidden" />
 
     <div class="left-side z-[1] flex w-1/2 flex-col items-start justify-center px-[150px] py-10 box-border detail-md:order-2 detail-md:w-full detail-md:px-5 detail-md:pt-6">
-      <!-- 先暫時拿掉看效果，之後再決定要不要留（使用者要求，非遷移疏漏）。 -->
-      <p v-if="false" class="overlay-text mb-5 max-w-[400px] text-left text-[1.2rem] font-bold leading-[1.4] text-brand-brown">
+      <p class="overlay-text mb-5 max-w-[400px] text-left text-[1.2rem] font-bold leading-[1.4] text-brand-brown">
         Let's Make Life Sweet, One Dessert at a Time.
       </p>
 
@@ -229,6 +240,33 @@ onMounted(() => {
       >
         <img :src="`/img/${tile.image}`" :alt="tile.label" class="w-full max-w-[200px] rounded-lg object-cover transition-transform hover:scale-95" />
       </NuxtLink>
+    </div>
+  </section>
+
+  <!-- Instagram 社群展示（使用者要求加回來，跟 vanilla 版本一樣的位置：
+       Categories 之後、電子報訂閱之前）。純展示、沒接任何後端，圖片跟
+       vanilla 版本用的是同一組（img/lp.jpg 等）。 -->
+  <section class="instagram_photo_section mt-[120px] mb-[15vh] bg-brand-gold px-5 py-[60px] text-center">
+    <div class="instagram-container mx-auto max-w-[1200px]">
+      <a
+        href="https://www.instagram.com/cupertino.keki/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="instagram-follow-btn inline-flex items-center gap-2 rounded bg-white px-5 py-2.5 text-[15px] text-brand-orange no-underline transition-all hover:-translate-y-0.5 hover:bg-brand-gold hover:text-white"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg>
+        Follow Us
+      </a>
+      <p class="my-2.5 text-[15px] text-white">@cupertino.keki</p>
+      <div class="instagram-grid mx-auto my-5 grid max-w-[1000px] grid-cols-6 gap-5 detail-md:grid-cols-3 nav-sm:grid-cols-2">
+        <img
+          v-for="(photo, i) in instagramPhotos"
+          :key="i"
+          :src="`/img/${photo}`"
+          alt="Instagram Photo"
+          class="h-[120px] w-full rounded-lg object-cover transition-transform hover:scale-105"
+        />
+      </div>
     </div>
   </section>
 

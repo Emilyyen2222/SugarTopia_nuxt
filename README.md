@@ -17,7 +17,9 @@ vanilla 版本累積到現在，已經明顯感受到「同一段 HTML 要手動
 
 ## 遷移範圍與順序
 
-依照複雜度由淺入深，明確排除在這次遷移之外的：`admin_places.html`（Google Places 內部工具，繼續用現有的獨立靜態頁）、首頁的 Instagram 照片牆／電子報訂閱區塊（純展示、沒接後端）、`aboutus_*.html`（純靜態頁，優先度較低）。
+依照複雜度由淺入深，明確排除在這次遷移之外的：`admin_places.html`（Google Places 內部工具，繼續用 vanilla 版本現有的獨立靜態頁，見下方說明）、首頁的電子報訂閱區塊（純展示、沒接後端）、`aboutus_*.html`（純靜態頁，優先度較低）。**Instagram 照片牆原本也排除在外，後來使用者要求加回來了**（`app/pages/index.vue` 裡的 `.instagram_photo_section`，位置跟 vanilla 版本一樣在 Categories 之後、電子報訂閱之前），純展示、沒接任何後端，跟 vanilla 版本用同一組圖片。
+
+`admin_places.html` 沒有被遷移、也不需要被遷移：它是一個獨立、沒連結進主站導覽的靜態頁，只會呼叫後端的 `/api/google/places/*` 端點（金鑰在後端 `.env`，這個檔案本身沒有內嵌任何金鑰），不依賴、也不知道現在跑的是 vanilla 版本還是 Nuxt 版本的前端。換句話說，這個工具現在、以後都可以直接用（`open SugarTopia/admin_places.html` 或用任何靜態伺服器開，只要後端有跑起來），不受這次前端遷移影響。
 
 - [x] **Phase 0** 專案建置、Tailwind + 品牌顏色／字體、`useApi`／`useAuth` composables
 - [x] **Phase 1** 依序遷移（全部完成，明細見下方）：

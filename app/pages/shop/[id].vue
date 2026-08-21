@@ -173,11 +173,11 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
           </div>
         </div>
 
-        <div class="w-40 shrink-0 rounded-[20px] bg-[#FCDC94] p-[15px] shadow-[0_4px_15px_rgba(0,0,0,0.05)] detail-md:mt-5 detail-md:w-full detail-sm:mx-auto detail-sm:max-w-[80%]">
+        <div class="w-64 shrink-0 rounded-[20px] bg-[#FCDC94] p-[15px] shadow-[0_4px_15px_rgba(0,0,0,0.05)] detail-md:mt-5 detail-md:w-full detail-sm:mx-auto detail-sm:max-w-[80%]">
           <img
             :src="resolveShopImage(shop.image)"
             :alt="shop.name"
-            class="h-[250px] w-full rounded-xl object-cover transition-transform duration-300 hover:scale-[1.02]"
+            class="h-[220px] w-full rounded-xl object-cover transition-transform duration-300 hover:scale-[1.02]"
           />
         </div>
       </div>
@@ -227,13 +227,17 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
                寫在更後面所以贏），把這裡原本想要的 1.25rem/600 蓋成 0.8rem。 -->
           <h2 class="text-[0.8rem] font-semibold text-brand-brown">Recommended Reviews</h2>
           <!-- 跟 vanilla 版本一樣：這兩顆按鈕沒有真的排序功能，Highest Rated
-               永遠顯示成 active，後端 API 也只支援依時間排序，不支援依評分排序。 -->
+               永遠顯示成 active，後端 API 也只支援依時間排序，不支援依評分排序。
+               圓角刻意跟 vanilla 版本不一樣（原本是 30px 全圓）：使用者覺得緊貼在
+               上面 8px 方正的 Write a review 那排按鈕下面，兩種圓角放這麼近看起來
+               不協調，要求改成跟那排一致的 8px，其餘 tag／卡片維持原本的圓角
+               不動——這是刻意的風格調整，不是遷移疏漏。 -->
           <div class="flex gap-[15px]">
-            <button type="button" class="flex items-center gap-2 rounded-full border border-brand-orange bg-brand-orange px-5 py-2.5 text-[0.9375rem] text-white">
+            <button type="button" class="flex items-center gap-2 rounded-lg border border-brand-orange bg-brand-orange px-5 py-2.5 text-[0.9375rem] text-white">
               <svg viewBox="0 0 24 24" fill="currentColor" class="h-3.5 w-3.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z" /></svg>
               Highest Rated
             </button>
-            <button type="button" class="flex items-center gap-2 rounded-full border border-[#ddd] bg-white px-5 py-2.5 text-[0.9375rem] text-[#666] transition hover:-translate-y-0.5 hover:bg-[#f5f5f5]">
+            <button type="button" class="flex items-center gap-2 rounded-lg border border-[#ddd] bg-white px-5 py-2.5 text-[0.9375rem] text-[#666] transition hover:-translate-y-0.5 hover:bg-[#f5f5f5]">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-3.5 w-3.5"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /></svg>
               Most Recent
             </button>

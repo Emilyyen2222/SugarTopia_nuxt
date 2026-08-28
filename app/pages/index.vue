@@ -98,15 +98,23 @@ async function loadLatestReviews() {
 onMounted(loadLatestReviews);
 
 // Categories 磚 -----------------------------------------------------
+// image 換成 c*-icon.svg：原本的 c1~c8.svg 圖片檔案裡，店名字樣是直接
+// 畫在圖片裡的向量圖形（不是真的文字，找不到、也選不到，中英文切換自然
+// 也不會跟著變），所以用中文版介面看起來卡片還是英文。這裡另外做了一份
+// 只留圖示、拿掉圖片裡文字的版本（做法：圖片裡的路徑，店名文字那條
+// 明顯比其他圖示路徑長非常多——量出來是幾千字元 vs 圖示路徑幾百字元，
+// 用長度差分辨出來，把文字那條路徑拿掉，其餘圖示路徑原封不動保留），
+// 文字改成畫面上真的的 HTML 文字（labelKey 對應語言檔），才能跟著介面
+// 語言切換。
 const categoryTiles = [
-  { label: "Cinnamon Rolls", query: "Cinnamon Rolls", image: "c1.svg" },
-  { label: "Ice Creams", query: "Ice Creams", image: "c2.svg" },
-  { label: "Bagels", query: "Bagels", image: "c3.svg" },
-  { label: "Cheese Cakes", query: "Cheesecakes", image: "c4.svg" },
-  { label: "Macaron", query: "Macaron", image: "c5.svg" },
-  { label: "Cafes", query: "Cafes", image: "c6.svg" },
-  { label: "Dog Friendly", query: "Dogs Friendly", image: "c7.svg" },
-  { label: "Alcohol infused", query: "Alcohol", image: "c8.svg" },
+  { labelKey: "category.filterCategories.cinnamonRolls", query: "Cinnamon Rolls", image: "c1-icon.svg" },
+  { labelKey: "category.filterCategories.iceCreams", query: "Ice Creams", image: "c2-icon.svg" },
+  { labelKey: "category.filterCategories.bagels", query: "Bagels", image: "c3-icon.svg" },
+  { labelKey: "category.filterCategories.cheesecakes", query: "Cheesecakes", image: "c4-icon.svg" },
+  { labelKey: "category.filterCategories.macaron", query: "Macaron", image: "c5-icon.svg" },
+  { labelKey: "category.filterCategories.cafes", query: "Cafes", image: "c6-icon.svg" },
+  { labelKey: "category.filterCategories.dogFriendly", query: "Dogs Friendly", image: "c7-icon.svg" },
+  { labelKey: "category.filterCategories.alcoholInfusedShort", query: "Alcohol", image: "c8-icon.svg" },
 ];
 
 // Instagram 社群展示 --------------------------------------------------
@@ -157,7 +165,10 @@ onMounted(() => {
         <h2 class="m-0 mb-1.5 text-[19px] leading-[1.3] text-brand-brown">{{ t("home.aiHeading") }}</h2>
       </div>
 
-      <div id="chatMessages" ref="chatMessagesEl" class="chat-messages box-border w-full max-w-[420px] min-h-[180px] max-h-[280px] overflow-y-auto rounded-[20px] border border-brand-border bg-white p-[18px]" aria-live="polite">
+      <!-- 手機版聊天框加高：原本手機／桌機用同一組高度，使用者反應手機版
+           看起來太小、擠不出對話感，這裡只加高 detail-md（手機）這個斷點，
+           桌機版維持原本大小不動。 -->
+      <div id="chatMessages" ref="chatMessagesEl" class="chat-messages box-border w-full max-w-[420px] min-h-[180px] max-h-[280px] overflow-y-auto rounded-[20px] border border-brand-border bg-white p-[18px] detail-md:min-h-[260px] detail-md:max-h-[380px]" aria-live="polite">
         <div
           v-for="(message, i) in chatMessages"
           :key="i"
@@ -257,9 +268,14 @@ onMounted(() => {
         v-for="tile in categoryTiles"
         :key="tile.query"
         :to="`/category?q=${encodeURIComponent(tile.query)}`"
-        class="category-card flex flex-col items-center rounded-2xl p-2.5 transition hover:scale-[0.98] hover:bg-[rgba(249,168,38,0.2)] detail-md:w-[22%] detail-md:min-w-[22%] detail-md:shrink-0 detail-md:snap-start"
+        class="category-card flex flex-col items-center gap-2.5 rounded-2xl p-2.5 transition hover:scale-[0.98] hover:bg-[rgba(249,168,38,0.2)] detail-md:w-[22%] detail-md:min-w-[22%] detail-md:shrink-0 detail-md:snap-start"
       >
-        <img :src="`/img/${tile.image}`" :alt="tile.label" class="w-full max-w-[200px] rounded-lg object-cover transition-transform hover:scale-95" />
+        <!-- 邊框改成 CSS 畫（不是圖片本身自帶的邊框），這樣裡面只要放乾淨的
+             圖示，文字獨立用真的 HTML 文字放外面，才能跟著介面語言切換。 -->
+        <div class="flex aspect-[4/3] w-full max-w-[200px] items-center justify-center rounded-lg border-2 border-brand-orange bg-white p-4 transition-transform hover:scale-95">
+          <img :src="`/img/${tile.image}`" :alt="t(tile.labelKey)" class="h-full w-full object-contain" />
+        </div>
+        <p class="text-center text-base font-semibold text-brand-orange">{{ t(tile.labelKey) }}</p>
       </NuxtLink>
     </div>
   </section>

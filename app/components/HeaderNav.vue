@@ -177,9 +177,13 @@ async function handleLogout() {
 
       <!-- 右欄：actions -->
       <div class="flex items-center justify-self-end">
+        <!-- whitespace-nowrap：這排全部強制單行，寧可整排在極窄的中間寬度
+             區間被裁切／溢出，也不要讓短短兩三個字被硬拆成兩行（例如
+             「Log In」拆成「Log／In」）——那種斷字方式比裁切還難看，也
+             更難一眼看懂按鈕在寫什麼。 -->
         <NuxtLink
           to="/write-review"
-          class="actions-write-review mr-6 text-[0.9375rem] font-medium text-white no-underline hover:text-brand-gold nav-md:hidden"
+          class="actions-write-review mr-6 whitespace-nowrap text-[0.9375rem] font-medium text-white no-underline hover:text-brand-gold nav-md:hidden"
         >
           {{ t("header.writeReview") }}
         </NuxtLink>
@@ -187,7 +191,7 @@ async function handleLogout() {
           href="https://www.instagram.com/cupertino.keki/"
           target="_blank"
           rel="noopener noreferrer"
-          class="brand-name mr-6 text-[0.9375rem] font-medium text-white no-underline hover:text-brand-gold nav-md:hidden"
+          class="brand-name mr-6 whitespace-nowrap text-[0.9375rem] font-medium text-white no-underline hover:text-brand-gold nav-md:hidden"
         >
           cupertino.keki
           <ExternalLinkIcon class="inline h-[0.8125rem] w-[0.8125rem]" />
@@ -201,7 +205,7 @@ async function handleLogout() {
              按鈕）。 -->
         <button
           type="button"
-          class="mr-6 rounded-full border border-white/70 px-3 py-1 text-[0.8125rem] font-medium text-white transition-colors hover:border-white hover:bg-white hover:text-brand-orange nav-md:hidden"
+          class="mr-6 whitespace-nowrap rounded-full border border-white/70 px-3 py-1 text-[0.8125rem] font-medium text-white transition-colors hover:border-white hover:bg-white hover:text-brand-orange nav-md:hidden"
           @click="toggleLocale"
         >
           {{ otherLocaleName }}
@@ -213,7 +217,7 @@ async function handleLogout() {
           </span>
           <button
             type="button"
-            class="rounded-[9px] border border-white bg-transparent px-4 py-2 text-[0.9375rem] font-medium text-white hover:bg-brand-gold hover:text-brand-orange nav-md:hidden"
+            class="whitespace-nowrap rounded-[9px] border border-white bg-transparent px-4 py-2 text-[0.9375rem] font-medium text-white hover:bg-brand-gold hover:text-brand-orange nav-md:hidden"
             @click="handleLogout"
           >
             {{ t("header.logOut") }}
@@ -222,13 +226,13 @@ async function handleLogout() {
         <template v-else>
           <NuxtLink
             to="/login"
-            class="ml-5 mr-1 rounded-[9px] border border-white px-4 py-2 text-[0.9375rem] text-white no-underline hover:bg-brand-gold nav-md:hidden"
+            class="ml-5 mr-1 whitespace-nowrap rounded-[9px] border border-white px-4 py-2 text-[0.9375rem] text-white no-underline hover:bg-brand-gold nav-md:hidden"
           >
             {{ t("header.logIn") }}
           </NuxtLink>
           <NuxtLink
             to="/signup"
-            class="rounded-[9px] border border-white bg-white px-4 py-2 text-[0.9375rem] text-brand-orange no-underline hover:bg-brand-gold nav-md:hidden"
+            class="whitespace-nowrap rounded-[9px] border border-white bg-white px-4 py-2 text-[0.9375rem] text-brand-orange no-underline hover:bg-brand-gold nav-md:hidden"
           >
             {{ t("header.signUp") }}
           </NuxtLink>

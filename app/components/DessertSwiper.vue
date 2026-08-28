@@ -70,7 +70,12 @@ const images = [
 @media (max-width: 1024px) {
   .dessert-swiper {
     width: 100%;
-    height: 60vh;
+    /* 使用者實際用手機看過之後覺得原本的 60vh 太小、下面文字太快擠進來，
+       希望「一屏對應一個功能」——輪播圖是進站看到的第一個功能，改成撐滿
+       第一屏剩下的高度（扣掉 .split-section 在手機版的 100px 上邊距，
+       這樣圖片下緣正好落在螢幕底部，往下滑才會進到下一個功能區塊）。
+       跟 60vh 這個舊版直接搬過來的值不同，是這次刻意的設計調整。 */
+    height: calc(100vh - 100px);
     margin: 0 0 24px;
     border-radius: 0;
     /* 對應 style.css 的 .swiper{order:1}：手機版上下堆疊時圖片要排在

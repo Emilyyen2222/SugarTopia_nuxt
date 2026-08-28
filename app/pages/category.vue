@@ -172,6 +172,7 @@ const featureOptions = [
   { value: "Hot and New", labelKey: "category.filterFeatures.hotAndNew" },
   { value: "Kids Friendly", labelKey: "category.filterFeatures.kidsFriendly" },
   { value: "Dogs Friendly", labelKey: "category.filterFeatures.dogsFriendly" },
+  { value: "Cat Cafe", labelKey: "category.filterFeatures.catCafe" },
   { value: "Alcohol Infused", labelKey: "category.filterFeatures.alcoholInfused" },
   { value: "Cafes", labelKey: "category.filterCategories.cafes" },
 ];

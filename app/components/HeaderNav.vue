@@ -82,7 +82,16 @@ onUnmounted(() => {
   document.removeEventListener("keydown", handleKeydown);
 });
 
-function handleSearchSubmit() {
+// event.isComposing：用中文/日文注音等輸入法打字時，選字後按下的第一次
+// Enter 其實是輸入法在「確認候選字」，瀏覽器還是會照樣觸發一次 keydown
+// Enter 事件，但這時候 v-model 綁定的 searchQuery 還沒同步成剛選好的文字
+// （例如打「貝果」，選字那次 Enter 抓到的還是打到一半/空字串），送出去
+// 會變成搜尋空字串（等於顯示全部店家）；真正打完字之後的第二次 Enter
+// 才會抓到正確內容。isComposing 為 true 就代表「這次 Enter 是輸入法在
+// 確認候選字，不是使用者要送出搜尋」，直接跳過即可，不會誤觸發。
+function handleSearchSubmit(event?: KeyboardEvent) {
+  if (event?.isComposing) return;
+
   const query = searchQuery.value.trim();
   router.push(query ? `/category?q=${encodeURIComponent(query)}` : "/category");
 }

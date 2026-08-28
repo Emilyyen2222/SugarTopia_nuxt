@@ -186,7 +186,11 @@ watch(queryText, (value) => {
   searchBoxQuery.value = value;
 });
 
-function applySearchBox() {
+// event.isComposing：跟 HeaderNav.vue 的 handleSearchSubmit 同一個輸入法
+// 選字 Enter 誤觸發的問題，見那邊的註解。
+function applySearchBox(event?: KeyboardEvent) {
+  if (event?.isComposing) return;
+
   const q = searchBoxQuery.value.trim();
   router.push({ path: "/category", query: { ...route.query, q: q || undefined } });
 }

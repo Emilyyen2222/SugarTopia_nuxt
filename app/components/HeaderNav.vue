@@ -219,13 +219,13 @@ async function handleLogout() {
         </template>
 
         <!-- 中英文切換（窄螢幕版）：之前收進漢堡選單面板，怕使用者想不到
-             要點開漢堡選單才找得到，改放回 header 上、跟帳號圖示放一起——
-             跟桌機版那顆是同一個按鈕邏輯，只是窄螢幕（≤1024px）才顯示，
-             桌機版那顆（nav-md:hidden）這時候已經隱藏了，不會兩顆同時
-             出現重複。漢堡選單面板裡那顆維持不動，多一個入口不算壞事。 -->
+             要點開漢堡選單才找得到，改放回 header 上、跟帳號圖示放一起。
+             顏色跟桌機版那顆一樣用白色（border-white/text-white），不是
+             橘色——這裡是 header 右半邊的橘色底色，一開始寫成橘色邊框
+             配橘色文字，等於橘色疊橘色，完全看不見，是這次修正的重點。 -->
         <button
           type="button"
-          class="mr-2 hidden whitespace-nowrap rounded-full border border-brand-orange px-3 py-1 text-[0.8125rem] font-medium text-brand-orange transition-colors hover:bg-brand-orange hover:text-white nav-md:inline-flex"
+          class="mr-2 hidden whitespace-nowrap rounded-full border border-white/70 px-3 py-1 text-[0.8125rem] font-medium text-white transition-colors hover:border-white hover:bg-white hover:text-brand-orange nav-md:inline-flex"
           @click="toggleLocale"
         >
           {{ otherLocaleName }}

@@ -236,7 +236,10 @@ onMounted(() => {
   <!-- Latest Reviews -->
   <div class="latest_review_section mx-auto max-w-[1000px] px-5 py-16 text-center">
     <div class="review-header mb-8 flex items-center justify-between text-left">
-      <h1 class="m-0 text-base font-bold text-brand-brown">{{ t("home.latestReviews") }}</h1>
+      <!-- 原本是 text-base（16px），比它下面卡片裡的店名（1.125rem/18px）
+           還小，區塊標題比內容還不顯眼，層級感是反的。改成 text-2xl，
+           跟 Categories 標題一起調整。 -->
+      <h1 class="m-0 text-2xl font-bold text-brand-brown">{{ t("home.latestReviews") }}</h1>
     </div>
     <!-- 手機版（detail-md 以下）從 2 欄 grid 改成左右滑動：窄螢幕硬擠兩欄，
          每張卡片剩不到一半寬度，店名、圖片、文字全部被壓縮成一條，改成
@@ -284,7 +287,7 @@ onMounted(() => {
   <!-- Categories -->
   <section class="dessert_categories_section mx-auto max-w-[1000px] px-5 py-14 text-center">
     <div class="category-header mb-8 flex items-center justify-between text-left">
-      <h2 class="m-0 text-base font-bold text-brand-brown">{{ t("home.categories") }}</h2>
+      <h2 class="m-0 text-2xl font-bold text-brand-brown">{{ t("home.categories") }}</h2>
       <NuxtLink to="/category" class="category-view-all text-sm text-brand-orange no-underline hover:underline">{{ t("home.viewAll") }}</NuxtLink>
     </div>
     <!-- 桌機版：4 欄 grid，一列放完 8 張（不變）。 -->

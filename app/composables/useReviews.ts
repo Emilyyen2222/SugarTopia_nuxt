@@ -18,10 +18,14 @@ export interface Review {
 
 export function useReviews() {
   const { apiFetch } = useApi();
+  // 日期格式跟著介面語言走（原本寫死 en-US，不管切哪個語言日期都是英文
+  // 格式，例如中文介面卻顯示 "Aug 25, 2026"）。zh-TW 用瀏覽器內建的
+  // Intl 格式化，會變成「2026年8月25日」這種中文慣用寫法，不用自己刻。
+  const { locale } = useI18n();
 
   function formatDate(isoString: string) {
     try {
-      return new Date(isoString).toLocaleDateString("en-US", {
+      return new Date(isoString).toLocaleDateString(locale.value, {
         year: "numeric",
         month: "short",
         day: "numeric",

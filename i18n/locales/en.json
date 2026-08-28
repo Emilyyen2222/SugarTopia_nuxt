@@ -1,7 +1,11 @@
 {
   "common": {
     "demoPlaceholder": "This section is a demo placeholder for now.",
-    "readMore": "Read more"
+    "readMore": "Read more",
+    "takeout": "Takeout",
+    "savedToSugarTopia": "Saved to SugarTopia",
+    "showingOnMap": "Showing on map",
+    "viewOnMap": "View on map"
   },
   "header": {
     "searchPlaceholder": "Search Dessert Shops",

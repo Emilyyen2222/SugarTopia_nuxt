@@ -19,6 +19,7 @@ const props = defineProps<{
 const emit = defineEmits<{ viewOnMap: [] }>();
 
 const { buildStars } = useShops();
+const { t } = useI18n();
 
 const hasCoordinates = computed(() => props.shop.lat != null && props.shop.lng != null);
 const imageSrc = computed(() => resolveShopImage(props.shop.image));
@@ -65,8 +66,8 @@ const imageSrc = computed(() => resolveShopImage(props.shop.image));
       </div>
       <p class="my-2.5 text-[0.9375rem] leading-[1.2] text-[#333]">{{ shop.description }}</p>
       <div class="text-sm text-[#333]">
-        <span class="mr-2.5">✔ Takeout</span>
-        <span class="mr-2.5">✔ Saved to SugarTopia</span>
+        <span class="mr-2.5">✔ {{ t("common.takeout") }}</span>
+        <span class="mr-2.5">✔ {{ t("common.savedToSugarTopia") }}</span>
       </div>
       <button
         v-if="hasCoordinates"
@@ -75,7 +76,7 @@ const imageSrc = computed(() => resolveShopImage(props.shop.image));
         :class="isActiveOnMap ? 'border-brand-brown bg-brand-brown text-white' : 'border-brand-brown bg-white text-brand-brown hover:bg-brand-cream'"
         @click="emit('viewOnMap')"
       >
-        {{ isActiveOnMap ? "📍 Showing on map" : "📍 View on map" }}
+        📍 {{ isActiveOnMap ? t("common.showingOnMap") : t("common.viewOnMap") }}
       </button>
     </div>
   </div>

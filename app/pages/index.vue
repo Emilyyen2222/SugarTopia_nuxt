@@ -10,7 +10,7 @@ import type { Review } from "~/composables/useReviews";
 const { apiFetch } = useApi();
 const { getLatestReviews, formatDate } = useReviews();
 const { buildStars } = useShops();
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 // AI 問答 --------------------------------------------------------
 // 對應 gemini-chat.js。跟其他頁面不一樣，vanilla 版本這支檔案是唯一一個
@@ -26,6 +26,18 @@ interface ChatMessage {
 const chatMessages = ref<ChatMessage[]>([
   { role: "assistant", text: t("home.aiGreeting") },
 ]);
+
+// 語言切換時，如果使用者還沒真的開始對話（畫面上就只有那句預設開場白），
+// 開場白要跟著換成新語言——不然「英文版卻看到中文開場白」這種不一致
+// 會一直卡著，直到使用者重新整理頁面才會消失。一旦真的送出過訊息，
+// 就不要再回頭改已經送出/收到的對話紀錄（那些是真的發生過的對話，不是
+// 介面文案，跟著使用者切語言亂改反而奇怪，跟真的聊天紀錄的邏輯不符）。
+watch(locale, () => {
+  if (chatMessages.value.length === 1 && chatMessages.value[0].role === "assistant") {
+    chatMessages.value[0].text = t("home.aiGreeting");
+  }
+});
+
 const chatInput = ref("");
 const chatBusy = ref(false);
 const chatMessagesEl = ref<HTMLElement | null>(null);
@@ -127,6 +139,19 @@ const categoryPages = computed(() => {
   }
   return pages;
 });
+
+// 手機版滑動軌道本身看不出「這裡可以滑」的暗示，使用者不一定會想到要
+// 滑，加一排跟首頁輪播圖（DessertSwiper）同一種手法的頁碼小圓點——
+// 使用者看得到「還有第二頁」，也知道目前在第幾頁。用 scrollLeft 除以
+// 容器寬度算出目前頁碼（四捨五入到最近的整頁，滑到一半時還是會抓到
+// 比較接近的那一頁，不會抓到奇怪的小數頁碼）。
+const categoryScrollEl = ref<HTMLElement | null>(null);
+const categoryPageIndex = ref(0);
+function handleCategoryScroll() {
+  const el = categoryScrollEl.value;
+  if (!el || el.clientWidth === 0) return;
+  categoryPageIndex.value = Math.round(el.scrollLeft / el.clientWidth);
+}
 
 // Instagram 社群展示 --------------------------------------------------
 // 跟 vanilla 版本用同一組圖片（img/lp.jpg 重複用了兩次，也是照抄原本的
@@ -276,10 +301,27 @@ onMounted(() => {
     <!-- 手機版：每「頁」2x2（4 張），左右滑動切頁，不是單排橫向滑動——8 張
          切成兩組各 4 張，每組是自己的 2 欄 grid，這些 grid 再整排排起來、
          用 scroll-snap 讓滑動停在整頁上，不會停在滑一半的地方。 -->
-    <div class="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 md:hidden">
+    <div
+      ref="categoryScrollEl"
+      class="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 md:hidden"
+      @scroll="handleCategoryScroll"
+    >
       <div v-for="(page, i) in categoryPages" :key="i" class="grid w-full shrink-0 snap-start grid-cols-2 gap-3">
         <CategoryCard v-for="tile in page" :key="tile.query" v-bind="tile" />
       </div>
+    </div>
+
+    <!-- 頁碼小圓點：跟首頁輪播圖同一種提示手法，讓使用者一眼看出「這裡
+         滑得動、還有下一頁」，不用自己碰運氣去滑滑看。只在有一頁以上時
+         才顯示（目前分類數固定是 2 頁，但用 categoryPages.length 算，
+         之後分類數變了也不用改這段）。 -->
+    <div v-if="categoryPages.length > 1" class="mt-4 flex justify-center gap-2 md:hidden">
+      <span
+        v-for="(page, i) in categoryPages"
+        :key="i"
+        class="h-2 w-2 rounded-full transition-colors"
+        :class="i === categoryPageIndex ? 'bg-brand-orange' : 'bg-brand-border'"
+      />
     </div>
   </section>
 

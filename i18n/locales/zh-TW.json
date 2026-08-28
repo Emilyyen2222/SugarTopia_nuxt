@@ -1,7 +1,11 @@
 {
   "common": {
     "demoPlaceholder": "這個功能還在展示階段，之後才會真的做。",
-    "readMore": "閱讀更多"
+    "readMore": "閱讀更多",
+    "takeout": "外帶",
+    "savedToSugarTopia": "已收錄在 SugarTopia",
+    "showingOnMap": "地圖顯示中",
+    "viewOnMap": "在地圖上查看"
   },
   "header": {
     "searchPlaceholder": "搜尋甜點店",

@@ -218,6 +218,19 @@ async function handleLogout() {
           </NuxtLink>
         </template>
 
+        <!-- 中英文切換（窄螢幕版）：之前收進漢堡選單面板，怕使用者想不到
+             要點開漢堡選單才找得到，改放回 header 上、跟帳號圖示放一起——
+             跟桌機版那顆是同一個按鈕邏輯，只是窄螢幕（≤1024px）才顯示，
+             桌機版那顆（nav-md:hidden）這時候已經隱藏了，不會兩顆同時
+             出現重複。漢堡選單面板裡那顆維持不動，多一個入口不算壞事。 -->
+        <button
+          type="button"
+          class="mr-2 hidden whitespace-nowrap rounded-full border border-brand-orange px-3 py-1 text-[0.8125rem] font-medium text-brand-orange transition-colors hover:bg-brand-orange hover:text-white nav-md:inline-flex"
+          @click="toggleLocale"
+        >
+          {{ otherLocaleName }}
+        </button>
+
         <!-- 窄螢幕（≤1024px）用一顆帳號 icon 取代上面那排文字按鈕。
              vanilla 版本這顆按鈕（.login_avatar／.auth-favorites）也沒有
              aria-label，純圖示連結沒有可讀的名字，這裡順便補上，螢幕

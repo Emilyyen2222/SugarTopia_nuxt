@@ -27,7 +27,11 @@ const { t } = useI18n();
       class="flex h-full w-full max-w-[200px] flex-col items-center justify-center gap-1 rounded-lg border-2 border-brand-orange bg-white px-2 py-3 transition-transform hover:scale-95 md:py-6"
     >
       <!-- 圖片本身的畫布（viewBox）已經裁到圖示實際的邊界，沒有多餘留白。 -->
-      <img :src="`/img/${image}`" :alt="t(labelKey)" class="h-12 w-auto object-contain" />
+      <!-- 每張圖的 viewBox 都已經裁成正方形（寬高比一致），這裡固定用
+           h-12 w-12 正方形容器 + object-contain，8 個圖示視覺大小才會
+           一致——之前用 h-12 w-auto，寬高比不一樣的圖示（例如比較瘦長的
+           咖啡杯）算出來的寬度會比別的圖示窄一截，看起來明顯變小。 -->
+      <img :src="`/img/${image}`" :alt="t(labelKey)" class="h-12 w-12 object-contain" />
       <!-- min-w-0：flex 子項目預設不會主動縮小去符合容器寬度（flexbox 常見
            的坑），沒有這個窄卡片會被長店名文字撐出邊框外。 -->
       <p class="w-full min-w-0 text-center text-sm font-semibold text-brand-orange md:text-base">{{ t(labelKey) }}</p>

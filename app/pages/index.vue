@@ -246,12 +246,18 @@ onMounted(() => {
       <h2 class="m-0 text-base font-bold text-brand-brown">{{ t("home.categories") }}</h2>
       <NuxtLink to="/category" class="category-view-all text-sm text-brand-orange no-underline hover:underline">{{ t("home.viewAll") }}</NuxtLink>
     </div>
-    <div class="category-grid grid grid-cols-4 gap-5 detail-md:grid-cols-2 nav-sm:grid-cols-1">
+    <!-- 手機版（detail-md 以下）跟 Latest Reviews 一樣改成左右滑動：一次看
+         4 個圖示（露一點第 5 個的邊，提示可以滑），跟你截圖參考的 Uber Eats
+         分類列同一種做法，也讓整頁的滑動手感一致，不會這裡格狀、那裡滑動
+         混著用。桌機版 4 欄 grid 不變。 -->
+    <div
+      class="category-grid grid grid-cols-4 gap-5 detail-md:flex detail-md:snap-x detail-md:snap-mandatory detail-md:gap-3 detail-md:overflow-x-auto detail-md:pb-2"
+    >
       <NuxtLink
         v-for="tile in categoryTiles"
         :key="tile.query"
         :to="`/category?q=${encodeURIComponent(tile.query)}`"
-        class="category-card flex flex-col items-center rounded-2xl p-2.5 transition hover:scale-[0.98] hover:bg-[rgba(249,168,38,0.2)]"
+        class="category-card flex flex-col items-center rounded-2xl p-2.5 transition hover:scale-[0.98] hover:bg-[rgba(249,168,38,0.2)] detail-md:w-[22%] detail-md:min-w-[22%] detail-md:shrink-0 detail-md:snap-start"
       >
         <img :src="`/img/${tile.image}`" :alt="tile.label" class="w-full max-w-[200px] rounded-lg object-cover transition-transform hover:scale-95" />
       </NuxtLink>

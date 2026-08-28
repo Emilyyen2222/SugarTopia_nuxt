@@ -147,16 +147,6 @@ async function handleLogout() {
             <NuxtLink to="/write-review" class="block rounded-[10px] px-3 py-2.5 text-[0.9375rem] font-medium text-brand-brown no-underline hover:bg-brand-hover" @click="closeMobileMenu">
               {{ t("header.writeReview") }}
             </NuxtLink>
-            <a
-              href="https://www.instagram.com/cupertino.keki/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="block rounded-[10px] px-3 py-2.5 text-[0.9375rem] font-medium text-brand-brown no-underline hover:bg-brand-hover"
-              @click="closeMobileMenu"
-            >
-              cupertino.keki
-              <ExternalLinkIcon class="ml-1 inline h-[0.75em] w-[0.75em]" />
-            </a>
             <button
               type="button"
               class="block w-full rounded-[10px] px-3 py-2.5 text-left text-[0.9375rem] font-medium text-brand-brown hover:bg-brand-hover"
@@ -187,16 +177,6 @@ async function handleLogout() {
         >
           {{ t("header.writeReview") }}
         </NuxtLink>
-        <a
-          href="https://www.instagram.com/cupertino.keki/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="brand-name mr-6 whitespace-nowrap text-[0.9375rem] font-medium text-white no-underline hover:text-brand-gold nav-md:hidden"
-        >
-          cupertino.keki
-          <ExternalLinkIcon class="inline h-[0.8125rem] w-[0.8125rem]" />
-        </a>
-
         <!-- 中英文切換：按鈕文字顯示「切過去會變成的語言」，縮寫成
              EN／中文，做成小圓角膠囊按鈕（不是純文字連結），視覺上跟
              write a review／cupertino.keki 那種文字連結分開，也比完整

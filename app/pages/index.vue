@@ -268,14 +268,15 @@ onMounted(() => {
         v-for="tile in categoryTiles"
         :key="tile.query"
         :to="`/category?q=${encodeURIComponent(tile.query)}`"
-        class="category-card flex flex-col items-center gap-2.5 rounded-2xl p-2.5 transition hover:scale-[0.98] hover:bg-[rgba(249,168,38,0.2)] detail-md:w-[22%] detail-md:min-w-[22%] detail-md:shrink-0 detail-md:snap-start"
+        class="category-card flex flex-col items-center rounded-2xl p-2.5 transition hover:scale-[0.98] hover:bg-[rgba(249,168,38,0.2)] detail-md:w-[22%] detail-md:min-w-[22%] detail-md:shrink-0 detail-md:snap-start"
       >
-        <!-- 邊框改成 CSS 畫（不是圖片本身自帶的邊框），這樣裡面只要放乾淨的
-             圖示，文字獨立用真的 HTML 文字放外面，才能跟著介面語言切換。 -->
-        <div class="flex aspect-[4/3] w-full max-w-[200px] items-center justify-center rounded-lg border-2 border-brand-orange bg-white p-4 transition-transform hover:scale-95">
-          <img :src="`/img/${tile.image}`" :alt="t(tile.labelKey)" class="h-full w-full object-contain" />
+        <!-- 邊框改成 CSS 畫（不是圖片本身自帶的邊框），圖示跟文字都放回同一個
+             邊框裡（跟原本圖片內建邊框、文字在圖示下方的排版一致），只是
+             文字現在是真的 HTML 文字，才能跟著介面語言切換。 -->
+        <div class="flex aspect-[4/3] w-full max-w-[200px] flex-col items-center justify-center gap-1 rounded-lg border-2 border-brand-orange bg-white px-4 py-3 transition-transform hover:scale-95">
+          <img :src="`/img/${tile.image}`" :alt="t(tile.labelKey)" class="h-[70%] w-auto object-contain" />
+          <p class="text-center text-base font-semibold text-brand-orange">{{ t(tile.labelKey) }}</p>
         </div>
-        <p class="text-center text-base font-semibold text-brand-orange">{{ t(tile.labelKey) }}</p>
       </NuxtLink>
     </div>
   </section>

@@ -7,6 +7,20 @@ body {
   font-family: "Poppins", sans-serif;
 }
 
+/* 防呆：鎖死整個網頁不能橫向捲動。手機版排版本來就是靠各元件自己不超出
+   螢幕寬度做到不橫向溢出，但只要未來新增的元件有一個地方沒顧到（例如
+   固定寬度的圖片、沒設 flex-wrap 的按鈕列），使用者就可能被拖出一小段
+   橫向捲動，即使只多出 1px 也會讓整頁看起來「可以被拉歪」。這裡直接在
+   最外層擋掉，當作最後一道防線，不影響任何正常畫面外觀。 */
+html,
+body {
+  overflow-x: hidden;
+  /* overflow-x: hidden 只能擋「內容真的比螢幕寬」造成的橫向捲動；觸控板
+     兩指左右滑動時瀏覽器會有的「拉到底彈一下」邊界回彈效果，是另一個
+     瀏覽器層級的行為，要靠 overscroll-behavior-x 才擋得住。 */
+  overscroll-behavior-x: none;
+}
+
 /* 對應 vanilla 版本 CSS/style.css 的全站 checkbox 樣式（登入/註冊的
    remember me、terms 勾選框都共用這個）：橘色圓角方框、選中時實心橘色
    加打勾符號，不是瀏覽器預設的方形 checkbox。放在全域 CSS 而不是逐個

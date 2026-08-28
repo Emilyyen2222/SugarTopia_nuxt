@@ -131,9 +131,14 @@ const ratingOptions = [5, 4, 3, 2, 1];
 </script>
 
 <template>
-  <div class="mt-[120px] flex min-h-[calc(100vh-180px)] gap-5 px-5">
+  <!-- map-hide（880px）以下：地圖本來就會整個隱藏（見下面 map-hide:hidden），
+       這裡順便讓外層改成上下堆疊，Filters 側欄也跟著從左右並排收成上下排列——
+       兩者是同一個問題（螢幕太窄，容不下三欄並排），共用同一個斷點判斷。 -->
+  <div class="mt-[120px] flex min-h-[calc(100vh-180px)] gap-5 px-5 map-hide:flex-col">
     <!-- 篩選側欄 -->
-    <aside class="ml-5 w-[200px] shrink-0 sticky top-[100px] h-[calc(100vh-120px)] overflow-y-auto bg-white p-5">
+    <aside
+      class="ml-5 w-[200px] shrink-0 sticky top-[100px] h-[calc(100vh-120px)] overflow-y-auto bg-white p-5 map-hide:static map-hide:ml-0 map-hide:h-auto map-hide:w-full"
+    >
       <p class="mb-5 text-[1.125rem] font-bold text-brand-brown">Filters</p>
 
       <div class="mb-5">

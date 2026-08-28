@@ -32,10 +32,21 @@ const imageSrc = computed(() => resolveShopImage(props.shop.image));
   >
     <div class="shrink-0">
       <NuxtLink :to="`/shop/${shop.id}`" :aria-label="`View ${shop.name}`">
-        <img :src="imageSrc" :alt="shop.name" class="h-[150px] w-[200px] rounded-lg object-cover" />
+        <!-- 手機窄螢幕（≤480px，沿用 header 已經在用的 nav-sm 斷點）把圖縮小，
+             不然固定 200px 寬的圖片會把旁邊 flex-1 的文字內容擠到快沒有寬度可用，
+             導致整個卡片橫向超出畫面（螢幕出現橫向捲動）。 -->
+        <img
+          :src="imageSrc"
+          :alt="shop.name"
+          class="h-[150px] w-[200px] rounded-lg object-cover nav-sm:h-[85px] nav-sm:w-[110px]"
+        />
       </NuxtLink>
     </div>
-    <div class="ml-5 flex-1">
+    <!-- min-w-0：flex 子項目預設的隱性最小寬度是「自己內容的自然寬度」，
+         沒有這個會讓長店名/長描述把這個區塊撐開,連帶讓整張卡片、甚至整個
+         頁面在窄螢幕上橫向超出可視範圍——這是 flexbox 常見的坑,不是內容
+         本身有問題。 -->
+    <div class="ml-5 min-w-0 flex-1">
       <h2 class="mb-2.5 text-[1.25rem] font-bold text-brand-brown">{{ index + 1 }}. {{ shop.name }}</h2>
       <!-- 跟 shop_detail 頁一樣：style.css 有一條全站通用的 `.rating span`
            規則（specificity 比 `.rating-score` 這種自己的規則高），會把

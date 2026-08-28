@@ -151,7 +151,7 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
             <span class="text-[10px] text-brand-green">{{ shop.rating }}</span>
           </div>
 
-          <div class="mb-[15px] flex gap-2.5">
+          <div class="mb-[15px] flex flex-wrap gap-2.5">
             <span v-for="tag in shop.tags" :key="tag" class="rounded-[20px] bg-[#f5f5f5] px-3 py-[5px] text-[0.875rem] text-[#666]">
               {{ tag }}
             </span>
@@ -221,7 +221,7 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
 
       <!-- 評論區塊 -->
       <section class="my-10">
-        <div class="mb-[30px] flex items-center justify-between">
+        <div class="mb-[30px] flex flex-wrap items-center justify-between gap-3">
           <!-- 跟前面 .review-text 一樣：shop_detail.css 檔案尾端有一段重複的
                `.reviews-section h2` 規則（specificity 打平、但因為在檔案裡
                寫在更後面所以贏），把這裡原本想要的 1.25rem/600 蓋成 0.8rem。 -->

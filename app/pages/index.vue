@@ -117,6 +117,17 @@ const categoryTiles = [
   { labelKey: "category.filterCategories.alcoholInfusedShort", query: "Alcohol", image: "c8-icon.svg" },
 ];
 
+// 手機版一次顯示一「頁」2x2（4 張）卡片，左右滑動切換頁，不是單排橫向
+// 滑動——把 8 張卡片切成每 4 張一組，每一組各自是一個 2 欄 grid，這些
+// grid 本身再排成一整排、左右滑動、滑動停在整頁上（scroll-snap）。
+const categoryPages = computed(() => {
+  const pages: typeof categoryTiles[] = [];
+  for (let i = 0; i < categoryTiles.length; i += 4) {
+    pages.push(categoryTiles.slice(i, i + 4));
+  }
+  return pages;
+});
+
 // Instagram 社群展示 --------------------------------------------------
 // 跟 vanilla 版本用同一組圖片（img/lp.jpg 重複用了兩次，也是照抄原本的
 // 寫法，不是筆誤）。純展示、沒有真的接 Instagram API。
@@ -257,52 +268,18 @@ onMounted(() => {
       <h2 class="m-0 text-base font-bold text-brand-brown">{{ t("home.categories") }}</h2>
       <NuxtLink to="/category" class="category-view-all text-sm text-brand-orange no-underline hover:underline">{{ t("home.viewAll") }}</NuxtLink>
     </div>
-    <!-- 手機版（detail-md 以下）跟 Latest Reviews 一樣改成左右滑動：一次「剛好」
-         塞滿 4 張卡片、不多不少（不是露一點第 5 張的邊那種做法），滑一下
-         換下一組 4 張。寬度用 calc(25% - 9px) 算出來：4 張卡片 + 3 個 12px
-         間距（gap-3）要剛好等於整行寬度，每張卡片就要讓出 3*12px÷4=9px
-         給間距。桌機版 4 欄 grid 不變。 -->
-    <div
-      class="category-grid grid grid-cols-4 gap-5 detail-md:flex detail-md:snap-x detail-md:snap-mandatory detail-md:gap-3 detail-md:overflow-x-auto detail-md:pb-2"
-    >
-      <NuxtLink
-        v-for="tile in categoryTiles"
-        :key="tile.query"
-        :to="`/category?q=${encodeURIComponent(tile.query)}`"
-        class="category-card flex flex-col items-center rounded-2xl p-2.5 transition hover:scale-[0.98] hover:bg-[rgba(249,168,38,0.2)] detail-md:w-[calc(25%-9px)] detail-md:min-w-[calc(25%-9px)] detail-md:shrink-0 detail-md:snap-start"
-      >
-        <!-- 邊框改成 CSS 畫（不是圖片本身自帶的邊框），圖示跟文字都放回同一個
-             邊框裡（跟原本圖片內建邊框、文字在圖示下方的排版一致），只是
-             文字現在是真的 HTML 文字，才能跟著介面語言切換。
-             高度改成讓內容自己撐開（不用 aspect-[4/3] 這種寫死比例）：手機版
-             卡片寬度只有桌機版的一小部分（22% vs 200px），寫死比例算出來的
-             高度會跟著等比縮小，圖示卻是固定 px 高度不會跟著變小，兩個一衝突
-             文字就會被擠出邊框外——拿掉寫死比例，box 高度看內容（圖示+文字+
-             padding）自然決定，兩種寬度都不會互相打架。
-             h-full：category-grid（grid／flex）預設就會把同一列的每張卡片
-             拉成一樣高（align-items: stretch 是 grid／flex 的預設值），但
-             那只讓外層 NuxtLink 一樣高，邊框是「NuxtLink 裡面另一層 div」，
-             不會自動跟著撐滿，不加 h-full 的話，店名一行的卡片（例如
-             Bagels）邊框會比店名兩行的卡片（例如 Cinnamon Rolls）矮一截，
-             即使外層兩張 NuxtLink 其實已經一樣高了。桌機版另外加高
-             padding（py-3 → py-6），原本比例撐出來的高度感這次用留白補回來。 -->
-        <div class="flex h-full w-full max-w-[200px] flex-col items-center justify-center gap-1 rounded-lg border-2 border-brand-orange bg-white px-2 py-3 transition-transform hover:scale-95 detail-md:px-1 md:py-6">
-          <!-- 圖片本身的畫布（viewBox）原本比圖示實際佔的範圍大很多——下半部
-               是留給圖片內建文字的空間，拿掉文字後變成透明留白，直接放大
-               圖片會把那塊留白一起撐開，圖示跟下面文字之間就會空一大截。
-               這裡改成把每張圖的 viewBox 直接裁到圖示本身的邊界（量出每個
-               圖示路徑實際的座標範圍，只留這個範圍 + 一點邊距），不再靠
-               CSS 裁切，圖片本身的可視內容就是乾淨的圖示，沒有多餘留白。 -->
-          <img
-            :src="`/img/${tile.image}`"
-            :alt="t(tile.labelKey)"
-            class="h-12 w-auto object-contain"
-          />
-          <!-- min-w-0：flex 子項目預設不會主動縮小去符合容器寬度（flexbox
-               常見的坑），沒有這個手機版窄卡片會被長店名文字撐出邊框外。 -->
-          <p class="w-full min-w-0 text-center text-base font-semibold text-brand-orange detail-md:text-sm">{{ t(tile.labelKey) }}</p>
-        </div>
-      </NuxtLink>
+    <!-- 桌機版：4 欄 grid，一列放完 8 張（不變）。 -->
+    <div class="category-grid hidden grid-cols-4 gap-5 md:grid">
+      <CategoryCard v-for="tile in categoryTiles" :key="tile.query" v-bind="tile" />
+    </div>
+
+    <!-- 手機版：每「頁」2x2（4 張），左右滑動切頁，不是單排橫向滑動——8 張
+         切成兩組各 4 張，每組是自己的 2 欄 grid，這些 grid 再整排排起來、
+         用 scroll-snap 讓滑動停在整頁上，不會停在滑一半的地方。 -->
+    <div class="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 md:hidden">
+      <div v-for="(page, i) in categoryPages" :key="i" class="grid w-full shrink-0 snap-start grid-cols-2 gap-3">
+        <CategoryCard v-for="tile in page" :key="tile.query" v-bind="tile" />
+      </div>
     </div>
   </section>
 

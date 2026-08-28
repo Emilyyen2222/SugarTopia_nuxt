@@ -18,6 +18,7 @@ const { fetchShop, fetchShops } = useShops();
 const { submitReview } = useReviews();
 const { isLoggedIn } = useAuth();
 const { show } = useSiteMessage();
+const { t } = useI18n();
 
 const lockedShop = ref<Shop | null>(null);
 const shopOptions = ref<Shop[]>([]);
@@ -75,18 +76,18 @@ onMounted(loadShopField);
 
 async function handleSubmit() {
   if (!isLoggedIn.value) {
-    show("Please log in to write a review.");
+    show(t("writeReview.loginToReviewToast"));
     await navigateTo("/login");
     return;
   }
 
   if (!selectedShopId.value) {
-    show("Please choose which shop you're reviewing.");
+    show(t("writeReview.chooseShopToast"));
     return;
   }
 
   if (!rating.value) {
-    show("Please pick a star rating.");
+    show(t("writeReview.chooseRatingToast"));
     return;
   }
 
@@ -94,10 +95,10 @@ async function handleSubmit() {
 
   try {
     await submitReview(selectedShopId.value, rating.value, reviewText.value.trim());
-    show("Thanks! Your review has been posted.");
+    show(t("writeReview.postedToast"));
     await router.push(`/shop/${encodeURIComponent(selectedShopId.value)}`);
   } catch (error) {
-    show(error instanceof Error ? error.message : "Request failed.");
+    show(error instanceof Error ? error.message : t("shop.requestFailed"));
     submitting.value = false;
   }
 }
@@ -105,15 +106,15 @@ async function handleSubmit() {
 
 <template>
   <section class="mx-auto my-24 max-w-[600px] rounded-[10px] border border-brand-gold bg-brand-gold p-5 text-sm text-brand-brown">
-    <h1 class="mb-5 text-center text-2xl text-brand-brown">Write a Review</h1>
+    <h1 class="mb-5 text-center text-2xl text-brand-brown">{{ t("writeReview.title") }}</h1>
 
     <form @submit.prevent="handleSubmit">
       <div class="mb-[15px]">
-        <label for="dessert-shop-id" class="mb-[5px] block text-sm text-brand-brown">Dessert Shop:</label>
+        <label for="dessert-shop-id" class="mb-[5px] block text-sm text-brand-brown">{{ t("writeReview.dessertShop") }}</label>
 
-        <p v-if="loadingShopField" class="m-0">Loading shops...</p>
+        <p v-if="loadingShopField" class="m-0">{{ t("writeReview.loadingShops") }}</p>
         <p v-else-if="shopFieldFailed" class="m-0">
-          Could not find this shop. <NuxtLink to="/category" class="text-brand-orange underline">Browse all shops</NuxtLink>.
+          {{ t("writeReview.shopNotFoundPrefix") }} <NuxtLink to="/category" class="text-brand-orange underline">{{ t("shop.browseAllShops") }}</NuxtLink>.
         </p>
         <p v-else-if="lockedShop" data-testid="locked-shop-name" class="m-0">{{ lockedShop.name }}</p>
         <select
@@ -123,13 +124,13 @@ async function handleSubmit() {
           required
           class="w-full rounded-[5px] border border-brand-gold p-[10px]"
         >
-          <option value="" disabled>Choose a shop</option>
+          <option value="" disabled>{{ t("writeReview.chooseAShop") }}</option>
           <option v-for="shop in shopOptions" :key="shop.id" :value="shop.id">{{ shop.name }}</option>
         </select>
       </div>
 
       <div class="mb-[15px]">
-        <label for="review-text" class="mb-[5px] block text-sm text-brand-brown">Your Review:</label>
+        <label for="review-text" class="mb-[5px] block text-sm text-brand-brown">{{ t("writeReview.yourReview") }}</label>
         <textarea
           id="review-text"
           v-model="reviewText"
@@ -140,7 +141,7 @@ async function handleSubmit() {
       </div>
 
       <div class="mb-[15px]">
-        <label class="mb-[5px] block text-sm text-brand-brown">Rate Desserts:</label>
+        <label class="mb-[5px] block text-sm text-brand-brown">{{ t("writeReview.rateDesserts") }}</label>
         <div class="flex justify-start">
           <button
             v-for="star in stars"
@@ -148,7 +149,7 @@ async function handleSubmit() {
             type="button"
             class="cursor-pointer border-0 bg-transparent p-0 text-xl"
             :class="isStarFilled(star.position) ? 'text-brand-orange' : 'text-brand-brown'"
-            :aria-label="`${star.value} star${star.value === 1 ? '' : 's'}`"
+            :aria-label="t(star.value === 1 ? 'writeReview.starLabelOne' : 'writeReview.starLabelOther', { count: star.value })"
             @click="selectedPosition = star.position"
           >
             <svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z" /></svg>
@@ -157,7 +158,7 @@ async function handleSubmit() {
       </div>
 
       <div class="mb-[15px]">
-        <label for="photo-upload" class="mb-[5px] block text-sm text-brand-brown">Share Photos of Desserts:</label>
+        <label for="photo-upload" class="mb-[5px] block text-sm text-brand-brown">{{ t("writeReview.sharePhotos") }}</label>
         <!-- 跟 vanilla 版本一樣：這個欄位沒有真的接上傳功能，submitReview()
              只送出評分跟文字，這裡選了照片也不會真的送出去。 -->
         <input id="photo-upload" type="file" accept="image/*" multiple class="w-full rounded-[5px] border border-brand-gold p-[10px]" />
@@ -168,7 +169,7 @@ async function handleSubmit() {
         :disabled="submitting || shopFieldFailed"
         class="w-full rounded-[5px] bg-brand-orange px-5 py-[10px] text-base text-white transition-colors hover:bg-[#e89615] disabled:opacity-60"
       >
-        Submit Review
+        {{ t("writeReview.submitReview") }}
       </button>
     </form>
   </section>

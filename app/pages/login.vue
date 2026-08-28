@@ -7,6 +7,7 @@
 const { login, user } = useAuth();
 const { show } = useSiteMessage();
 const router = useRouter();
+const { t } = useI18n();
 
 const email = ref("");
 const password = ref("");
@@ -16,7 +17,7 @@ const isSubmitting = ref(false);
 // 「data-auth-form 存在 + 使用者已登入」那段邏輯。
 onMounted(() => {
   if (user.value) {
-    show(`You're already logged in as ${user.value.name}.`);
+    show(t("auth.alreadyLoggedIn", { name: user.value.name }));
     router.push("/");
   }
 });
@@ -25,10 +26,10 @@ async function handleSubmit() {
   isSubmitting.value = true;
   try {
     const loggedInUser = await login(email.value.trim(), password.value);
-    show(`Welcome back, ${loggedInUser.name}.`);
+    show(t("auth.welcomeBack", { name: loggedInUser.name }));
     router.push("/");
   } catch (error: any) {
-    show(error?.data?.detail || "Request failed.");
+    show(error?.data?.detail || t("auth.requestFailed"));
   } finally {
     isSubmitting.value = false;
   }
@@ -41,29 +42,29 @@ async function handleSubmit() {
     style="background: linear-gradient(to right, #fff, #fcdc94 50%, #f9a726 50%)"
   >
     <div class="flex min-h-[440px] w-full max-w-[450px] flex-col justify-center rounded-[20px] bg-white px-10 py-[54px] shadow-[0_10px_30px_rgba(0,0,0,0.1)]">
-      <h1 class="mb-2.5 text-center text-[28px] text-brand-brown">Welcome Back!</h1>
-      <p class="mb-[30px] text-center text-brand-brown">Log in to your account</p>
+      <h1 class="mb-2.5 text-center text-[28px] text-brand-brown">{{ t("auth.loginWelcomeBack") }}</h1>
+      <p class="mb-[30px] text-center text-brand-brown">{{ t("auth.loginSubheading") }}</p>
 
       <form class="login-form" @submit.prevent="handleSubmit">
         <div class="mb-5">
-          <label for="email" class="mb-2 block font-medium text-brand-brown">Email</label>
+          <label for="email" class="mb-2 block font-medium text-brand-brown">{{ t("auth.email") }}</label>
           <input
             id="email"
             v-model="email"
             type="email"
-            placeholder="Enter your email"
+            :placeholder="t('auth.emailPlaceholder')"
             required
             class="w-full rounded-lg border border-[#ddd] p-3 text-base text-brand-brown transition-colors focus:border-brand-orange focus:outline-none"
           />
         </div>
 
         <div class="mb-5">
-          <label for="password" class="mb-2 block font-medium text-brand-brown">Password</label>
+          <label for="password" class="mb-2 block font-medium text-brand-brown">{{ t("auth.password") }}</label>
           <input
             id="password"
             v-model="password"
             type="password"
-            placeholder="Enter your password"
+            :placeholder="t('auth.passwordPlaceholder')"
             required
             class="w-full rounded-lg border border-[#ddd] p-3 text-base text-brand-brown transition-colors focus:border-brand-orange focus:outline-none"
           />
@@ -72,13 +73,13 @@ async function handleSubmit() {
         <div class="mb-5 flex items-center justify-between">
           <label class="flex items-center gap-2 text-brand-brown">
             <input type="checkbox" />
-            <span class="text-sm leading-snug">Remember me</span>
+            <span class="text-sm leading-snug">{{ t("auth.rememberMe") }}</span>
           </label>
           <a
             href="#"
             class="text-brand-orange no-underline hover:underline"
-            @click.prevent="show('Password reset is a future backend feature.')"
-          >Forgot Password?</a>
+            @click.prevent="show(t('auth.forgotPasswordToast'))"
+          >{{ t("auth.forgotPassword") }}</a>
         </div>
 
         <button
@@ -86,12 +87,12 @@ async function handleSubmit() {
           :disabled="isSubmitting"
           class="w-full rounded-lg bg-brand-orange py-3.5 text-base font-medium text-white transition-colors hover:bg-brand-orange-dark disabled:cursor-wait disabled:opacity-65"
         >
-          {{ isSubmitting ? "Logging in..." : "Log In" }}
+          {{ isSubmitting ? t("auth.loggingIn") : t("auth.logIn") }}
         </button>
 
         <p class="mt-5 text-center text-brand-brown">
-          Don't have an account?
-          <NuxtLink to="/signup" class="font-medium text-brand-orange no-underline hover:underline">Sign up</NuxtLink>
+          {{ t("auth.noAccount") }}
+          <NuxtLink to="/signup" class="font-medium text-brand-orange no-underline hover:underline">{{ t("auth.signUp") }}</NuxtLink>
         </p>
       </form>
     </div>

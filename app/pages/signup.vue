@@ -7,6 +7,7 @@
 const { signup, user } = useAuth();
 const { show } = useSiteMessage();
 const router = useRouter();
+const { t } = useI18n();
 
 const name = ref("");
 const email = ref("");
@@ -17,29 +18,29 @@ const isSubmitting = ref(false);
 
 onMounted(() => {
   if (user.value) {
-    show(`You're already logged in as ${user.value.name}.`);
+    show(t("auth.alreadyLoggedIn", { name: user.value.name }));
     router.push("/");
   }
 });
 
 async function handleSubmit() {
   if (password.value !== confirmPassword.value) {
-    show("Passwords do not match.");
+    show(t("auth.passwordsDontMatch"));
     return;
   }
 
   if (!agreedToTerms.value) {
-    show("Please agree to the terms first.");
+    show(t("auth.agreeToTermsFirst"));
     return;
   }
 
   isSubmitting.value = true;
   try {
     const newUser = await signup(name.value.trim(), email.value.trim(), password.value);
-    show(`Welcome to SugarTopia, ${newUser.name}.`);
+    show(t("auth.welcomeToSugarTopia", { name: newUser.name }));
     router.push("/");
   } catch (error: any) {
-    show(error?.data?.detail || "Request failed.");
+    show(error?.data?.detail || t("auth.requestFailed"));
   } finally {
     isSubmitting.value = false;
   }
@@ -52,53 +53,53 @@ async function handleSubmit() {
     style="background: linear-gradient(to right, #fff, #fcdc94 50%, #f9a726 50%)"
   >
     <div class="w-full max-w-[450px] rounded-[20px] bg-white px-10 py-10 shadow-[0_10px_30px_rgba(0,0,0,0.1)]">
-      <h1 class="mb-2.5 text-center text-[28px] text-brand-brown">Create Account</h1>
-      <p class="mb-[30px] text-center text-brand-brown">Join Sugar.Topia today</p>
+      <h1 class="mb-2.5 text-center text-[28px] text-brand-brown">{{ t("auth.signupTitle") }}</h1>
+      <p class="mb-[30px] text-center text-brand-brown">{{ t("auth.signupSubheading") }}</p>
 
       <form class="login-form" @submit.prevent="handleSubmit">
         <div class="mb-[15px]">
-          <label for="name" class="mb-2 block font-medium text-brand-brown">Full Name</label>
+          <label for="name" class="mb-2 block font-medium text-brand-brown">{{ t("auth.fullName") }}</label>
           <input
             id="name"
             v-model="name"
             type="text"
-            placeholder="Enter your full name"
+            :placeholder="t('auth.fullNamePlaceholder')"
             required
             class="w-full rounded-lg border border-[#ddd] p-3 text-base text-brand-brown transition-colors focus:border-brand-orange focus:outline-none"
           />
         </div>
 
         <div class="mb-[15px]">
-          <label for="email" class="mb-2 block font-medium text-brand-brown">Email</label>
+          <label for="email" class="mb-2 block font-medium text-brand-brown">{{ t("auth.email") }}</label>
           <input
             id="email"
             v-model="email"
             type="email"
-            placeholder="Enter your email"
+            :placeholder="t('auth.emailPlaceholder')"
             required
             class="w-full rounded-lg border border-[#ddd] p-3 text-base text-brand-brown transition-colors focus:border-brand-orange focus:outline-none"
           />
         </div>
 
         <div class="mb-[15px]">
-          <label for="password" class="mb-2 block font-medium text-brand-brown">Password</label>
+          <label for="password" class="mb-2 block font-medium text-brand-brown">{{ t("auth.password") }}</label>
           <input
             id="password"
             v-model="password"
             type="password"
-            placeholder="Create a password"
+            :placeholder="t('auth.createPasswordPlaceholder')"
             required
             class="w-full rounded-lg border border-[#ddd] p-3 text-base text-brand-brown transition-colors focus:border-brand-orange focus:outline-none"
           />
         </div>
 
         <div class="mb-[15px]">
-          <label for="confirm-password" class="mb-2 block font-medium text-brand-brown">Confirm Password</label>
+          <label for="confirm-password" class="mb-2 block font-medium text-brand-brown">{{ t("auth.confirmPassword") }}</label>
           <input
             id="confirm-password"
             v-model="confirmPassword"
             type="password"
-            placeholder="Confirm your password"
+            :placeholder="t('auth.confirmPasswordPlaceholder')"
             required
             class="w-full rounded-lg border border-[#ddd] p-3 text-base text-brand-brown transition-colors focus:border-brand-orange focus:outline-none"
           />
@@ -107,7 +108,7 @@ async function handleSubmit() {
         <div class="mb-5 flex items-center justify-between">
           <label class="flex items-center gap-2 text-brand-brown">
             <input v-model="agreedToTerms" type="checkbox" />
-            <span class="text-sm leading-snug">I agree to the Terms of Service and Privacy Policy</span>
+            <span class="text-sm leading-snug">{{ t("auth.agreeToTerms") }}</span>
           </label>
         </div>
 
@@ -116,12 +117,12 @@ async function handleSubmit() {
           :disabled="isSubmitting"
           class="w-full rounded-lg bg-brand-orange py-3.5 text-base font-medium text-white transition-colors hover:bg-brand-orange-dark disabled:cursor-wait disabled:opacity-65"
         >
-          {{ isSubmitting ? "Creating account..." : "Sign Up" }}
+          {{ isSubmitting ? t("auth.creatingAccount") : t("auth.signUpButton") }}
         </button>
 
         <p class="mt-5 text-center text-brand-brown">
-          Already have an account?
-          <NuxtLink to="/login" class="font-medium text-brand-orange no-underline hover:underline">Log in</NuxtLink>
+          {{ t("auth.alreadyHaveAccount") }}
+          <NuxtLink to="/login" class="font-medium text-brand-orange no-underline hover:underline">{{ t("auth.logInLink") }}</NuxtLink>
         </p>
       </form>
     </div>

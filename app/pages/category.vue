@@ -13,6 +13,7 @@ const route = useRoute();
 const router = useRouter();
 const { fetchShops } = useShops();
 const { show } = useSiteMessage();
+const { t } = useI18n();
 
 const shops = ref<Shop[]>([]);
 const loading = ref(true);
@@ -49,10 +50,24 @@ const locationText = computed(() => (route.query.location as string) || "");
 
 const title = computed(() => {
   if (queryText.value || locationText.value) {
-    return `Search results for ${queryText.value || "dessert shops"}${locationText.value ? ` in ${locationText.value}` : ""}`;
+    const query = queryText.value || t("category.dessertShops");
+    const location = locationText.value ? t("category.inLocation", { location: locationText.value }) : "";
+    return t("category.searchResultsFor", { query }) + location;
   }
-  return "All dessert shops and cafes in Taipei";
+  return t("category.allShopsTitle");
 });
+
+// shopsFound／showNShops 沒有用 vue-i18n 內建的複數語法（{count} 那種
+// pipe 分段格式），改成自己用 count 挑 key——這個專案裝的 vue-i18n 版本
+// 內建複數的插值變數名稱沒查證過，與其賭一個沒把握的寫法，不如自己挑 key
+// 這個做法肯定不會出錯，看得懂、也好維護。
+function shopsFoundText(count: number) {
+  if (count === 0) return t("category.shopsFoundZero");
+  return t(count === 1 ? "category.shopsFoundOne" : "category.shopsFoundOther", { count });
+}
+function showNShopsText(count: number) {
+  return t(count === 1 ? "category.showNShopsOne" : "category.showNShopsOther", { count });
+}
 
 async function load() {
   loading.value = true;
@@ -63,7 +78,7 @@ async function load() {
   } catch {
     loadFailed.value = true;
     if (!shops.value.length) {
-      show("Using demo shop data because the backend shop API is unavailable.");
+      show(t("category.demoDataWarning"));
     }
   } finally {
     loading.value = false;
@@ -103,11 +118,11 @@ const mapSrc = computed(() => {
   return "https://www.google.com/maps?q=25.0504032,121.5182723&z=13&output=embed";
 });
 
-const mapLabel = computed(() => (mapName.value ? `📍 Showing on map: ${mapName.value}` : ""));
+const mapLabel = computed(() => (mapName.value ? `📍 ${t("category.showingOnMap", { name: mapName.value })}` : ""));
 
 function applyRatingFilter(stars: number) {
   filterState.rating = stars;
-  show(`Showing shops rated ${stars} stars and up.`);
+  show(t("category.ratingFilterApplied", { stars }));
 }
 
 function applyCategoryFilter(category: string) {
@@ -125,8 +140,23 @@ function toggleFeature(feature: string, checked: boolean) {
   }
 }
 
-const sidebarCategories = ["Cinnamon Rolls", "Cheesecakes", "Bagels", "Cafes", "Ice Creams"];
-const featureOptions = ["Hot and New", "Kids Friendly", "Dogs Friendly", "Alcohol Infused"];
+// value 是實際拿去打 API／比對店家資料用的英文字串（後端資料是英文），
+// label 是畫面上顯示、會跟著語言切換的文字——這兩個故意分開，不能把 value
+// 換成中文，不然篩選會直接找不到任何符合的店家（店家的 tags／category
+// 欄位本身是英文，不會因為介面切成中文就跟著變）。
+const sidebarCategories = [
+  { value: "Cinnamon Rolls", labelKey: "category.filterCategories.cinnamonRolls" },
+  { value: "Cheesecakes", labelKey: "category.filterCategories.cheesecakes" },
+  { value: "Bagels", labelKey: "category.filterCategories.bagels" },
+  { value: "Cafes", labelKey: "category.filterCategories.cafes" },
+  { value: "Ice Creams", labelKey: "category.filterCategories.iceCreams" },
+];
+const featureOptions = [
+  { value: "Hot and New", labelKey: "category.filterFeatures.hotAndNew" },
+  { value: "Kids Friendly", labelKey: "category.filterFeatures.kidsFriendly" },
+  { value: "Dogs Friendly", labelKey: "category.filterFeatures.dogsFriendly" },
+  { value: "Alcohol Infused", labelKey: "category.filterFeatures.alcoholInfused" },
+];
 const ratingOptions = [5, 4, 3, 2, 1];
 
 // 這頁專屬的搜尋框（跟共用 HeaderNav 上那個放大鏡是分開的兩件事——手機版
@@ -165,10 +195,10 @@ function closeFilters() {
     <aside
       class="ml-5 w-[200px] shrink-0 sticky top-[100px] h-[calc(100vh-120px)] overflow-y-auto bg-white p-5 map-hide:hidden"
     >
-      <p class="mb-5 text-[1.125rem] font-bold text-brand-brown">Filters</p>
+      <p class="mb-5 text-[1.125rem] font-bold text-brand-brown">{{ t("category.filters") }}</p>
 
       <div class="mb-5">
-        <p class="mb-2.5 text-sm font-bold text-brand-brown">Rating</p>
+        <p class="mb-2.5 text-sm font-bold text-brand-brown">{{ t("category.rating") }}</p>
         <div class="flex flex-col gap-2">
           <button
             v-for="stars in ratingOptions"
@@ -183,29 +213,29 @@ function closeFilters() {
       </div>
 
       <div class="mb-5">
-        <p class="mb-2.5 text-sm font-bold text-brand-brown">Category</p>
+        <p class="mb-2.5 text-sm font-bold text-brand-brown">{{ t("category.categoryLabel") }}</p>
         <div class="flex flex-wrap gap-2.5">
           <button
             v-for="category in sidebarCategories"
-            :key="category"
+            :key="category.value"
             type="button"
             class="rounded-[20px] border-2 border-brand-orange px-2 py-1 text-sm text-brand-orange transition-colors hover:bg-brand-orange hover:text-white"
-            @click="applyCategoryFilter(category)"
+            @click="applyCategoryFilter(category.value)"
           >
-            {{ category }}
+            {{ t(category.labelKey) }}
           </button>
-          <a href="#" class="text-sm text-brand-orange hover:underline" @click.prevent="show('This section is a demo placeholder for now.')">
-            See more
+          <a href="#" class="text-sm text-brand-orange hover:underline" @click.prevent="show(t('common.demoPlaceholder'))">
+            {{ t("category.seeMore") }}
           </a>
         </div>
       </div>
 
       <div class="mb-5">
-        <p class="mb-2.5 text-sm font-bold text-brand-brown">Features</p>
+        <p class="mb-2.5 text-sm font-bold text-brand-brown">{{ t("category.features") }}</p>
         <div class="flex flex-col gap-2.5">
-          <label v-for="feature in featureOptions" :key="feature" class="text-sm text-brand-orange">
-            <input type="checkbox" @change="toggleFeature(feature, ($event.target as HTMLInputElement).checked)" />
-            {{ feature }}
+          <label v-for="feature in featureOptions" :key="feature.value" class="text-sm text-brand-orange">
+            <input type="checkbox" @change="toggleFeature(feature.value, ($event.target as HTMLInputElement).checked)" />
+            {{ t(feature.labelKey) }}
           </label>
         </div>
       </div>
@@ -223,7 +253,7 @@ function closeFilters() {
           <div class="h-1 w-10 rounded-full bg-[#ddd]" />
         </div>
         <div class="flex items-center justify-between px-5 pb-1 pt-3.5">
-          <h2 class="text-[1.0625rem] font-bold text-brand-brown">Filters</h2>
+          <h2 class="text-[1.0625rem] font-bold text-brand-brown">{{ t("category.filters") }}</h2>
           <button type="button" class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f5f5f5]" @click="closeFilters">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6F5B49" stroke-width="2.5">
               <path d="M6 6l12 12M18 6L6 18" />
@@ -233,7 +263,7 @@ function closeFilters() {
 
         <div class="flex-1 overflow-y-auto px-5 pt-3">
           <div class="mb-5">
-            <p class="mb-2.5 text-sm font-bold text-brand-brown">Rating</p>
+            <p class="mb-2.5 text-sm font-bold text-brand-brown">{{ t("category.rating") }}</p>
             <div class="flex flex-col gap-2">
               <button
                 v-for="stars in ratingOptions"
@@ -248,29 +278,29 @@ function closeFilters() {
           </div>
 
           <div class="mb-5">
-            <p class="mb-2.5 text-sm font-bold text-brand-brown">Category</p>
+            <p class="mb-2.5 text-sm font-bold text-brand-brown">{{ t("category.categoryLabel") }}</p>
             <div class="flex flex-wrap gap-2.5">
               <button
                 v-for="category in sidebarCategories"
-                :key="category"
+                :key="category.value"
                 type="button"
                 class="rounded-[20px] border-2 border-brand-orange px-2 py-1 text-sm text-brand-orange transition-colors hover:bg-brand-orange hover:text-white"
-                @click="applyCategoryFilter(category)"
+                @click="applyCategoryFilter(category.value)"
               >
-                {{ category }}
+                {{ t(category.labelKey) }}
               </button>
-              <a href="#" class="text-sm text-brand-orange hover:underline" @click.prevent="show('This section is a demo placeholder for now.')">
-                See more
+              <a href="#" class="text-sm text-brand-orange hover:underline" @click.prevent="show(t('common.demoPlaceholder'))">
+                {{ t("category.seeMore") }}
               </a>
             </div>
           </div>
 
           <div class="mb-5">
-            <p class="mb-2.5 text-sm font-bold text-brand-brown">Features</p>
+            <p class="mb-2.5 text-sm font-bold text-brand-brown">{{ t("category.features") }}</p>
             <div class="flex flex-col gap-2.5">
-              <label v-for="feature in featureOptions" :key="feature" class="text-sm text-brand-orange">
-                <input type="checkbox" @change="toggleFeature(feature, ($event.target as HTMLInputElement).checked)" />
-                {{ feature }}
+              <label v-for="feature in featureOptions" :key="feature.value" class="text-sm text-brand-orange">
+                <input type="checkbox" @change="toggleFeature(feature.value, ($event.target as HTMLInputElement).checked)" />
+                {{ t(feature.labelKey) }}
               </label>
             </div>
           </div>
@@ -282,7 +312,7 @@ function closeFilters() {
             class="h-12 w-full rounded-lg bg-brand-orange text-[0.9375rem] font-semibold text-white"
             @click="closeFilters"
           >
-            Show {{ results.length }} shop{{ results.length === 1 ? "" : "s" }}
+            {{ showNShopsText(results.length) }}
           </button>
         </div>
       </div>
@@ -291,12 +321,12 @@ function closeFilters() {
     <!-- 搜尋結果 -->
     <section class="min-w-0 flex-1">
       <template v-if="loading">
-        <h1 class="mb-10 text-xl font-bold text-brand-brown">Loading dessert shops...</h1>
-        <p class="mb-[18px] mt-1 text-base text-brand-brown-light">Fetching shop data from SugarTopia backend.</p>
+        <h1 class="mb-10 text-xl font-bold text-brand-brown">{{ t("category.loadingTitle") }}</h1>
+        <p class="mb-[18px] mt-1 text-base text-brand-brown-light">{{ t("category.loadingBody") }}</p>
       </template>
       <template v-else-if="loadFailed && !shops.length">
-        <h1 class="mb-10 text-xl font-bold text-brand-brown">No dessert shops yet</h1>
-        <p class="mb-[18px] mt-1 text-base text-brand-brown-light">Shop data is not available right now.</p>
+        <h1 class="mb-10 text-xl font-bold text-brand-brown">{{ t("category.emptyTitle") }}</h1>
+        <p class="mb-[18px] mt-1 text-base text-brand-brown-light">{{ t("category.emptyBody") }}</p>
       </template>
       <template v-else>
         <h1 class="mb-10 text-xl font-bold text-brand-brown">{{ title }}</h1>
@@ -322,7 +352,7 @@ function closeFilters() {
           <input
             v-model="searchBoxQuery"
             type="text"
-            placeholder="Search dessert shops or flavors"
+            :placeholder="t('category.searchPlaceholder')"
             class="h-12 w-full rounded-lg border border-[#ddd] pl-10 pr-4 text-sm text-brand-brown outline-none"
             @keydown.enter="applySearchBox"
           />
@@ -336,19 +366,19 @@ function closeFilters() {
             class="hidden items-center gap-1.5 rounded-[20px] border-2 border-brand-orange px-3.5 py-1.5 text-sm font-semibold text-brand-orange transition-colors hover:bg-brand-orange hover:text-white map-hide:flex"
             @click="toggleFilters"
           >
-            Filters
+            {{ t("category.filters") }}
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
               <path d="M6 9l6 6 6-6" />
             </svg>
           </button>
           <p class="text-base text-brand-brown-light">
-            {{ results.length }} shop{{ results.length === 1 ? "" : "s" }} found
+            {{ shopsFoundText(results.length) }}
           </p>
         </div>
 
         <div v-if="!results.length" class="rounded-2xl border border-brand-border bg-brand-cream p-7">
-          <h2 class="mb-2 text-2xl text-brand-brown">No matching dessert shops yet</h2>
-          <p class="text-base text-brand-brown-light">Try another flavor, category, or Taipei area.</p>
+          <h2 class="mb-2 text-2xl text-brand-brown">{{ t("category.noMatchTitle") }}</h2>
+          <p class="text-base text-brand-brown-light">{{ t("category.noMatchBody") }}</p>
         </div>
 
         <div v-else class="grid gap-6">

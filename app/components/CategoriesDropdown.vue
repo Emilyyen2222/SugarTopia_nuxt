@@ -4,15 +4,20 @@
 // 在 Vue 裡這些行為變成元件自己的 state + onMounted 監聽，不用像 vanilla
 // 版本那樣手動查詢 DOM、切換 class。
 
+const { t } = useI18n();
+
+// label 換成 labelKey：value（query）繼續維持英文，因為是直接送去打
+// 後端搜尋 API 的字串，跟後端店家資料（英文）比對，只有畫面上顯示的文字
+// 要跟著語言切換。
 const categories = [
-  { label: "Cinnamon Rolls", query: "Cinnamon Rolls" },
-  { label: "Ice Creams", query: "Ice Creams" },
-  { label: "Bagels", query: "Bagels" },
-  { label: "Cheese Cakes", query: "Cheesecakes" },
-  { label: "Macaron", query: "Macaron" },
-  { label: "Cafes", query: "Cafes" },
-  { label: "Dog Friendly", query: "Dogs Friendly" },
-  { label: "Alcohol Infused", query: "Alcohol" },
+  { labelKey: "category.filterCategories.cinnamonRolls", query: "Cinnamon Rolls" },
+  { labelKey: "category.filterCategories.iceCreams", query: "Ice Creams" },
+  { labelKey: "category.filterCategories.bagels", query: "Bagels" },
+  { labelKey: "category.filterCategories.cheesecakes", query: "Cheesecakes" },
+  { labelKey: "category.filterCategories.macaron", query: "Macaron" },
+  { labelKey: "category.filterCategories.cafes", query: "Cafes" },
+  { labelKey: "category.filterCategories.dogFriendly", query: "Dogs Friendly" },
+  { labelKey: "category.filterCategories.alcoholInfusedShort", query: "Alcohol" },
 ];
 
 const isOpen = ref(false);
@@ -54,7 +59,7 @@ onUnmounted(() => {
       class="nav-categories-toggle flex items-center gap-2 bg-transparent px-1 py-2 font-medium text-brand-brown hover:text-brand-gold"
       @click.stop="toggle"
     >
-      Categories
+      {{ t("home.categories") }}
       <svg
         class="shrink-0 transition-transform duration-150"
         :class="{ 'rotate-180': isOpen }"
@@ -84,7 +89,7 @@ onUnmounted(() => {
         class="block rounded-[10px] px-3 py-2.5 text-[0.9375rem] font-medium text-brand-brown hover:bg-brand-hover"
         @click="close"
       >
-        {{ category.label }}
+        {{ t(category.labelKey) }}
       </NuxtLink>
     </div>
   </div>

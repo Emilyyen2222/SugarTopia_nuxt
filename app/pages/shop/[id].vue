@@ -25,6 +25,7 @@ const { getFavoriteShops, addFavorite, removeFavorite } = useFavorites();
 const { getShopReviews, formatDate } = useReviews();
 const { isLoggedIn } = useAuth();
 const { show } = useSiteMessage();
+const { t } = useI18n();
 
 const shopId = computed(() => route.params.id as string);
 const shop = ref<Shop | null>(null);
@@ -78,7 +79,7 @@ async function loadFavoriteState() {
 
 async function toggleSave() {
   if (!isLoggedIn.value) {
-    show("Please log in to save this shop.");
+    show(t("shop.loginToSaveToast"));
     await navigateTo("/login");
     return;
   }
@@ -89,14 +90,14 @@ async function toggleSave() {
     if (isFavorited.value) {
       await removeFavorite(shopId.value);
       isFavorited.value = false;
-      show("Removed from your favorites.");
+      show(t("shop.removedFromFavorites"));
     } else {
       await addFavorite(shopId.value);
       isFavorited.value = true;
-      show("Saved to your favorites.");
+      show(t("shop.savedToFavorites"));
     }
   } catch (error) {
-    show(error instanceof Error ? error.message : "Request failed.");
+    show(error instanceof Error ? error.message : t("shop.requestFailed"));
   } finally {
     saveBusy.value = false;
   }
@@ -119,16 +120,16 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
 <template>
   <section class="mx-auto mt-24 max-w-[1100px] px-5">
     <template v-if="loading">
-      <p class="py-10 text-center text-brand-brown-light">Loading shop details...</p>
+      <p class="py-10 text-center text-brand-brown-light">{{ t("shop.loading") }}</p>
     </template>
 
     <template v-else-if="notFound">
       <div class="flex items-start gap-2">
         <div class="flex-1 rounded-[20px] bg-[#FCDC94] p-[30px] shadow-[0_4px_15px_rgba(0,0,0,0.05)]">
-          <h1 class="mb-4 text-xl font-bold text-brand-brown">Shop not found</h1>
+          <h1 class="mb-4 text-xl font-bold text-brand-brown">{{ t("shop.notFoundTitle") }}</h1>
           <p class="text-brand-brown">
-            We could not find this shop in the SugarTopia backend.
-            <NuxtLink to="/category" class="text-brand-orange underline">Browse all shops</NuxtLink>.
+            {{ t("shop.notFoundBody") }}
+            <NuxtLink to="/category" class="text-brand-orange underline">{{ t("shop.browseAllShops") }}</NuxtLink>.
           </p>
         </div>
       </div>
@@ -160,14 +161,14 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
           <!-- 跟 vanilla 版本一樣：這整塊營業資訊是固定的示範內容，不是這間店的真實資料。 -->
           <div class="text-[0.9375rem] text-brand-brown">
             <div class="p-[5px]">
-              <span>Closed</span>
+              <span>{{ t("shop.closed") }}</span>
               <span class="ml-1">11:30 AM-7:30 PM</span>
-              <a href="#" class="pl-[5px] text-[#FFA518]" @click.prevent="show('Full opening hours can be connected later.')">See hours</a>
+              <a href="#" class="pl-[5px] text-[#FFA518]" @click.prevent="show(t('shop.seeHoursToast'))">{{ t("shop.seeHours") }}</a>
             </div>
             <div class="p-[5px]">cinnamonrollsstudio.com.tw</div>
             <div class="p-[5px]">02-2250 5431</div>
             <div class="p-[5px]">
-              <strong>Get Directions:</strong>
+              <strong>{{ t("shop.getDirections") }}</strong>
               <p>No. 5, Lane 500, Section 1, Neihu Rd, Neihu District, Taipei City, 114</p>
             </div>
           </div>
@@ -189,23 +190,23 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
           class="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-brand-orange px-6 py-3 text-[0.9375rem] text-white no-underline transition hover:-translate-y-0.5 hover:bg-[#e89615]"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
-          Write a review
+          {{ t("shop.writeReview") }}
         </NuxtLink>
         <button
           type="button"
           class="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-brand-orange px-6 py-3 text-[0.9375rem] text-white transition hover:-translate-y-0.5 hover:bg-[#e89615]"
-          @click="show('Photo uploads are a future backend feature.')"
+          @click="show(t('shop.addPhotoToast'))"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" /></svg>
-          Add photo
+          {{ t("shop.addPhoto") }}
         </button>
         <button
           type="button"
           class="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-brand-orange px-6 py-3 text-[0.9375rem] text-white transition hover:-translate-y-0.5 hover:bg-[#e89615]"
-          @click="show('Share links can be added after deployment.')"
+          @click="show(t('shop.shareToast'))"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" /></svg>
-          Share
+          {{ t("shop.share") }}
         </button>
         <button
           type="button"
@@ -215,7 +216,7 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
           @click="toggleSave"
         >
           <svg viewBox="0 0 24 24" :fill="isFavorited ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" class="h-4 w-4"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Z" /></svg>
-          {{ isFavorited ? "Saved" : "Save" }}
+          {{ isFavorited ? t("shop.saved") : t("shop.save") }}
         </button>
       </div>
 
@@ -225,7 +226,7 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
           <!-- 跟前面 .review-text 一樣：shop_detail.css 檔案尾端有一段重複的
                `.reviews-section h2` 規則（specificity 打平、但因為在檔案裡
                寫在更後面所以贏），把這裡原本想要的 1.25rem/600 蓋成 0.8rem。 -->
-          <h2 class="text-[0.8rem] font-semibold text-brand-brown">Recommended Reviews</h2>
+          <h2 class="text-[0.8rem] font-semibold text-brand-brown">{{ t("shop.recommendedReviews") }}</h2>
           <!-- 跟 vanilla 版本一樣：這兩顆按鈕沒有真的排序功能，Highest Rated
                永遠顯示成 active，後端 API 也只支援依時間排序，不支援依評分排序。
                圓角刻意跟 vanilla 版本不一樣（原本是 30px 全圓）：使用者覺得緊貼在
@@ -235,28 +236,28 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
           <div class="flex gap-[15px]">
             <button type="button" class="flex items-center gap-2 rounded-lg border border-brand-orange bg-brand-orange px-5 py-2.5 text-[0.9375rem] text-white">
               <svg viewBox="0 0 24 24" fill="currentColor" class="h-3.5 w-3.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z" /></svg>
-              Highest Rated
+              {{ t("shop.highestRated") }}
             </button>
             <button type="button" class="flex items-center gap-2 rounded-lg border border-[#ddd] bg-white px-5 py-2.5 text-[0.9375rem] text-[#666] transition hover:-translate-y-0.5 hover:bg-[#f5f5f5]">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-3.5 w-3.5"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /></svg>
-              Most Recent
+              {{ t("shop.mostRecent") }}
             </button>
           </div>
         </div>
 
         <template v-if="reviewsLoading">
-          <p class="text-brand-brown-light">Loading reviews...</p>
+          <p class="text-brand-brown-light">{{ t("shop.reviewsLoading") }}</p>
         </template>
         <template v-else-if="reviewsFailed">
-          <p class="text-brand-brown-light">Could not load reviews right now.</p>
+          <p class="text-brand-brown-light">{{ t("shop.reviewsFailed") }}</p>
         </template>
         <template v-else-if="!reviews.length">
           <div class="rounded-2xl border border-brand-border bg-brand-cream p-7">
-            <h2 class="mb-2 text-2xl text-brand-brown">No reviews yet</h2>
+            <h2 class="mb-2 text-2xl text-brand-brown">{{ t("shop.noReviewsTitle") }}</h2>
             <p class="text-brand-brown-light">
-              Be the first to
-              <NuxtLink :to="writeReviewHref" class="text-brand-orange underline">write a review</NuxtLink>
-              for {{ shop.name }}.
+              {{ t("shop.beFirstPrefix") }}
+              <NuxtLink :to="writeReviewHref" class="text-brand-orange underline">{{ t("home.writeAReview") }}</NuxtLink>
+              {{ t("shop.beFirstSuffixFor", { shopName: shop.name }) }}
             </p>
           </div>
         </template>
@@ -285,7 +286,7 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
         <!-- 跟 vanilla 版本一樣：分頁導航是裝飾用的，沒有真的分頁功能
              （後端評論 API 一次回傳全部評論，沒有分頁參數）。 -->
         <div class="mt-10 flex items-center justify-center gap-2.5 py-5">
-          <a href="#" class="flex h-10 w-10 items-center justify-center rounded-full border border-[#ddd] text-brand-brown transition hover:-translate-y-0.5 hover:bg-[#f5f5f5]" @click.prevent="show('This section is a demo placeholder for now.')">
+          <a href="#" class="flex h-10 w-10 items-center justify-center rounded-full border border-[#ddd] text-brand-brown transition hover:-translate-y-0.5 hover:bg-[#f5f5f5]" @click.prevent="show(t('common.demoPlaceholder'))">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4"><path d="M15 18l-6-6 6-6" /></svg>
           </a>
           <a
@@ -294,11 +295,11 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
             href="#"
             class="flex h-10 w-10 items-center justify-center rounded-full border text-[0.9375rem] no-underline transition"
             :class="n === 1 ? 'border-brand-orange bg-brand-orange text-white' : 'border-[#ddd] text-brand-brown hover:-translate-y-0.5 hover:bg-[#f5f5f5]'"
-            @click.prevent="show('This section is a demo placeholder for now.')"
+            @click.prevent="show(t('common.demoPlaceholder'))"
           >
             {{ n }}
           </a>
-          <a href="#" class="flex h-10 w-10 items-center justify-center rounded-full border border-[#ddd] text-brand-brown transition hover:-translate-y-0.5 hover:bg-[#f5f5f5]" @click.prevent="show('This section is a demo placeholder for now.')">
+          <a href="#" class="flex h-10 w-10 items-center justify-center rounded-full border border-[#ddd] text-brand-brown transition hover:-translate-y-0.5 hover:bg-[#f5f5f5]" @click.prevent="show(t('common.demoPlaceholder'))">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4"><path d="M9 18l6-6-6-6" /></svg>
           </a>
         </div>

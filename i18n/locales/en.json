@@ -28,6 +28,9 @@
     "noReviews": "No reviews yet",
     "beFirstToReview": "Be the first to",
     "writeAReview": "write a review",
+    "noReviewsCtaPrefix": "No reviews yet — go",
+    "noReviewsCtaLinkText": "browse dessert shops",
+    "noReviewsCtaSuffix": ", and leave the first review for one you like.",
     "categories": "Categories",
     "viewAll": "View All",
     "followUs": "Follow Us"

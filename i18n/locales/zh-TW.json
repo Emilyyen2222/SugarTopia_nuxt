@@ -28,6 +28,9 @@
     "noReviews": "目前還沒有評論",
     "beFirstToReview": "當第一個",
     "writeAReview": "寫評論",
+    "noReviewsCtaPrefix": "還沒有評論，先去",
+    "noReviewsCtaLinkText": "逛逛甜點店",
+    "noReviewsCtaSuffix": "，看到喜歡的店就留下你的第一篇評論吧。",
     "categories": "甜點分類",
     "viewAll": "查看全部",
     "followUs": "追蹤我們"

@@ -277,9 +277,14 @@ onMounted(() => {
     </div>
     <div v-else class="rounded-2xl border border-brand-border bg-brand-cream p-7 text-left">
       <h2 class="mb-2 text-2xl text-brand-brown">{{ t("home.noReviews") }}</h2>
+      <!-- 原本這裡直接連去 /write-review（沒有指定店家，會跳出選店下拉選單）。
+           跟 header 拿掉的「寫評論」連結是同一個問題：寫評論一定要先進到
+           某家店的詳情頁，這裡改成先引導去逛甜點店，不再有不指定店家的
+           寫評論入口。 -->
       <p class="text-brand-brown-light">
-        {{ t("home.beFirstToReview") }}
-        <NuxtLink to="/write-review" class="text-brand-orange underline">{{ t("home.writeAReview") }}</NuxtLink>.
+        {{ t("home.noReviewsCtaPrefix") }}
+        <NuxtLink to="/category" class="text-brand-orange underline">{{ t("home.noReviewsCtaLinkText") }}</NuxtLink>
+        {{ t("home.noReviewsCtaSuffix") }}
       </p>
     </div>
   </div>

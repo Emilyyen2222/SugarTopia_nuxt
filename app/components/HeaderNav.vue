@@ -144,9 +144,10 @@ async function handleLogout() {
           <CategoriesDropdown />
 
           <div class="nav-menu-mobile-links">
-            <NuxtLink to="/write-review" class="block rounded-[10px] px-3 py-2.5 text-[0.9375rem] font-medium text-brand-brown no-underline hover:bg-brand-hover" @click="closeMobileMenu">
-              {{ t("header.writeReview") }}
-            </NuxtLink>
+            <!-- 「寫評論」這個不指定店家的全站入口拿掉了：寫評論一定要先
+                 進到某家店的詳情頁，從那裡的「寫評論」按鈕進去（會直接鎖定
+                 那家店，見 write-review.vue 的 lockedShop），不再讓使用者
+                 從 header 憑空跳進一個要先選店的下拉選單。 -->
             <button
               type="button"
               class="block w-full rounded-[10px] px-3 py-2.5 text-left text-[0.9375rem] font-medium text-brand-brown hover:bg-brand-hover"
@@ -171,12 +172,6 @@ async function handleLogout() {
              區間被裁切／溢出，也不要讓短短兩三個字被硬拆成兩行（例如
              「Log In」拆成「Log／In」）——那種斷字方式比裁切還難看，也
              更難一眼看懂按鈕在寫什麼。 -->
-        <NuxtLink
-          to="/write-review"
-          class="actions-write-review mr-6 whitespace-nowrap text-[0.9375rem] font-medium text-white no-underline hover:text-brand-gold nav-md:hidden"
-        >
-          {{ t("header.writeReview") }}
-        </NuxtLink>
         <!-- 中英文切換：按鈕文字顯示「切過去會變成的語言」，縮寫成
              EN／中文，做成小圓角膠囊按鈕（不是純文字連結），視覺上跟
              write a review／cupertino.keki 那種文字連結分開，也比完整

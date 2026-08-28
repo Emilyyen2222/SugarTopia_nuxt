@@ -159,11 +159,13 @@ function toggleFeature(feature: string, checked: boolean) {
 // label 是畫面上顯示、會跟著語言切換的文字——這兩個故意分開，不能把 value
 // 換成中文，不然篩選會直接找不到任何符合的店家（店家的 tags／category
 // 欄位本身是英文，不會因為介面切成中文就跟著變）。
+// 「分類」只留真的是「這家店賣什麼」的品項；「咖啡廳」比較像場域類型
+// 不是甜點品類，搬去「特色」欄（labelKey 沿用原本 filterCategories.cafes
+// 那組翻譯文字，不用另外多存一份一樣的字）。
 const sidebarCategories = [
   { value: "Cinnamon Rolls", labelKey: "category.filterCategories.cinnamonRolls" },
   { value: "Cheesecakes", labelKey: "category.filterCategories.cheesecakes" },
   { value: "Bagels", labelKey: "category.filterCategories.bagels" },
-  { value: "Cafes", labelKey: "category.filterCategories.cafes" },
   { value: "Ice Creams", labelKey: "category.filterCategories.iceCreams" },
 ];
 const featureOptions = [
@@ -171,6 +173,7 @@ const featureOptions = [
   { value: "Kids Friendly", labelKey: "category.filterFeatures.kidsFriendly" },
   { value: "Dogs Friendly", labelKey: "category.filterFeatures.dogsFriendly" },
   { value: "Alcohol Infused", labelKey: "category.filterFeatures.alcoholInfused" },
+  { value: "Cafes", labelKey: "category.filterCategories.cafes" },
 ];
 const ratingOptions = [5, 4, 3, 2, 1];
 

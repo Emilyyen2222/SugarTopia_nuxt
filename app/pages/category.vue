@@ -128,6 +128,32 @@ function toggleFeature(feature: string, checked: boolean) {
 const sidebarCategories = ["Cinnamon Rolls", "Cheesecakes", "Bagels", "Cafes", "Ice Creams"];
 const featureOptions = ["Hot and New", "Kids Friendly", "Dogs Friendly", "Alcohol Infused"];
 const ratingOptions = [5, 4, 3, 2, 1];
+
+// 這頁專屬的搜尋框（跟共用 HeaderNav 上那個放大鏡是分開的兩件事——手機版
+// header 空間太窄放不下輸入框，使用者點放大鏡進來這頁之後，真正打字搜尋
+// 的地方是這裡）。用網址上的 q 帶初始值，輸入框跟網址保持同步。
+const searchBoxQuery = ref(queryText.value);
+watch(queryText, (value) => {
+  searchBoxQuery.value = value;
+});
+
+function applySearchBox() {
+  const q = searchBoxQuery.value.trim();
+  router.push({ path: "/category", query: { ...route.query, q: q || undefined } });
+}
+
+// Filters 側欄在窄螢幕（map-hide 斷點，880px）收成一顆按鈕，點了才展開；
+// 桌機版維持原本一直展開的側欄，不受這個狀態影響（見下面 asideClass 只在
+// map-hide 以下才吃 filtersOpen）。
+const filtersOpen = ref(false);
+function toggleFilters() {
+  filtersOpen.value = !filtersOpen.value;
+}
+const asideClass = computed(() => {
+  const base =
+    "ml-5 w-[200px] shrink-0 sticky top-[100px] h-[calc(100vh-120px)] overflow-y-auto bg-white p-5 map-hide:static map-hide:ml-0 map-hide:h-auto map-hide:w-full";
+  return `${base} ${filtersOpen.value ? "map-hide:block" : "map-hide:hidden"}`;
+});
 </script>
 
 <template>
@@ -136,9 +162,7 @@ const ratingOptions = [5, 4, 3, 2, 1];
        兩者是同一個問題（螢幕太窄，容不下三欄並排），共用同一個斷點判斷。 -->
   <div class="mt-[120px] flex min-h-[calc(100vh-180px)] gap-5 px-5 map-hide:flex-col">
     <!-- 篩選側欄 -->
-    <aside
-      class="ml-5 w-[200px] shrink-0 sticky top-[100px] h-[calc(100vh-120px)] overflow-y-auto bg-white p-5 map-hide:static map-hide:ml-0 map-hide:h-auto map-hide:w-full"
-    >
+    <aside :class="asideClass">
       <p class="mb-5 text-[1.125rem] font-bold text-brand-brown">Filters</p>
 
       <div class="mb-5">
@@ -197,9 +221,51 @@ const ratingOptions = [5, 4, 3, 2, 1];
       </template>
       <template v-else>
         <h1 class="mb-10 text-xl font-bold text-brand-brown">{{ title }}</h1>
-        <p class="mb-[18px] mt-1 text-base text-brand-brown-light">
-          {{ results.length }} shop{{ results.length === 1 ? "" : "s" }} found
-        </p>
+
+        <!-- 這頁專屬的搜尋框，只有這一頁有，跟共用 header 上的放大鏡分開。
+             手機版點 header 放大鏡進來這頁後，這裡才是真正能打字搜尋的地方。
+             只在窄螢幕（跟 Filters 按鈕同一個 map-hide 斷點）顯示——桌機版
+             header 本來就有可以打字的搜尋框，這裡再放一個會變成兩個功能
+             重複的搜尋框，沒有必要。 -->
+        <div class="relative mb-3.5 hidden map-hide:block">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#6F5B49"
+            stroke-width="2.3"
+            class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            v-model="searchBoxQuery"
+            type="text"
+            placeholder="Search dessert shops or flavors"
+            class="h-12 w-full rounded-lg border border-[#ddd] pl-10 pr-4 text-sm text-brand-brown outline-none"
+            @keydown.enter="applySearchBox"
+          />
+        </div>
+
+        <div class="mb-5 flex items-center justify-between">
+          <!-- 篩選按鈕只在 Filters 側欄收合成按鈕的窄螢幕（map-hide 以下）才
+               顯示；桌機版側欄本來就一直展開著，不需要這顆按鈕。 -->
+          <button
+            type="button"
+            class="hidden items-center gap-1.5 rounded-[20px] border-2 border-brand-orange px-3.5 py-1.5 text-sm font-semibold text-brand-orange transition-colors hover:bg-brand-orange hover:text-white map-hide:flex"
+            @click="toggleFilters"
+          >
+            Filters
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+          <p class="text-base text-brand-brown-light">
+            {{ results.length }} shop{{ results.length === 1 ? "" : "s" }} found
+          </p>
+        </div>
 
         <div v-if="!results.length" class="rounded-2xl border border-brand-border bg-brand-cream p-7">
           <h2 class="mb-2 text-2xl text-brand-brown">No matching dessert shops yet</h2>

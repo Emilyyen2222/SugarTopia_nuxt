@@ -84,14 +84,18 @@ async function handleLogout() {
     <div class="relative z-[1] mx-auto grid h-full max-w-[1200px] grid-cols-[1fr_auto_1fr] items-center px-5">
       <!-- 左欄：漢堡、搜尋欄、Categories -->
       <div ref="headerLeftEl" class="header-left flex items-center gap-[22px] nav-sm:gap-2">
+        <!-- 三顆圖示按鈕（漢堡、搜尋、下面 template 裡的帳號頭像）統一成
+             47×47px 正方形、8px 圓角（rounded-lg）——原本三顆是三套不同時期
+             各自加的尺寸／圓角寫法，湊在一起看起來像拼裝的，這裡統一成同一組
+             視覺語言，帳號頭像本來就是這個尺寸，不用改，另外兩顆對齊它。 -->
         <div
           id="mobile-menu"
-          class="menu-toggle hidden cursor-pointer flex-col rounded-[0.3rem] border-[3px] border-brand-orange bg-white px-[0.4rem] py-[0.2rem] hover:scale-105 hover:bg-brand-gold hover:shadow-md nav-lg:flex"
+          class="menu-toggle hidden h-[47px] w-[47px] cursor-pointer flex-col items-center justify-center gap-[3px] rounded-lg border-[3px] border-brand-orange bg-white hover:scale-105 hover:bg-brand-gold hover:shadow-md nav-lg:flex"
           @click.stop="toggleMobileMenu"
         >
-          <span class="my-[2.6px] h-[3px] w-4 bg-brand-orange" />
-          <span class="my-[2.6px] h-[3px] w-4 bg-brand-orange" />
-          <span class="my-[2.6px] h-[3px] w-4 bg-brand-orange" />
+          <span class="h-[3px] w-4 bg-brand-orange" />
+          <span class="h-[3px] w-4 bg-brand-orange" />
+          <span class="h-[3px] w-4 bg-brand-orange" />
         </div>
 
         <div class="search-bar flex items-center gap-1.5 nav-sm:gap-0">
@@ -104,7 +108,7 @@ async function handleLogout() {
           />
           <button
             type="button"
-            class="flex h-10 items-center rounded bg-brand-orange px-3 text-white"
+            class="flex h-[47px] w-[47px] items-center justify-center rounded-lg bg-brand-orange text-white"
             @click="handleSearchSubmit"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">

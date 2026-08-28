@@ -25,12 +25,23 @@ const { getFavoriteShops, addFavorite, removeFavorite } = useFavorites();
 const { getShopReviews, formatDate } = useReviews();
 const { isLoggedIn } = useAuth();
 const { show } = useSiteMessage();
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const shopId = computed(() => route.params.id as string);
 const shop = ref<Shop | null>(null);
 const notFound = ref(false);
 const loading = ref(true);
+
+// 跟 ShopCard.vue 一樣：店名／標籤／介紹是店家資料，後端已經有中文版本
+// （nameZh／tagsZh／descriptionZh），依語言切換顯示，中文版缺字時退回英文版。
+const displayName = computed(() => (shop.value && locale.value === "zh-TW" && shop.value.nameZh) || shop.value?.name || "");
+const displayTags = computed(() => {
+  if (!shop.value) return [];
+  return locale.value === "zh-TW" && shop.value.tagsZh.length ? shop.value.tagsZh : shop.value.tags;
+});
+const displayDescription = computed(
+  () => (shop.value && locale.value === "zh-TW" && shop.value.descriptionZh) || shop.value?.description || ""
+);
 
 const reviews = ref<Awaited<ReturnType<typeof getShopReviews>>["reviews"]>([]);
 const reviewsLoading = ref(true);
@@ -139,8 +150,8 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
       <!-- 店家標題區塊 -->
       <div class="flex items-stretch gap-2 detail-md:flex-col">
         <div class="relative flex-1 overflow-hidden rounded-[20px] bg-[#FCDC94] p-[30px] shadow-[0_4px_15px_rgba(0,0,0,0.05)] detail-md:w-full detail-xs:mx-2.5 detail-xs:w-auto">
-          <h1 class="mb-[15px] text-[0.8rem] font-bold text-brand-brown">{{ shop.name }}</h1>
-          <p class="text-base text-brand-brown">{{ shop.description }}</p>
+          <h1 class="mb-[15px] text-[0.8rem] font-bold text-brand-brown">{{ displayName }}</h1>
+          <p class="text-base text-brand-brown">{{ displayDescription }}</p>
 
           <!-- 跟 vanilla 版本一樣：style.css 有一條全站通用的 `.rating span`
                規則（specificity 比 shop_detail.css 自己那條 `.stars` 規則高，
@@ -153,7 +164,7 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
           </div>
 
           <div class="mb-[15px] flex flex-wrap gap-2.5">
-            <span v-for="tag in shop.tags" :key="tag" class="rounded-[20px] bg-[#f5f5f5] px-3 py-[5px] text-[0.875rem] text-[#666]">
+            <span v-for="tag in displayTags" :key="tag" class="rounded-[20px] bg-[#f5f5f5] px-3 py-[5px] text-[0.875rem] text-[#666]">
               {{ tag }}
             </span>
           </div>
@@ -177,7 +188,7 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
         <div class="w-64 shrink-0 rounded-[20px] bg-[#FCDC94] p-[15px] shadow-[0_4px_15px_rgba(0,0,0,0.05)] detail-md:mt-5 detail-md:w-full detail-sm:mx-auto detail-sm:max-w-[80%]">
           <img
             :src="resolveShopImage(shop.image)"
-            :alt="shop.name"
+            :alt="displayName"
             class="h-full min-h-[220px] w-full rounded-xl object-cover transition-transform duration-300 hover:scale-[1.02]"
           />
         </div>
@@ -257,7 +268,7 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
             <p class="text-brand-brown-light">
               {{ t("shop.beFirstPrefix") }}
               <NuxtLink :to="writeReviewHref" class="text-brand-orange underline">{{ t("home.writeAReview") }}</NuxtLink>
-              {{ t("shop.beFirstSuffixFor", { shopName: shop.name }) }}
+              {{ t("shop.beFirstSuffixFor", { shopName: displayName }) }}
             </p>
           </div>
         </template>

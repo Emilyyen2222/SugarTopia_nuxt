@@ -19,10 +19,22 @@ const props = defineProps<{
 const emit = defineEmits<{ viewOnMap: [] }>();
 
 const { buildStars } = useShops();
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const hasCoordinates = computed(() => props.shop.lat != null && props.shop.lng != null);
 const imageSrc = computed(() => resolveShopImage(props.shop.image));
+
+// 店名／標籤／介紹是店家本身的資料（不是介面文案），後端其實已經有
+// 中文版本（nameZh／tagsZh／descriptionZh），只是原本這裡沒有依語言切換，
+// 一律顯示英文版——不是資料缺漏，是這裡漏接。中文版缺字（空字串／空陣列）
+// 時退回英文版，比顯示空白好。
+const displayName = computed(() => (locale.value === "zh-TW" && props.shop.nameZh) || props.shop.name);
+const displayTags = computed(() =>
+  locale.value === "zh-TW" && props.shop.tagsZh.length ? props.shop.tagsZh : props.shop.tags
+);
+const displayDescription = computed(
+  () => (locale.value === "zh-TW" && props.shop.descriptionZh) || props.shop.description
+);
 </script>
 
 <template>
@@ -32,13 +44,13 @@ const imageSrc = computed(() => resolveShopImage(props.shop.image));
     :class="isActiveOnMap ? '-ml-5 border-l-4 border-l-brand-orange bg-brand-cream pl-4' : ''"
   >
     <div class="shrink-0">
-      <NuxtLink :to="`/shop/${shop.id}`" :aria-label="`View ${shop.name}`">
+      <NuxtLink :to="`/shop/${shop.id}`" :aria-label="`View ${displayName}`">
         <!-- 手機窄螢幕（≤480px，沿用 header 已經在用的 nav-sm 斷點）把圖縮小，
              不然固定 200px 寬的圖片會把旁邊 flex-1 的文字內容擠到快沒有寬度可用，
              導致整個卡片橫向超出畫面（螢幕出現橫向捲動）。 -->
         <img
           :src="imageSrc"
-          :alt="shop.name"
+          :alt="displayName"
           class="h-[150px] w-[200px] rounded-lg object-cover nav-sm:h-[85px] nav-sm:w-[110px]"
         />
       </NuxtLink>
@@ -48,7 +60,7 @@ const imageSrc = computed(() => resolveShopImage(props.shop.image));
          頁面在窄螢幕上橫向超出可視範圍——這是 flexbox 常見的坑,不是內容
          本身有問題。 -->
     <div class="ml-5 min-w-0 flex-1">
-      <h2 class="mb-2.5 text-[1.25rem] font-bold text-brand-brown">{{ index + 1 }}. {{ shop.name }}</h2>
+      <h2 class="mb-2.5 text-[1.25rem] font-bold text-brand-brown">{{ index + 1 }}. {{ displayName }}</h2>
       <!-- 跟 shop_detail 頁一樣：style.css 有一條全站通用的 `.rating span`
            規則（specificity 比 `.rating-score` 這種自己的規則高），會把
            這裡原本想要的橘色星星／灰色分數蓋成統一的綠色、x-small（約
@@ -58,13 +70,13 @@ const imageSrc = computed(() => resolveShopImage(props.shop.image));
         <span class="ml-2.5 text-[10px] text-brand-green">{{ shop.rating.toFixed(1) }} ({{ shop.reviews }})</span>
       </div>
       <div class="my-2.5 flex flex-wrap gap-2">
-        <span v-for="tag in shop.tags" :key="tag" class="category">
+        <span v-for="tag in displayTags" :key="tag" class="category">
           <button type="button" class="rounded-[20px] bg-brand-orange px-3 py-[5px] text-sm text-white transition-colors hover:bg-brand-gold">
             {{ tag }}
           </button>
         </span>
       </div>
-      <p class="my-2.5 text-[0.9375rem] leading-[1.2] text-[#333]">{{ shop.description }}</p>
+      <p class="my-2.5 text-[0.9375rem] leading-[1.2] text-[#333]">{{ displayDescription }}</p>
       <div class="text-sm text-[#333]">
         <span class="mr-2.5">✔ {{ t("common.takeout") }}</span>
         <span class="mr-2.5">✔ {{ t("common.savedToSugarTopia") }}</span>

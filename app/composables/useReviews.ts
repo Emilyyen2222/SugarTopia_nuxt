@@ -13,6 +13,7 @@ export interface Review {
   // GET /api/shops/{id}/reviews（店家詳情頁用）沒有——因為店家詳情頁的
   // 評論已經知道自己在哪間店，不需要在每則評論裡重複附上店名/店照。
   shopName?: string;
+  shopNameZh?: string;
   shopImage?: string;
 }
 

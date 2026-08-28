@@ -266,7 +266,7 @@ onMounted(() => {
             </div>
           </div>
           <div class="py-[15px] text-left">
-            <h2 class="m-0 mb-1.5 text-[1.125rem] font-bold text-black">{{ review.shopName || review.shopId }}</h2>
+            <h2 class="m-0 mb-1.5 text-[1.125rem] font-bold text-black">{{ (locale === "zh-TW" ? review.shopNameZh : review.shopName) || review.shopId }}</h2>
             <!-- 跟 shop 卡片一樣：全站通用的 `.rating span` 規則把這裡蓋成綠色小字。 -->
             <div class="mb-2.5 text-base">
               <span class="text-[10px] text-brand-green">{{ buildStars(review.rating) }}</span>

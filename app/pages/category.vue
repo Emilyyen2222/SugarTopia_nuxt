@@ -13,7 +13,7 @@ const route = useRoute();
 const router = useRouter();
 const { fetchShops } = useShops();
 const { show } = useSiteMessage();
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const shops = ref<Shop[]>([]);
 const loading = ref(true);
@@ -92,7 +92,7 @@ function selectShop(shop: Shop, scroll = false) {
 
   mapLat.value = shop.lat;
   mapLng.value = shop.lng;
-  mapName.value = shop.name;
+  mapName.value = (locale.value === "zh-TW" && shop.nameZh) || shop.name;
   activeShopId.value = shop.id;
 
   if (scroll) {

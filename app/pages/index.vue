@@ -196,8 +196,19 @@ onMounted(() => {
     <div class="review-header mb-8 flex items-center justify-between text-left">
       <h1 class="m-0 text-base font-bold text-brand-brown">Latest Reviews</h1>
     </div>
-    <div v-if="reviews.length" class="review-grid grid grid-cols-4 gap-5 detail-md:grid-cols-2 nav-sm:grid-cols-1">
-      <div v-for="review in reviews" :key="review.id" class="review-card h-full w-full">
+    <!-- 手機版（detail-md 以下）從 2 欄 grid 改成左右滑動：窄螢幕硬擠兩欄，
+         每張卡片剩不到一半寬度，店名、圖片、文字全部被壓縮成一條，改成
+         一次一張卡片（露一點下一張的邊，提示可以滑）、用 scroll-snap 讓
+         滑動停在整張卡片上，比較好讀。桌機版 4 欄 grid 不受影響。 -->
+    <div
+      v-if="reviews.length"
+      class="review-grid grid grid-cols-4 gap-5 detail-md:flex detail-md:snap-x detail-md:snap-mandatory detail-md:gap-4 detail-md:overflow-x-auto detail-md:pb-2"
+    >
+      <div
+        v-for="review in reviews"
+        :key="review.id"
+        class="review-card h-full w-full detail-md:w-[82%] detail-md:min-w-[82%] detail-md:shrink-0 detail-md:snap-center"
+      >
         <div class="flex h-full flex-col rounded-2xl bg-brand-gold p-[15px]">
           <div class="flex items-center gap-[15px]">
             <img src="/img/profile.jpg" :alt="review.reviewerName" class="h-[50px] w-[50px] rounded-full object-cover" />

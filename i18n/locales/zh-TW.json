@@ -1,0 +1,37 @@
+{
+  "common": {
+    "demoPlaceholder": "這個功能還在展示階段，之後才會真的做。",
+    "readMore": "閱讀更多"
+  },
+  "header": {
+    "searchPlaceholder": "搜尋甜點店",
+    "writeReview": "寫評論",
+    "logIn": "登入",
+    "signUp": "註冊",
+    "logOut": "登出",
+    "hi": "嗨，{name}",
+    "myFavorites": "我的最愛",
+    "loggedOut": "您已經登出了。"
+  },
+  "home": {
+    "slogan": "讓生活多一點甜，一次一份甜點。",
+    "aiLabel": "SugarTopia AI",
+    "aiHeading": "問問看今天想吃什麼甜點",
+    "aiGreeting": "嗨！告訴我你今天想吃什麼甜點，我會從 SugarTopia 收錄的店家裡幫你推薦。",
+    "chatPlaceholder": "例如：抹茶甜點",
+    "send": "送出",
+    "latestReviews": "最新評論",
+    "noReviews": "目前還沒有評論",
+    "beFirstToReview": "當第一個",
+    "writeAReview": "寫評論",
+    "categories": "甜點分類",
+    "viewAll": "查看全部",
+    "followUs": "追蹤我們"
+  },
+  "footer": {
+    "copyright": "Sugar.Topia {'@'} 2024. 版權所有。",
+    "about": "關於我們",
+    "service": "服務項目",
+    "business": "合作洽談"
+  }
+}

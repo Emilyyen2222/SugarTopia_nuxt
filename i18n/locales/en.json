@@ -1,0 +1,37 @@
+{
+  "common": {
+    "demoPlaceholder": "This section is a demo placeholder for now.",
+    "readMore": "Read more"
+  },
+  "header": {
+    "searchPlaceholder": "Search Dessert Shops",
+    "writeReview": "write a review",
+    "logIn": "Log In",
+    "signUp": "Sign Up",
+    "logOut": "Log Out",
+    "hi": "Hi, {name}",
+    "myFavorites": "My Favorites",
+    "loggedOut": "You have logged out."
+  },
+  "home": {
+    "slogan": "Let's Make Life Sweet, One Dessert at a Time.",
+    "aiLabel": "SugarTopia AI",
+    "aiHeading": "Ask for a dessert recommendation",
+    "aiGreeting": "Hi! Tell me what dessert you want today, and I will recommend a sweet spot from our SugarTopia notes.",
+    "chatPlaceholder": "e.g. Matcha dessert",
+    "send": "Send",
+    "latestReviews": "Latest Reviews",
+    "noReviews": "No reviews yet",
+    "beFirstToReview": "Be the first to",
+    "writeAReview": "write a review",
+    "categories": "Categories",
+    "viewAll": "View All",
+    "followUs": "Follow Us"
+  },
+  "footer": {
+    "copyright": "Sugar.Topia {'@'} 2024. All rights reserved.",
+    "about": "About",
+    "service": "Service",
+    "business": "Business"
+  }
+}

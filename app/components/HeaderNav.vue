@@ -21,6 +21,23 @@ const headerLeftEl = ref<HTMLElement | null>(null);
 const router = useRouter();
 const route = useRoute();
 const { show } = useSiteMessage();
+const { t, locale, locales, setLocale } = useI18n();
+
+// 語言切換：按鈕顯示的是「切過去會變成哪個語言」，不是目前語言（跟大部分
+// 網站的慣例一致，例如按鈕顯示「中文」代表按下去會切成中文）。用
+// nuxt.config.ts 裡設定的 locales 清單反查另一個語言的顯示名稱，不寫死
+// 「英文/中文」這兩個字，以後真的要加第三語言也不用改這段邏輯。
+const otherLocale = computed(() => locales.value.find((l) => (typeof l === "string" ? l : l.code) !== locale.value));
+const otherLocaleName = computed(() => {
+  const other = otherLocale.value;
+  if (!other) return "";
+  return typeof other === "string" ? other : other.name || other.code;
+});
+function toggleLocale() {
+  const other = otherLocale.value;
+  if (!other) return;
+  setLocale(typeof other === "string" ? other : other.code);
+}
 
 function toggleMobileMenu() {
   mobileMenuOpen.value = !mobileMenuOpen.value;
@@ -67,7 +84,7 @@ function handleSearchSubmit() {
 
 async function handleLogout() {
   await logout();
-  show("You have logged out.");
+  show(t("header.loggedOut"));
 }
 </script>
 
@@ -102,7 +119,7 @@ async function handleLogout() {
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Search Dessert Shops"
+            :placeholder="t('header.searchPlaceholder')"
             class="search-input h-10 w-[160px] rounded border border-[#ddd] px-2 text-[0.8rem] nav-sm:hidden"
             @keydown.enter="handleSearchSubmit"
           />
@@ -123,7 +140,7 @@ async function handleLogout() {
 
           <div class="nav-menu-mobile-links">
             <NuxtLink to="/write-review" class="block rounded-[10px] px-3 py-2.5 text-[0.9375rem] font-medium text-brand-brown no-underline hover:bg-brand-hover" @click="closeMobileMenu">
-              write a review
+              {{ t("header.writeReview") }}
             </NuxtLink>
             <a
               href="https://www.instagram.com/cupertino.keki/"
@@ -135,6 +152,13 @@ async function handleLogout() {
               cupertino.keki
               <ExternalLinkIcon class="ml-1 inline h-[0.75em] w-[0.75em]" />
             </a>
+            <button
+              type="button"
+              class="block w-full rounded-[10px] px-3 py-2.5 text-left text-[0.9375rem] font-medium text-brand-brown hover:bg-brand-hover"
+              @click="toggleLocale"
+            >
+              {{ otherLocaleName }}
+            </button>
           </div>
         </nav>
       </div>
@@ -152,7 +176,7 @@ async function handleLogout() {
           to="/write-review"
           class="actions-write-review mr-6 text-[0.9375rem] font-medium text-white no-underline hover:text-brand-gold nav-md:hidden"
         >
-          write a review
+          {{ t("header.writeReview") }}
         </NuxtLink>
         <a
           href="https://www.instagram.com/cupertino.keki/"
@@ -164,16 +188,28 @@ async function handleLogout() {
           <ExternalLinkIcon class="inline h-[0.8125rem] w-[0.8125rem]" />
         </a>
 
+        <!-- 中英文切換：按鈕文字顯示「切過去會變成的語言」。桌機版放在
+             write a review / cupertino.keki 這排 meta 連結旁邊，窄螢幕版本
+             在上面的漢堡選單面板裡（避免再往本來就擠的 header 圖示列塞
+             第四顆按鈕）。 -->
+        <button
+          type="button"
+          class="mr-6 text-[0.9375rem] font-medium text-white no-underline hover:text-brand-gold nav-md:hidden"
+          @click="toggleLocale"
+        >
+          {{ otherLocaleName }}
+        </button>
+
         <template v-if="isLoggedIn">
           <span class="mr-2.5 ml-5 whitespace-nowrap text-[0.9375rem] font-semibold text-white nav-md:hidden">
-            Hi, {{ user?.name }}
+            {{ t("header.hi", { name: user?.name }) }}
           </span>
           <button
             type="button"
             class="rounded-[9px] border border-white bg-transparent px-4 py-2 text-[0.9375rem] font-medium text-white hover:bg-brand-gold hover:text-brand-orange nav-md:hidden"
             @click="handleLogout"
           >
-            Log Out
+            {{ t("header.logOut") }}
           </button>
         </template>
         <template v-else>
@@ -181,13 +217,13 @@ async function handleLogout() {
             to="/login"
             class="ml-5 mr-1 rounded-[9px] border border-white px-4 py-2 text-[0.9375rem] text-white no-underline hover:bg-brand-gold nav-md:hidden"
           >
-            Log In
+            {{ t("header.logIn") }}
           </NuxtLink>
           <NuxtLink
             to="/signup"
             class="rounded-[9px] border border-white bg-white px-4 py-2 text-[0.9375rem] text-brand-orange no-underline hover:bg-brand-gold nav-md:hidden"
           >
-            Sign Up
+            {{ t("header.signUp") }}
           </NuxtLink>
         </template>
 
@@ -198,7 +234,7 @@ async function handleLogout() {
              文字可以定位，不用另外接一個只為了測試用的 class。 -->
         <NuxtLink
           :to="isLoggedIn ? '/favorites' : '/login'"
-          :aria-label="isLoggedIn ? 'My Favorites' : 'Log In'"
+          :aria-label="isLoggedIn ? t('header.myFavorites') : t('header.logIn')"
           class="hidden h-[47px] w-[47px] items-center justify-center rounded-lg border-2 border-brand-avatar bg-brand-avatar text-[1.6rem] text-brand-orange hover:scale-105 hover:text-white hover:shadow-md nav-md:flex"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-[1.6rem] w-[1.6rem]">

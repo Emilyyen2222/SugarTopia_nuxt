@@ -6,7 +6,18 @@ export default defineNuxtConfig({
   // 圖示也沒畫出來，即使裝了 @iconify-json/mdi 還是一樣，所以整個放棄
   // 這個模組，header 裡用到的圖示都改成穩定的 inline SVG（見
   // app/components/ExternalLinkIcon.vue 跟 HeaderNav.vue 內的 svg）。
-  modules: ["@nuxtjs/tailwindcss"],
+  modules: ["@nuxtjs/tailwindcss", "@nuxtjs/i18n"],
+  // 中英文切換：策略選 no_prefix（不加 /zh、/en 這種網址前綴），單純用同一個
+  // 網址、依照使用者選的語言切換畫面文字——這個專案規模不需要多語系各自
+  // 獨立網址帶來的 SEO 好處，no_prefix 比較單純，也不用額外處理路由邏輯。
+  i18n: {
+    strategy: "no_prefix",
+    defaultLocale: "en",
+    locales: [
+      { code: "en", language: "en-US", name: "English", file: "en.json" },
+      { code: "zh-TW", language: "zh-TW", name: "繁體中文", file: "zh-TW.json" },
+    ],
+  },
   css: ["~/assets/css/main.css"],
   app: {
     head: {

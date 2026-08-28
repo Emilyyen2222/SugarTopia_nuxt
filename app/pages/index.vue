@@ -10,6 +10,7 @@ import type { Review } from "~/composables/useReviews";
 const { apiFetch } = useApi();
 const { getLatestReviews, formatDate } = useReviews();
 const { buildStars } = useShops();
+const { t } = useI18n();
 
 // AI 問答 --------------------------------------------------------
 // 對應 gemini-chat.js。跟其他頁面不一樣，vanilla 版本這支檔案是唯一一個
@@ -23,7 +24,7 @@ interface ChatMessage {
 }
 
 const chatMessages = ref<ChatMessage[]>([
-  { role: "assistant", text: "Hi! Tell me what dessert you want today, and I will recommend a sweet spot from our SugarTopia notes." },
+  { role: "assistant", text: t("home.aiGreeting") },
 ]);
 const chatInput = ref("");
 const chatBusy = ref(false);
@@ -148,12 +149,12 @@ onMounted(() => {
 
     <div class="left-side z-[1] flex w-1/2 flex-col items-start justify-center px-[150px] py-10 box-border detail-md:order-2 detail-md:w-full detail-md:px-5 detail-md:pt-6">
       <p class="overlay-text mb-5 max-w-[400px] text-left text-[1.2rem] font-bold leading-[1.4] text-brand-brown">
-        Let's Make Life Sweet, One Dessert at a Time.
+        {{ t("home.slogan") }}
       </p>
 
       <div class="ai-chat-heading mb-4 max-w-[420px] text-left">
-        <span class="mb-1.5 inline-block text-[13px] font-bold uppercase text-brand-orange">SugarTopia AI</span>
-        <h2 class="m-0 mb-1.5 text-[19px] leading-[1.3] text-brand-brown">Ask for a dessert recommendation</h2>
+        <span class="mb-1.5 inline-block text-[13px] font-bold uppercase text-brand-orange">{{ t("home.aiLabel") }}</span>
+        <h2 class="m-0 mb-1.5 text-[19px] leading-[1.3] text-brand-brown">{{ t("home.aiHeading") }}</h2>
       </div>
 
       <div id="chatMessages" ref="chatMessagesEl" class="chat-messages box-border w-full max-w-[420px] min-h-[180px] max-h-[280px] overflow-y-auto rounded-[20px] border border-brand-border bg-white p-[18px]" aria-live="polite">
@@ -172,7 +173,7 @@ onMounted(() => {
           id="chatInput"
           v-model="chatInput"
           type="text"
-          placeholder="e.g. Matcha dessert"
+          :placeholder="t('home.chatPlaceholder')"
           autocomplete="off"
           :disabled="chatBusy"
           class="box-border min-w-0 flex-1 rounded-xl border border-brand-border px-[14px] py-[13px] text-base text-brand-brown"
@@ -182,7 +183,7 @@ onMounted(() => {
           :disabled="chatBusy"
           class="inline-flex items-center gap-2 rounded-xl bg-brand-brown px-5 py-[13px] text-base leading-none text-white hover:bg-brand-brown-hover disabled:opacity-60"
         >
-          Send
+          {{ t("home.send") }}
           <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z" /></svg>
         </button>
       </form>
@@ -194,7 +195,7 @@ onMounted(() => {
   <!-- Latest Reviews -->
   <div class="latest_review_section mx-auto max-w-[1000px] px-5 py-16 text-center">
     <div class="review-header mb-8 flex items-center justify-between text-left">
-      <h1 class="m-0 text-base font-bold text-brand-brown">Latest Reviews</h1>
+      <h1 class="m-0 text-base font-bold text-brand-brown">{{ t("home.latestReviews") }}</h1>
     </div>
     <!-- 手機版（detail-md 以下）從 2 欄 grid 改成左右滑動：窄螢幕硬擠兩欄，
          每張卡片剩不到一半寬度，店名、圖片、文字全部被壓縮成一條，改成
@@ -225,22 +226,25 @@ onMounted(() => {
             </div>
             <img v-if="review.shopImage" :src="resolveShopImage(review.shopImage)" :alt="review.shopName" class="my-2.5 block h-[130px] w-full rounded-lg object-cover" />
             <p class="review-text my-2.5 line-clamp-3 text-[0.9375rem] text-[#555]">{{ review.text }}</p>
-            <NuxtLink :to="`/shop/${review.shopId}`" class="read-more text-sm text-brand-green no-underline hover:underline">Read more</NuxtLink>
+            <NuxtLink :to="`/shop/${review.shopId}`" class="read-more text-sm text-brand-green no-underline hover:underline">{{ t("common.readMore") }}</NuxtLink>
           </div>
         </div>
       </div>
     </div>
     <div v-else class="rounded-2xl border border-brand-border bg-brand-cream p-7 text-left">
-      <h2 class="mb-2 text-2xl text-brand-brown">No reviews yet</h2>
-      <p class="text-brand-brown-light">Be the first to <NuxtLink to="/write-review" class="text-brand-orange underline">write a review</NuxtLink>.</p>
+      <h2 class="mb-2 text-2xl text-brand-brown">{{ t("home.noReviews") }}</h2>
+      <p class="text-brand-brown-light">
+        {{ t("home.beFirstToReview") }}
+        <NuxtLink to="/write-review" class="text-brand-orange underline">{{ t("home.writeAReview") }}</NuxtLink>.
+      </p>
     </div>
   </div>
 
   <!-- Categories -->
   <section class="dessert_categories_section mx-auto max-w-[1000px] px-5 py-14 text-center">
     <div class="category-header mb-8 flex items-center justify-between text-left">
-      <h2 class="m-0 text-base font-bold text-brand-brown">Categories</h2>
-      <NuxtLink to="/category" class="category-view-all text-sm text-brand-orange no-underline hover:underline">View All</NuxtLink>
+      <h2 class="m-0 text-base font-bold text-brand-brown">{{ t("home.categories") }}</h2>
+      <NuxtLink to="/category" class="category-view-all text-sm text-brand-orange no-underline hover:underline">{{ t("home.viewAll") }}</NuxtLink>
     </div>
     <div class="category-grid grid grid-cols-4 gap-5 detail-md:grid-cols-2 nav-sm:grid-cols-1">
       <NuxtLink
@@ -266,7 +270,7 @@ onMounted(() => {
         class="instagram-follow-btn inline-flex items-center gap-2 rounded bg-white px-5 py-2.5 text-[15px] text-brand-orange no-underline transition-all hover:-translate-y-0.5 hover:bg-brand-gold hover:text-white"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg>
-        Follow Us
+        {{ t("home.followUs") }}
       </a>
       <p class="my-2.5 text-[15px] text-white">@cupertino.keki</p>
       <div class="instagram-grid mx-auto my-5 grid max-w-[1000px] grid-cols-6 gap-5 detail-md:grid-cols-3 nav-sm:grid-cols-2">

@@ -257,10 +257,11 @@ onMounted(() => {
       <h2 class="m-0 text-base font-bold text-brand-brown">{{ t("home.categories") }}</h2>
       <NuxtLink to="/category" class="category-view-all text-sm text-brand-orange no-underline hover:underline">{{ t("home.viewAll") }}</NuxtLink>
     </div>
-    <!-- 手機版（detail-md 以下）跟 Latest Reviews 一樣改成左右滑動：一次看
-         4 個圖示（露一點第 5 個的邊，提示可以滑），跟你截圖參考的 Uber Eats
-         分類列同一種做法，也讓整頁的滑動手感一致，不會這裡格狀、那裡滑動
-         混著用。桌機版 4 欄 grid 不變。 -->
+    <!-- 手機版（detail-md 以下）跟 Latest Reviews 一樣改成左右滑動：一次「剛好」
+         塞滿 4 張卡片、不多不少（不是露一點第 5 張的邊那種做法），滑一下
+         換下一組 4 張。寬度用 calc(25% - 9px) 算出來：4 張卡片 + 3 個 12px
+         間距（gap-3）要剛好等於整行寬度，每張卡片就要讓出 3*12px÷4=9px
+         給間距。桌機版 4 欄 grid 不變。 -->
     <div
       class="category-grid grid grid-cols-4 gap-5 detail-md:flex detail-md:snap-x detail-md:snap-mandatory detail-md:gap-3 detail-md:overflow-x-auto detail-md:pb-2"
     >
@@ -268,7 +269,7 @@ onMounted(() => {
         v-for="tile in categoryTiles"
         :key="tile.query"
         :to="`/category?q=${encodeURIComponent(tile.query)}`"
-        class="category-card flex flex-col items-center rounded-2xl p-2.5 transition hover:scale-[0.98] hover:bg-[rgba(249,168,38,0.2)] detail-md:w-[27%] detail-md:min-w-[27%] detail-md:shrink-0 detail-md:snap-start"
+        class="category-card flex flex-col items-center rounded-2xl p-2.5 transition hover:scale-[0.98] hover:bg-[rgba(249,168,38,0.2)] detail-md:w-[calc(25%-9px)] detail-md:min-w-[calc(25%-9px)] detail-md:shrink-0 detail-md:snap-start"
       >
         <!-- 邊框改成 CSS 畫（不是圖片本身自帶的邊框），圖示跟文字都放回同一個
              邊框裡（跟原本圖片內建邊框、文字在圖示下方的排版一致），只是

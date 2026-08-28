@@ -36,6 +36,11 @@ const { t } = useI18n();
           <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM2.5 21h5V9h-5v12Zm7.5 0h5v-6.5c0-1.6 1-2.3 2-2.3s2 .7 2 2.3V21h5v-7.4c0-3.7-2-5.4-4.6-5.4-2.1 0-3 1.2-3.5 2v-1.7h-5c.1 1.1 0 12.5 0 12.5Z" /></svg>
         </a>
       </div>
+      <!-- 店家收錄工具的入口：低調放在 footer 最底下，不特別標註「管理」
+           之類的字樣、字級刻意跟其他連結有差。真正擋人的是後端的
+           ADMIN_EMAILS 檢查（見 main.py 的 require_admin_user），這裡
+           純粹只是不想讓一般訪客一眼就看到、點進去問東問西。 -->
+      <NuxtLink to="/admin/places" class="mt-6 inline-block text-[11px] text-white/30 no-underline hover:text-white/70">admin</NuxtLink>
     </div>
   </footer>
 </template>

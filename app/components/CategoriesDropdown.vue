@@ -6,19 +6,11 @@
 
 const { t } = useI18n();
 
-// label 換成 labelKey：value（query）繼續維持英文，因為是直接送去打
-// 後端搜尋 API 的字串，跟後端店家資料（英文）比對，只有畫面上顯示的文字
-// 要跟著語言切換。
-const categories = [
-  { labelKey: "category.filterCategories.cinnamonRolls", query: "Cinnamon Rolls" },
-  { labelKey: "category.filterCategories.iceCreams", query: "Ice Creams" },
-  { labelKey: "category.filterCategories.bagels", query: "Bagels" },
-  { labelKey: "category.filterCategories.cheesecakes", query: "Cheesecakes" },
-  { labelKey: "category.filterCategories.macaron", query: "Macaron" },
-  { labelKey: "category.filterCategories.cafes", query: "Cafes" },
-  { labelKey: "category.filterCategories.dogFriendly", query: "Dogs Friendly" },
-  { labelKey: "category.filterCategories.alcoholInfusedShort", query: "Alcohol" },
-];
+// 跟首頁 Categories 磚共用同一份清單（composables/categoryTiles.ts），
+// 不要各自維護一份重複的內容——不然這個下拉選單很容易跟首頁的分類
+// 兜不起來（例如首頁合併成烘焙甜點了，這裡卻還是肉桂捲/貝果各自一條）。
+// image 欄位這裡用不到，忽略即可。
+const categories = categoryTiles;
 
 const isOpen = ref(false);
 const rootEl = ref<HTMLElement | null>(null);

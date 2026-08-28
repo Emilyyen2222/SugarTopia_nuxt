@@ -118,20 +118,14 @@ onMounted(loadLatestReviews);
 // 用長度差分辨出來，把文字那條路徑拿掉，其餘圖示路徑原封不動保留），
 // 文字改成畫面上真的的 HTML 文字（labelKey 對應語言檔），才能跟著介面
 // 語言切換。
-const categoryTiles = [
-  { labelKey: "category.filterCategories.cinnamonRolls", query: "Cinnamon Rolls", image: "c1-icon.svg" },
-  { labelKey: "category.filterCategories.iceCreams", query: "Ice Creams", image: "c2-icon.svg" },
-  { labelKey: "category.filterCategories.bagels", query: "Bagels", image: "c3-icon.svg" },
-  { labelKey: "category.filterCategories.cheesecakes", query: "Cheesecakes", image: "c4-icon.svg" },
-  { labelKey: "category.filterCategories.macaron", query: "Macaron", image: "c5-icon.svg" },
-  { labelKey: "category.filterCategories.cafes", query: "Cafes", image: "c6-icon.svg" },
-  { labelKey: "category.filterCategories.dogFriendly", query: "Dogs Friendly", image: "c7-icon.svg" },
-  { labelKey: "category.filterCategories.alcoholInfusedShort", query: "Alcohol", image: "c8-icon.svg" },
-];
+// categoryTiles 定義搬到 composables/categoryTiles.ts，跟 header 的
+// CategoriesDropdown.vue 共用同一份，不要各自維護一份重複的內容。
 
 // 手機版一次顯示一「頁」2x2（4 張）卡片，左右滑動切換頁，不是單排橫向
-// 滑動——把 8 張卡片切成每 4 張一組，每一組各自是一個 2 欄 grid，這些
+// 滑動——把卡片切成每 4 張一組，每一組各自是一個 2 欄 grid，這些
 // grid 本身再排成一整排、左右滑動、滑動停在整頁上（scroll-snap）。
+// 目前剛好 4 張，只會產生 1 頁，不會有滑動/圓點，以後分類磚增加超過
+// 4 張時這裡不用改，會自動變成多頁。
 const categoryPages = computed(() => {
   const pages: typeof categoryTiles[] = [];
   for (let i = 0; i < categoryTiles.length; i += 4) {
@@ -313,8 +307,9 @@ onMounted(() => {
 
     <!-- 頁碼小圓點：跟首頁輪播圖同一種提示手法，讓使用者一眼看出「這裡
          滑得動、還有下一頁」，不用自己碰運氣去滑滑看。只在有一頁以上時
-         才顯示（目前分類數固定是 2 頁，但用 categoryPages.length 算，
-         之後分類數變了也不用改這段）。 -->
+         才顯示（用 categoryPages.length 算，目前剛好 4 張分類磚只有
+         1 頁不會顯示，之後分類磚超過 4 張變多頁時會自動出現，不用改
+         這段）。 -->
     <div v-if="categoryPages.length > 1" class="mt-4 flex justify-center gap-2 md:hidden">
       <span
         v-for="(page, i) in categoryPages"

@@ -71,7 +71,9 @@
       "iceCreams": "冰淇淋",
       "macaron": "馬卡龍",
       "dogFriendly": "寵物友善",
-      "alcoholInfusedShort": "酒香甜點"
+      "alcoholInfusedShort": "酒香甜點",
+      "bakedDesserts": "烘焙甜點",
+      "petFriendly": "毛孩友善"
     },
     "filterFeatures": {
       "hotAndNew": "熱門新店",

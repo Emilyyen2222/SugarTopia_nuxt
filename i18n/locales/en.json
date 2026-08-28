@@ -71,7 +71,9 @@
       "iceCreams": "Ice Creams",
       "macaron": "Macaron",
       "dogFriendly": "Dog Friendly",
-      "alcoholInfusedShort": "Alcohol Infused"
+      "alcoholInfusedShort": "Alcohol Infused",
+      "bakedDesserts": "Baked Desserts",
+      "petFriendly": "Pet Friendly"
     },
     "filterFeatures": {
       "hotAndNew": "Hot and New",

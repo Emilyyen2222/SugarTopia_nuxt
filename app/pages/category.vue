@@ -39,8 +39,14 @@ function shopMatches(shop: Shop) {
     [shop.name, shop.category, shop.location, shop.description, shop.tags.join(" ")].join(" ")
   );
   const matchesRating = !filterState.rating || shop.rating >= filterState.rating;
+  // 一般情況下（單一分類字串）後端 GET /api/shops 的 q 已經先篩過一次，
+  // 這裡的 matchesQuery 只是再確認一次，等於恆真。合併分類（例如首頁
+  // 的「烘焙甜點」磚，見 composables/categoryTiles.ts）才會真的用到：
+  // 後端 q 是單一子字串比對、不支援 OR，合併分類改成 q="" 抓全部店家
+  // 回來，交給這裡用 queryTerms 任一符合就算（OR）。
+  const matchesQuery = !queryTerms.value.length || queryTerms.value.some((term) => searchable.includes(normalize(term)));
   const matchesFeatures = filterState.features.every((feature) => searchable.includes(normalize(feature)));
-  return matchesRating && matchesFeatures;
+  return matchesRating && matchesQuery && matchesFeatures;
 }
 
 const results = computed(() => shops.value.filter(shopMatches));
@@ -48,9 +54,16 @@ const results = computed(() => shops.value.filter(shopMatches));
 const queryText = computed(() => (route.query.q as string) || "");
 const locationText = computed(() => (route.query.location as string) || "");
 
+// composite：目前的 q 是不是一個合併分類（見 composables/categoryTiles.ts
+// 的 BAKED_DESSERTS_QUERY）。queryTerms 是實際要拿去比對店家資料的關鍵字
+// 清單——合併分類展開成多個關鍵字（OR），一般分類/自由搜尋字串就是它
+// 自己單獨一個。
+const composite = computed(() => COMPOSITE_CATEGORIES[queryText.value]);
+const queryTerms = computed(() => composite.value?.terms ?? (queryText.value ? [queryText.value] : []));
+
 const title = computed(() => {
   if (queryText.value || locationText.value) {
-    const query = queryText.value || t("category.dessertShops");
+    const query = composite.value ? t(composite.value.labelKey) : queryText.value || t("category.dessertShops");
     const location = locationText.value ? t("category.inLocation", { location: locationText.value }) : "";
     return t("category.searchResultsFor", { query }) + location;
   }
@@ -74,7 +87,9 @@ async function load() {
   loadFailed.value = false;
 
   try {
-    shops.value = await fetchShops({ q: queryText.value, location: locationText.value });
+    // 合併分類打後端時 q 傳空字串（抓全部店家回來），實際的 OR 篩選交給
+    // 上面 shopMatches 用 queryTerms 在前端做——後端 q 只能比對單一字串。
+    shops.value = await fetchShops({ q: composite.value ? "" : queryText.value, location: locationText.value });
   } catch {
     loadFailed.value = true;
     if (!shops.value.length) {

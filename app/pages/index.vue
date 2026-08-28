@@ -277,8 +277,15 @@ onMounted(() => {
              卡片寬度只有桌機版的一小部分（22% vs 200px），寫死比例算出來的
              高度會跟著等比縮小，圖示卻是固定 px 高度不會跟著變小，兩個一衝突
              文字就會被擠出邊框外——拿掉寫死比例，box 高度看內容（圖示+文字+
-             padding）自然決定，兩種寬度都不會互相打架。 -->
-        <div class="flex w-full max-w-[200px] flex-col items-center gap-1 rounded-lg border-2 border-brand-orange bg-white px-2 py-3 transition-transform hover:scale-95 detail-md:px-1">
+             padding）自然決定，兩種寬度都不會互相打架。
+             h-full：category-grid（grid／flex）預設就會把同一列的每張卡片
+             拉成一樣高（align-items: stretch 是 grid／flex 的預設值），但
+             那只讓外層 NuxtLink 一樣高，邊框是「NuxtLink 裡面另一層 div」，
+             不會自動跟著撐滿，不加 h-full 的話，店名一行的卡片（例如
+             Bagels）邊框會比店名兩行的卡片（例如 Cinnamon Rolls）矮一截，
+             即使外層兩張 NuxtLink 其實已經一樣高了。桌機版另外加高
+             padding（py-3 → py-6），原本比例撐出來的高度感這次用留白補回來。 -->
+        <div class="flex h-full w-full max-w-[200px] flex-col items-center justify-center gap-1 rounded-lg border-2 border-brand-orange bg-white px-2 py-3 transition-transform hover:scale-95 detail-md:px-1 md:py-6">
           <!-- 圖片本身的畫布（viewBox）原本比圖示實際佔的範圍大很多——下半部
                是留給圖片內建文字的空間，拿掉文字後變成透明留白，直接放大
                圖片會把那塊留白一起撐開，圖示跟下面文字之間就會空一大截。

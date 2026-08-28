@@ -15,10 +15,13 @@ body {
 html,
 body {
   overflow-x: hidden;
-  /* overflow-x: hidden 只能擋「內容真的比螢幕寬」造成的橫向捲動；觸控板
-     兩指左右滑動時瀏覽器會有的「拉到底彈一下」邊界回彈效果，是另一個
-     瀏覽器層級的行為，要靠 overscroll-behavior-x 才擋得住。 */
-  overscroll-behavior-x: none;
+  /* overflow-x: hidden 只能擋「內容真的比螢幕寬」造成的橫向捲動；觸控板／
+     手指滑到頁面邊界時瀏覽器會有的「彈一下」回彈效果（iOS Safari 尤其
+     明顯），是另一個瀏覽器層級的行為，要靠 overscroll-behavior 才擋得住。
+     垂直方向這條是為了首頁滿版輪播圖加的：圖片貼齊頁面最頂端，往上滑
+     超過頂端時 Safari 的回彈會讓這張大圖看起來像被拉伸/放大，不是我們
+     自己寫的縮放效果，是瀏覽器原生行為，直接把回彈關掉最乾脆。 */
+  overscroll-behavior: none;
 }
 
 /* 對應 vanilla 版本 CSS/style.css 的全站 checkbox 樣式（登入/註冊的

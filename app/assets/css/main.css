@@ -2,9 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 全站預設字體維持跟 vanilla 版本一致（Poppins），body 背景用品牌的淺色調 */
+/* 全站預設字體維持跟 vanilla 版本一致（Poppins），body 背景用品牌的淺色調。
+   後面加的 Huninn 只會在瀏覽器排到「Poppins 沒有這個字符的字」時才生效——
+   Poppins 沒有中文字符，所以拉丁字母照樣走 Poppins，中文字才會落到
+   Huninn，兩者不會互相蓋過去。
+   同時設在 html 跟 body 兩個地方：Tailwind Preflight 本來就會在 html
+   上設一份 font-family（用 tailwind.config.ts 的 fontFamily.sans，也是
+   "Poppins, sans-serif"，但沒有 Huninn），只改 body 的話，字體是從 html
+   繼承下來、不是從 body 繼承，中文字還是會落到 html 那份沒有 Huninn 的
+   字體清單，實測不會生效。兩個地方都設，才能確保全站文字都拿到一致的
+   字體清單。 */
+html,
 body {
-  font-family: "Poppins", sans-serif;
+  font-family: "Poppins", "Huninn", sans-serif;
 }
 
 /* 防呆：鎖死整個網頁不能橫向捲動。手機版排版本來就是靠各元件自己不超出

@@ -25,18 +25,23 @@ const { t, locale, locales, setLocale } = useI18n();
 
 // 語言切換：按鈕顯示的是「切過去會變成哪個語言」，不是目前語言（跟大部分
 // 網站的慣例一致，例如按鈕顯示「中文」代表按下去會切成中文）。用
-// nuxt.config.ts 裡設定的 locales 清單反查另一個語言的顯示名稱，不寫死
-// 「英文/中文」這兩個字，以後真的要加第三語言也不用改這段邏輯。
+// nuxt.config.ts 裡設定的 locales 清單反查另一個語言，不寫死「英文/中文」
+// 這兩個字，以後真的要加第三語言也不用改這段邏輯。
+// 顯示文字改用縮寫（EN／中文），不是完整的 English／繁體中文——原本的
+// 完整字放進 header 右側那排 write a review／cupertino.keki 中間，在
+// 1024～1380px 這個寬度區間（漢堡選單跟桌機文字連結會同時出現的地帶）
+// 太長，擠得整排換行、很亂，縮寫比較不占位置，也更接近使用者自己
+// portfolio 網站上那種簡潔的圓角切換鈕做法。
+const SHORT_LOCALE_LABELS: Record<string, string> = { en: "EN", "zh-TW": "中文" };
 const otherLocale = computed(() => locales.value.find((l) => (typeof l === "string" ? l : l.code) !== locale.value));
-const otherLocaleName = computed(() => {
+const otherLocaleCode = computed(() => {
   const other = otherLocale.value;
   if (!other) return "";
-  return typeof other === "string" ? other : other.name || other.code;
+  return typeof other === "string" ? other : other.code;
 });
+const otherLocaleName = computed(() => SHORT_LOCALE_LABELS[otherLocaleCode.value] || otherLocaleCode.value);
 function toggleLocale() {
-  const other = otherLocale.value;
-  if (!other) return;
-  setLocale(typeof other === "string" ? other : other.code);
+  if (otherLocaleCode.value) setLocale(otherLocaleCode.value);
 }
 
 function toggleMobileMenu() {
@@ -120,7 +125,7 @@ async function handleLogout() {
             v-model="searchQuery"
             type="text"
             :placeholder="t('header.searchPlaceholder')"
-            class="search-input h-10 w-[160px] rounded border border-[#ddd] px-2 text-[0.8rem] nav-sm:hidden"
+            class="search-input h-[47px] w-[160px] rounded border border-[#ddd] px-2 text-[0.8rem] nav-sm:hidden"
             @keydown.enter="handleSearchSubmit"
           />
           <button
@@ -188,13 +193,15 @@ async function handleLogout() {
           <ExternalLinkIcon class="inline h-[0.8125rem] w-[0.8125rem]" />
         </a>
 
-        <!-- 中英文切換：按鈕文字顯示「切過去會變成的語言」。桌機版放在
-             write a review / cupertino.keki 這排 meta 連結旁邊，窄螢幕版本
-             在上面的漢堡選單面板裡（避免再往本來就擠的 header 圖示列塞
-             第四顆按鈕）。 -->
+        <!-- 中英文切換：按鈕文字顯示「切過去會變成的語言」，縮寫成
+             EN／中文，做成小圓角膠囊按鈕（不是純文字連結），視覺上跟
+             write a review／cupertino.keki 那種文字連結分開，也比完整
+             單字省空間。桌機版放在這排 meta 連結旁邊，窄螢幕版本在上面
+             的漢堡選單面板裡（避免再往本來就擠的 header 圖示列塞第四顆
+             按鈕）。 -->
         <button
           type="button"
-          class="mr-6 text-[0.9375rem] font-medium text-white no-underline hover:text-brand-gold nav-md:hidden"
+          class="mr-6 rounded-full border border-white/70 px-3 py-1 text-[0.8125rem] font-medium text-white transition-colors hover:border-white hover:bg-white hover:text-brand-orange nav-md:hidden"
           @click="toggleLocale"
         >
           {{ otherLocaleName }}

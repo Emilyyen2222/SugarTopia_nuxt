@@ -34,6 +34,15 @@ export default defineNuxtConfig({
           rel: "stylesheet",
           href: "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap",
         },
+        // Huninn（粉圓體）：中文字體圓潤、比較活潑，跟系統預設中文字體
+        // （方正、偏嚴肅）比起來更貼近甜點店的溫馨調性。Poppins 本身沒有
+        // 中文字符，瀏覽器對中文字會自動 fallback 到這個字體（見
+        // main.css 的 font-family 順序），拉丁字母還是走 Poppins，不會
+        // 互相蓋過去。
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Huninn&display=swap",
+        },
       ],
     },
   },

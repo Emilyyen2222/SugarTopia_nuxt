@@ -54,8 +54,14 @@ export default <Partial<Config>>{
           "chat-assistant": "#F5EADC", // AI 問答，AI 回覆的訊息泡泡底色
         },
       },
+      // Huninn（粉圓體）：中文字體換成比較圓潤溫暖的字型，不用系統預設
+      // 中文字體那種偏方正嚴肅的感覺（見 nuxt.config.ts 引入的 Google
+      // Fonts 連結）。這裡也要跟著改，不能只改 main.css 的 body 選擇器——
+      // app.vue／layout 的根層 <div> 用了 font-sans 這個 utility class，
+      // 直接把這裡設定的字體清單套上去，蓋掉從 body 繼承下來的值，實測
+      // 過只改 main.css 中文字體不會生效，兩個地方要同步。
       fontFamily: {
-        sans: ["Poppins", "sans-serif"],
+        sans: ["Poppins", "Huninn", "sans-serif"],
       },
     },
   },

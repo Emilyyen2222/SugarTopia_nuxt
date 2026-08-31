@@ -47,7 +47,12 @@ test.describe("首頁 /", () => {
     expect(swiperTop).toBeLessThan(leftSideTop);
   });
 
-  test("手機版 header 不會被卡在正中間的 logo 蓋住，write a review／cupertino.keki 收進漢堡選單", async ({ page }) => {
+  test("手機版 header 不會被卡在正中間的 logo 蓋住，漢堡選單點開會看到 Categories 跟語言切換", async ({ page }) => {
+    // 「write a review」／「cupertino.keki」這兩個連結後來都拿掉了：前者是
+    // 因為寫評論改成一定要從某家店的詳情頁進去（見 write-review.vue 的
+    // lockedShop），不再有不指定店家的全站入口；後者是使用者要求拿掉的
+    // header 雜項連結（見 HeaderNav.vue 相關註解）。這裡改成檢查漢堡選單
+    // 現在真正會有的內容：Categories 下拉選單、語言切換按鈕。
     await page.setViewportSize({ width: 390, height: 800 });
     await page.goto("/");
     await page.waitForTimeout(200);
@@ -56,10 +61,9 @@ test.describe("首頁 /", () => {
     const logoLeft = await page.locator(".logo-container").evaluate((el) => el.getBoundingClientRect().left);
     expect(headerLeftRight).toBeLessThanOrEqual(logoLeft);
 
-    await expect(page.locator(".actions-write-review")).toBeHidden();
     await page.click("#mobile-menu");
-    await expect(page.locator(".nav-menu-mobile-links")).toContainText("write a review");
-    await expect(page.locator(".nav-menu-mobile-links")).toContainText("cupertino.keki");
+    await expect(page.locator(".nav-menu .nav-categories-toggle")).toBeVisible();
+    await expect(page.locator(".nav-menu-mobile-links")).toBeVisible();
   });
 
   test("hero 右半邊的圖片輪播四周留白要固定、對稱，不會隨螢幕寬度跑掉", async ({ page }) => {
@@ -126,15 +130,18 @@ test.describe("首頁 /", () => {
     await expect(page.locator(".review-header .review-view-all")).toHaveCount(0);
   });
 
-  test("Categories 8 個磚都帶有真實的 ?q= 查詢參數，不是全部連到同一個空白分類頁", async ({ page }) => {
+  test("Categories 4 個磚都帶有真實的 ?q= 查詢參數，不是全部連到同一個空白分類頁", async ({ page }) => {
+    // 原本是 8 個各自獨立的品類磚，後來把肉桂捲／貝果／馬卡龍／起司蛋糕
+    // 合併成一個「烘焙甜點」磚（見 composables/categoryTiles.ts 的
+    // BAKED_DESSERTS_QUERY），首頁只剩 4 張，細節篩選留給分類頁側欄。
     await page.goto("/");
     const hrefs = await page.locator(".category-grid .category-card").evaluateAll((els) => els.map((el) => el.getAttribute("href")));
 
-    expect(hrefs).toHaveLength(8);
+    expect(hrefs).toHaveLength(4);
     for (const href of hrefs) {
       expect(href).toMatch(/^\/category\?q=.+/);
     }
-    expect(new Set(hrefs).size).toBe(8);
+    expect(new Set(hrefs).size).toBe(4);
   });
 
   test("header 的 Categories 下拉選單：預設收起、點了才展開、點外面會收回去", async ({ page }) => {
@@ -148,10 +155,12 @@ test.describe("首頁 /", () => {
     await menu.locator(".nav-categories-toggle").click();
     await expect(panel).toBeVisible();
 
+    // 跟首頁 Categories 磚共用同一份清單（composables/categoryTiles.ts），
+    // 現在是 4 個合併過的分類，不是原本各自獨立的 8 個。
     const hrefs = await panel.locator("a").evaluateAll((els) => els.map((el) => el.getAttribute("href")));
-    expect(hrefs).toContain("/category?q=Cinnamon%20Rolls");
+    expect(hrefs).toContain("/category?q=Cafes");
     expect(hrefs).toContain("/category?q=Dogs%20Friendly");
-    expect(hrefs).toHaveLength(8);
+    expect(hrefs).toHaveLength(4);
 
     // 點選單外面應該要收起來，換一個確定在面板範圍外的目標。
     await page.locator(".dessert-swiper img").first().click();

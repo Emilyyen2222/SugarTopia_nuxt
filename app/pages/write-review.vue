@@ -2,14 +2,13 @@
 // 對應 vanilla 版本 write_review.html + Js/reviews.js 的
 // setupWriteReviewForm()。
 //
-// 星等選擇器（Rate Desserts）刻意照抄一個「有點特別」的既有行為：vanilla
-// 版本用 5 個 radio + `input:checked ~ label { color: orange }` 這個常見
-// CSS 技巧做星星填色，但 DOM 順序是反過來的（第一顆 radio 的 value 是 5，
-// 最後一顆是 1），而且沒有搭配 flex-direction: row-reverse。實際量測結果
-// （見 README）是：點第 3 顆星（從左數，value=3），填色的是第 3～5 顆星
-// （從點擊位置「往右」填到底），不是一般常見的「從最左邊往點擊位置填」。
-// 這裡不用 CSS 那個技巧（Vue 裡更適合直接用 JS 算），但刻意算出跟 vanilla
-// 版本完全一樣的視覺結果，不是自己覺得「這樣比較合理」的常見左填色版本。
+// 星等選擇器（Rate Desserts）：原本刻意照抄 vanilla 版本一個「不直覺」的
+// 既有行為——vanilla 用 5 個 DOM 順序反過來的 radio 做填色，點第 3 顆星
+// 會變成第 3～5 顆星（從點擊位置「往右」）被填色，不是一般常見的「從最
+// 左邊往點擊位置填」。使用者實際用起來覺得這樣違反直覺，改成一般星等
+// selector 常見的「從左邊填到點擊位置」：position 直接等於 value（點第
+// 幾顆星，評分就是幾分），isStarFilled 判斷也跟著改成「position 小於等於
+// 目前選的位置」就填色。
 import type { Shop } from "~/composables/useShops";
 
 const route = useRoute();
@@ -29,20 +28,20 @@ const loadingShopField = ref(true);
 const reviewText = ref("");
 const submitting = ref(false);
 
-// 5 顆星星，position 1～5（畫面上從左到右），value 是點了它會存的實際評分
-// （5,4,3,2,1，跟 vanilla 版本的 DOM 順序一樣是反過來的）。
+// 5 顆星星，position 1～5（畫面上從左到右），value 直接等於 position——
+// 點第幾顆星，評分就是幾分，跟大部分星等 selector 的直覺一致。
 const stars = [
-  { position: 1, value: 5 },
-  { position: 2, value: 4 },
+  { position: 1, value: 1 },
+  { position: 2, value: 2 },
   { position: 3, value: 3 },
-  { position: 4, value: 2 },
-  { position: 5, value: 1 },
+  { position: 4, value: 4 },
+  { position: 5, value: 5 },
 ];
 const selectedPosition = ref<number | null>(null);
 const rating = computed(() => (selectedPosition.value ? stars.find((s) => s.position === selectedPosition.value)!.value : 0));
 
 function isStarFilled(position: number) {
-  return selectedPosition.value != null && position >= selectedPosition.value;
+  return selectedPosition.value != null && position <= selectedPosition.value;
 }
 
 async function loadShopField() {

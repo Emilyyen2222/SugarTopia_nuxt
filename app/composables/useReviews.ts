@@ -9,6 +9,10 @@ export interface Review {
   text: string;
   createdAt: string;
   reviewerName: string;
+  // 前端要知道「這則是不是我自己寫的」才能決定要不要顯示編輯／刪除
+  // 按鈕（後端 PUT/DELETE /api/reviews/{id} 本來就會擋非本人，這裡只是
+  // 讓按鈕一開始就不要顯示在別人的評論下面）。
+  userId: number;
   // 只有 GET /api/reviews/latest（首頁 Latest Reviews 用）才有這兩個欄位，
   // GET /api/shops/{id}/reviews（店家詳情頁用）沒有——因為店家詳情頁的
   // 評論已經知道自己在哪間店，不需要在每則評論裡重複附上店名/店照。
@@ -53,5 +57,16 @@ export function useReviews() {
     });
   }
 
-  return { formatDate, getShopReviews, getLatestReviews, submitReview };
+  async function updateReview(reviewId: number, rating: number, text: string) {
+    return apiFetch<Review>(`/api/reviews/${reviewId}`, {
+      method: "PUT",
+      body: { rating, text },
+    });
+  }
+
+  async function deleteReview(reviewId: number) {
+    return apiFetch(`/api/reviews/${reviewId}`, { method: "DELETE" });
+  }
+
+  return { formatDate, getShopReviews, getLatestReviews, submitReview, updateReview, deleteReview };
 }

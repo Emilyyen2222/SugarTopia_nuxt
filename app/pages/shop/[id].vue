@@ -22,8 +22,8 @@ import type { Shop } from "~/composables/useShops";
 const route = useRoute();
 const { fetchShop, buildStars } = useShops();
 const { getFavoriteShops, addFavorite, removeFavorite } = useFavorites();
-const { getShopReviews, formatDate } = useReviews();
-const { isLoggedIn } = useAuth();
+const { getShopReviews, formatDate, updateReview, deleteReview } = useReviews();
+const { isLoggedIn, user } = useAuth();
 const { show } = useSiteMessage();
 const { t, locale } = useI18n();
 
@@ -46,6 +46,59 @@ const displayDescription = computed(
 const reviews = ref<Awaited<ReturnType<typeof getShopReviews>>["reviews"]>([]);
 const reviewsLoading = ref(true);
 const reviewsFailed = ref(false);
+
+// 編輯/刪除評論：只有本人能對自己的評論動作（後端 PUT/DELETE
+// /api/reviews/{id} 也會擋非本人，這裡只是不要讓按鈕出現在別人的評論下面）。
+// 編輯用行內表單，不跳去 /write-review（那個頁面是設計給「新增」用的，
+// 沒有帶現有內容進去編輯的邏輯，硬套會比另外寫一小段行內表單更繞）。
+const editingReviewId = ref<number | null>(null);
+const editRating = ref(0);
+const editText = ref("");
+const savingEdit = ref(false);
+
+function startEdit(review: (typeof reviews.value)[number]) {
+  editingReviewId.value = review.id;
+  editRating.value = review.rating;
+  editText.value = review.text;
+}
+
+function cancelEdit() {
+  editingReviewId.value = null;
+}
+
+async function saveEdit(reviewId: number) {
+  if (editRating.value < 1 || editText.value.trim().length < 2) {
+    show(t("shop.reviewEditInvalid"));
+    return;
+  }
+
+  savingEdit.value = true;
+  try {
+    const updated = await updateReview(reviewId, editRating.value, editText.value.trim());
+    const index = reviews.value.findIndex((r) => r.id === reviewId);
+    if (index !== -1) reviews.value[index] = { ...reviews.value[index], ...updated };
+    editingReviewId.value = null;
+    show(t("shop.reviewUpdated"));
+  } catch {
+    show(t("shop.reviewEditFailed"));
+  } finally {
+    savingEdit.value = false;
+  }
+}
+
+async function removeReview(reviewId: number) {
+  // eslint-disable-next-line no-alert -- 站內沒有現成的自訂確認彈窗元件，
+  // 刪除是不可逆動作，先用瀏覽器原生 confirm 擋一下，避免手滑點到就刪掉。
+  if (!window.confirm(t("shop.confirmDeleteReview"))) return;
+
+  try {
+    await deleteReview(reviewId);
+    reviews.value = reviews.value.filter((r) => r.id !== reviewId);
+    show(t("shop.reviewDeleted"));
+  } catch {
+    show(t("shop.reviewDeleteFailed"));
+  }
+}
 
 const isFavorited = ref(false);
 const saveBusy = ref(false);
@@ -281,15 +334,64 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
                 <p class="mb-2.5 text-sm text-[#666]">{{ formatDate(review.createdAt) }}</p>
               </div>
             </div>
-            <div>
-              <div class="mb-[15px] flex items-center gap-[15px]">
-                <div class="text-[20px] tracking-[2px] text-brand-orange">{{ buildStars(review.rating) }}</div>
-              </div>
-              <!-- 跟 vanilla 版本一樣：shop_detail.css 裡另一條給「reviews-grid」
-                   卡片用的 `.review-item p` 規則（specificity 比 `.review-text`
-                   高）蓋掉了這裡原本想要的樣式，實際渲染出來是 13px 灰色，
-                   不是設計稿看起來想要的 16px 深咖啡色。照實際結果遷移。 -->
-              <p class="mb-5 text-[0.8125rem] leading-[1.6] text-[#666]">{{ review.text }}</p>
+            <div class="min-w-0 flex-1">
+              <template v-if="editingReviewId === review.id">
+                <!-- 行內編輯表單：星等選擇跟 write-review.vue 同一套「點第幾顆星
+                     評分就是幾分」邏輯，只是縮小版、沒有拆成獨立元件（只有這裡
+                     一個地方用得到，拆元件反而多一層間接）。 -->
+                <div class="mb-[15px] flex items-center gap-1">
+                  <button
+                    v-for="position in 5"
+                    :key="position"
+                    type="button"
+                    class="text-[24px] leading-none transition-colors"
+                    :class="position <= editRating ? 'text-brand-orange' : 'text-brand-brown/30'"
+                    :aria-label="`${position} stars`"
+                    @click="editRating = position"
+                  >
+                    ★
+                  </button>
+                </div>
+                <textarea
+                  v-model="editText"
+                  rows="3"
+                  class="mb-2.5 w-full rounded-lg border border-brand-border p-2.5 text-sm text-brand-brown focus:border-brand-orange focus:outline-none"
+                />
+                <div class="flex gap-2.5">
+                  <button
+                    type="button"
+                    class="rounded-lg bg-brand-orange px-4 py-2 text-xs font-medium text-white transition hover:bg-[#e89615] disabled:opacity-50"
+                    :disabled="savingEdit"
+                    @click="saveEdit(review.id)"
+                  >
+                    {{ savingEdit ? t("shop.reviewSaving") : t("shop.reviewSave") }}
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-lg border border-brand-border px-4 py-2 text-xs font-medium text-brand-brown transition hover:bg-brand-cream"
+                    @click="cancelEdit"
+                  >
+                    {{ t("shop.reviewCancel") }}
+                  </button>
+                </div>
+              </template>
+              <template v-else>
+                <div class="mb-[15px] flex items-center justify-between gap-[15px]">
+                  <div class="text-[20px] tracking-[2px] text-brand-orange">{{ buildStars(review.rating) }}</div>
+                  <!-- 只有本人的評論才會看到編輯/刪除，見 startEdit()/removeReview()
+                       的註解——按鈕擋不擋得住是前端的事，後端 PUT/DELETE
+                       /api/reviews/{id} 才是真正擋非本人的地方。 -->
+                  <div v-if="user?.id === review.userId" class="flex shrink-0 gap-3 text-xs">
+                    <button type="button" class="text-brand-orange underline" @click="startEdit(review)">{{ t("shop.reviewEdit") }}</button>
+                    <button type="button" class="text-[#c0392b] underline" @click="removeReview(review.id)">{{ t("shop.reviewDelete") }}</button>
+                  </div>
+                </div>
+                <!-- 跟 vanilla 版本一樣：shop_detail.css 裡另一條給「reviews-grid」
+                     卡片用的 `.review-item p` 規則（specificity 比 `.review-text`
+                     高）蓋掉了這裡原本想要的樣式，實際渲染出來是 13px 灰色，
+                     不是設計稿看起來想要的 16px 深咖啡色。照實際結果遷移。 -->
+                <p class="mb-5 text-[0.8125rem] leading-[1.6] text-[#666]">{{ review.text }}</p>
+              </template>
             </div>
           </div>
         </div>

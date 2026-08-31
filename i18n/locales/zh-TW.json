@@ -113,7 +113,18 @@
     "reviewsFailed": "現在暫時讀不到評論。",
     "noReviewsTitle": "目前還沒有評論",
     "beFirstPrefix": "當第一個",
-    "beFirstSuffixFor": "為 {shopName} 留下評論。"
+    "beFirstSuffixFor": "為 {shopName} 留下評論。",
+    "reviewEdit": "編輯",
+    "reviewDelete": "刪除",
+    "reviewSave": "儲存",
+    "reviewCancel": "取消",
+    "reviewSaving": "儲存中……",
+    "reviewUpdated": "評論已更新。",
+    "reviewDeleted": "評論已刪除。",
+    "reviewEditFailed": "無法儲存變更，請稍後再試。",
+    "reviewDeleteFailed": "無法刪除這則評論，請稍後再試。",
+    "reviewEditInvalid": "請選擇評分並輸入至少 2 個字。",
+    "confirmDeleteReview": "確定要刪除這則評論嗎？此動作無法復原。"
   },
   "favorites": {
     "title": "我的最愛",

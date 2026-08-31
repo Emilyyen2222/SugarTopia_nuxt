@@ -113,7 +113,18 @@
     "reviewsFailed": "Could not load reviews right now.",
     "noReviewsTitle": "No reviews yet",
     "beFirstPrefix": "Be the first to",
-    "beFirstSuffixFor": "for {shopName}."
+    "beFirstSuffixFor": "for {shopName}.",
+    "reviewEdit": "Edit",
+    "reviewDelete": "Delete",
+    "reviewSave": "Save",
+    "reviewCancel": "Cancel",
+    "reviewSaving": "Saving...",
+    "reviewUpdated": "Review updated.",
+    "reviewDeleted": "Review deleted.",
+    "reviewEditFailed": "Could not save your changes. Please try again.",
+    "reviewDeleteFailed": "Could not delete this review. Please try again.",
+    "reviewEditInvalid": "Please pick a rating and write at least 2 characters.",
+    "confirmDeleteReview": "Delete this review? This cannot be undone."
   },
   "favorites": {
     "title": "My Favorites",

@@ -233,13 +233,52 @@ onMounted(() => {
     <DessertSwiper />
   </section>
 
+  <!-- Categories：使用者要求移到 Latest Reviews 上面（原本順序是評論在前、
+       分類在後）。兩個區塊互相獨立，只是單純調換前後順序，內容/邏輯都沒動。 -->
+  <section class="dessert_categories_section mx-auto max-w-[1000px] px-5 py-14 text-center">
+    <div class="category-header mb-8 flex items-center justify-between text-left">
+      <!-- 這裡改用 h1（原本 Latest Reviews 那個 <h1> 隨著區塊搬到後面，
+           跟著改回 h2）：搬到最上面的區塊，語意上比較適合當頁面的主標題。 -->
+      <h1 class="m-0 text-2xl font-bold text-brand-brown">{{ t("home.categories") }}</h1>
+      <NuxtLink to="/category" class="category-view-all text-sm text-brand-orange no-underline hover:underline">{{ t("home.viewAll") }}</NuxtLink>
+    </div>
+    <!-- 桌機版：4 欄 grid，一列放完 8 張（不變）。 -->
+    <div class="category-grid hidden grid-cols-4 gap-5 md:grid">
+      <CategoryCard v-for="tile in categoryTiles" :key="tile.query" v-bind="tile" />
+    </div>
+
+    <!-- 手機版：每「頁」2x2（4 張），左右滑動切頁，不是單排橫向滑動——8 張
+         切成兩組各 4 張，每組是自己的 2 欄 grid，這些 grid 再整排排起來、
+         用 scroll-snap 讓滑動停在整頁上，不會停在滑一半的地方。 -->
+    <div
+      ref="categoryScrollEl"
+      class="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 md:hidden"
+      @scroll="handleCategoryScroll"
+    >
+      <div v-for="(page, i) in categoryPages" :key="i" class="grid w-full shrink-0 snap-start grid-cols-2 gap-3">
+        <CategoryCard v-for="tile in page" :key="tile.query" v-bind="tile" />
+      </div>
+    </div>
+
+    <!-- 頁碼小圓點：跟首頁輪播圖同一種提示手法，讓使用者一眼看出「這裡
+         滑得動、還有下一頁」，不用自己碰運氣去滑滑看。只在有一頁以上時
+         才顯示（用 categoryPages.length 算，目前剛好 4 張分類磚只有
+         1 頁不會顯示，之後分類磚超過 4 張變多頁時會自動出現，不用改
+         這段）。 -->
+    <div v-if="categoryPages.length > 1" class="mt-4 flex justify-center gap-2 md:hidden">
+      <span
+        v-for="(page, i) in categoryPages"
+        :key="i"
+        class="h-2 w-2 rounded-full transition-colors"
+        :class="i === categoryPageIndex ? 'bg-brand-orange' : 'bg-brand-border'"
+      />
+    </div>
+  </section>
+
   <!-- Latest Reviews -->
   <div class="latest_review_section mx-auto max-w-[1000px] px-5 py-16 text-center">
     <div class="review-header mb-8 flex items-center justify-between text-left">
-      <!-- 原本是 text-base（16px），比它下面卡片裡的店名（1.125rem/18px）
-           還小，區塊標題比內容還不顯眼，層級感是反的。改成 text-2xl，
-           跟 Categories 標題一起調整。 -->
-      <h1 class="m-0 text-2xl font-bold text-brand-brown">{{ t("home.latestReviews") }}</h1>
+      <h2 class="m-0 text-2xl font-bold text-brand-brown">{{ t("home.latestReviews") }}</h2>
     </div>
     <!-- 手機版（detail-md 以下）從 2 欄 grid 改成左右滑動：窄螢幕硬擠兩欄，
          每張卡片剩不到一半寬度，店名、圖片、文字全部被壓縮成一條，改成
@@ -288,45 +327,6 @@ onMounted(() => {
       </p>
     </div>
   </div>
-
-  <!-- Categories -->
-  <section class="dessert_categories_section mx-auto max-w-[1000px] px-5 py-14 text-center">
-    <div class="category-header mb-8 flex items-center justify-between text-left">
-      <h2 class="m-0 text-2xl font-bold text-brand-brown">{{ t("home.categories") }}</h2>
-      <NuxtLink to="/category" class="category-view-all text-sm text-brand-orange no-underline hover:underline">{{ t("home.viewAll") }}</NuxtLink>
-    </div>
-    <!-- 桌機版：4 欄 grid，一列放完 8 張（不變）。 -->
-    <div class="category-grid hidden grid-cols-4 gap-5 md:grid">
-      <CategoryCard v-for="tile in categoryTiles" :key="tile.query" v-bind="tile" />
-    </div>
-
-    <!-- 手機版：每「頁」2x2（4 張），左右滑動切頁，不是單排橫向滑動——8 張
-         切成兩組各 4 張，每組是自己的 2 欄 grid，這些 grid 再整排排起來、
-         用 scroll-snap 讓滑動停在整頁上，不會停在滑一半的地方。 -->
-    <div
-      ref="categoryScrollEl"
-      class="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 md:hidden"
-      @scroll="handleCategoryScroll"
-    >
-      <div v-for="(page, i) in categoryPages" :key="i" class="grid w-full shrink-0 snap-start grid-cols-2 gap-3">
-        <CategoryCard v-for="tile in page" :key="tile.query" v-bind="tile" />
-      </div>
-    </div>
-
-    <!-- 頁碼小圓點：跟首頁輪播圖同一種提示手法，讓使用者一眼看出「這裡
-         滑得動、還有下一頁」，不用自己碰運氣去滑滑看。只在有一頁以上時
-         才顯示（用 categoryPages.length 算，目前剛好 4 張分類磚只有
-         1 頁不會顯示，之後分類磚超過 4 張變多頁時會自動出現，不用改
-         這段）。 -->
-    <div v-if="categoryPages.length > 1" class="mt-4 flex justify-center gap-2 md:hidden">
-      <span
-        v-for="(page, i) in categoryPages"
-        :key="i"
-        class="h-2 w-2 rounded-full transition-colors"
-        :class="i === categoryPageIndex ? 'bg-brand-orange' : 'bg-brand-border'"
-      />
-    </div>
-  </section>
 
   <!-- Instagram 社群展示（使用者要求加回來，跟 vanilla 版本一樣的位置：
        Categories 之後、電子報訂閱之前）。純展示、沒接任何後端，圖片跟

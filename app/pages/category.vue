@@ -237,6 +237,11 @@ function closeFilters() {
 
       <div class="mb-5">
         <p class="mb-2.5 text-sm font-bold text-brand-brown">{{ t("category.categoryLabel") }}</p>
+        <!-- 原本這裡有一個「顯示更多」連結（跟 Add Photo／Share 一樣，還沒做
+             功能，點下去只是提示「還在展示階段」）。分類清單合併成 4 個
+             之後（見 composables/categoryTiles.ts），已經不夠長到需要摺疊，
+             這顆按鈕變成純粹多餘，拿掉；桌機版跟下面手機版 bottom sheet
+             各有一份同樣的東西，兩邊都要拿。 -->
         <div class="flex flex-wrap gap-2.5">
           <button
             v-for="category in sidebarCategories"
@@ -247,9 +252,6 @@ function closeFilters() {
           >
             {{ t(category.labelKey) }}
           </button>
-          <a href="#" class="text-sm text-brand-orange hover:underline" @click.prevent="show(t('common.demoPlaceholder'))">
-            {{ t("category.seeMore") }}
-          </a>
         </div>
       </div>
 
@@ -312,9 +314,6 @@ function closeFilters() {
               >
                 {{ t(category.labelKey) }}
               </button>
-              <a href="#" class="text-sm text-brand-orange hover:underline" @click.prevent="show(t('common.demoPlaceholder'))">
-                {{ t("category.seeMore") }}
-              </a>
             </div>
           </div>
 

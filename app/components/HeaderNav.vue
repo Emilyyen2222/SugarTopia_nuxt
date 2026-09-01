@@ -150,21 +150,13 @@ async function handleLogout() {
         </div>
 
         <nav class="nav-menu" :class="{ 'is-active': mobileMenuOpen }">
+          <!-- 原本這裡還有一個 .nav-menu-mobile-links 區塊，裝著「寫評論」
+               連結跟中英文切換按鈕，兩個後來都搬走了：「寫評論」整個拿掉
+               （見上面歷史留言／write-review.vue 的 lockedShop 設計），
+               中英文切換則是使用者要求改放回 header 上跟帳號圖示放一起
+               （下面 nav-md:inline-flex 那顆），漢堡選單裡這顆變成完全
+               重複的第二顆語言切換按鈕，一併拿掉，不留一個空殼 div。 -->
           <CategoriesDropdown />
-
-          <div class="nav-menu-mobile-links">
-            <!-- 「寫評論」這個不指定店家的全站入口拿掉了：寫評論一定要先
-                 進到某家店的詳情頁，從那裡的「寫評論」按鈕進去（會直接鎖定
-                 那家店，見 write-review.vue 的 lockedShop），不再讓使用者
-                 從 header 憑空跳進一個要先選店的下拉選單。 -->
-            <button
-              type="button"
-              class="block w-full rounded-[10px] px-3 py-2.5 text-left text-[0.9375rem] font-medium text-brand-brown hover:bg-brand-hover"
-              @click="toggleLocale"
-            >
-              {{ otherLocaleName }}
-            </button>
-          </div>
         </nav>
       </div>
 
@@ -268,10 +260,6 @@ async function handleLogout() {
   gap: 22px;
 }
 
-.nav-menu-mobile-links {
-  display: none;
-}
-
 @media (max-width: 1380px) {
   .nav-menu {
     display: none;
@@ -310,15 +298,6 @@ async function handleLogout() {
        overflow: hidden 讓子選單可以正常顯示，換來的代價只是面板本身的
        圓角在極少數情況下可能被裡面的方形子選單邊緣蓋到一點點，比起「這個
        功能完全打不開」是划算的取捨。 */
-  }
-}
-
-@media (max-width: 1024px) {
-  .nav-menu-mobile-links {
-    display: block;
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid #f1e3c8;
   }
 }
 

@@ -47,12 +47,14 @@ test.describe("首頁 /", () => {
     expect(swiperTop).toBeLessThan(leftSideTop);
   });
 
-  test("手機版 header 不會被卡在正中間的 logo 蓋住，漢堡選單點開會看到 Categories 跟語言切換", async ({ page }) => {
+  test("手機版 header 不會被卡在正中間的 logo 蓋住，漢堡選單點開只會看到 Categories，語言切換在 header 上", async ({ page }) => {
     // 「write a review」／「cupertino.keki」這兩個連結後來都拿掉了：前者是
     // 因為寫評論改成一定要從某家店的詳情頁進去（見 write-review.vue 的
     // lockedShop），不再有不指定店家的全站入口；後者是使用者要求拿掉的
-    // header 雜項連結（見 HeaderNav.vue 相關註解）。這裡改成檢查漢堡選單
-    // 現在真正會有的內容：Categories 下拉選單、語言切換按鈕。
+    // header 雜項連結（見 HeaderNav.vue 相關註解）。中英文切換原本也在
+    // 漢堡選單裡，後來使用者要求搬到 header 上跟帳號圖示放一起（怕使用者
+    // 想不到要點開漢堡選單才找得到），漢堡選單裡那顆變成重複、也拿掉了
+    // ——現在漢堡選單點開只剩 Categories 下拉選單一項。
     await page.setViewportSize({ width: 390, height: 800 });
     await page.goto("/");
     await page.waitForTimeout(200);
@@ -61,9 +63,12 @@ test.describe("首頁 /", () => {
     const logoLeft = await page.locator(".logo-container").evaluate((el) => el.getBoundingClientRect().left);
     expect(headerLeftRight).toBeLessThanOrEqual(logoLeft);
 
+    // header 上（不用點漢堡）就看得到語言切換，這個寬度下用的是
+    // nav-md:inline-flex 那顆（跟帳號圖示放一起的版本）。
+    await expect(page.locator("header").getByRole("button", { name: /^(EN|中文)$/ })).toBeVisible();
+
     await page.click("#mobile-menu");
     await expect(page.locator(".nav-menu .nav-categories-toggle")).toBeVisible();
-    await expect(page.locator(".nav-menu-mobile-links")).toBeVisible();
   });
 
   test("hero 右半邊的圖片輪播四周留白要固定、對稱，不會隨螢幕寬度跑掉", async ({ page }) => {

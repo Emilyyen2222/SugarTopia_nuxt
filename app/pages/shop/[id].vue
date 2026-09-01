@@ -54,12 +54,20 @@ const reviewsFailed = ref(false);
 const editingReviewId = ref<number | null>(null);
 const editRating = ref(0);
 const editText = ref("");
+const editContextTags = ref<string[]>([]);
 const savingEdit = ref(false);
+
+function toggleEditContextTag(value: string) {
+  editContextTags.value = editContextTags.value.includes(value)
+    ? editContextTags.value.filter((v) => v !== value)
+    : [...editContextTags.value, value];
+}
 
 function startEdit(review: (typeof reviews.value)[number]) {
   editingReviewId.value = review.id;
   editRating.value = review.rating;
   editText.value = review.text;
+  editContextTags.value = [...review.contextTags];
 }
 
 function cancelEdit() {
@@ -74,7 +82,7 @@ async function saveEdit(reviewId: number) {
 
   savingEdit.value = true;
   try {
-    const updated = await updateReview(reviewId, editRating.value, editText.value.trim());
+    const updated = await updateReview(reviewId, editRating.value, editText.value.trim(), editContextTags.value);
     const index = reviews.value.findIndex((r) => r.id === reviewId);
     if (index !== -1) reviews.value[index] = { ...reviews.value[index], ...updated };
     editingReviewId.value = null;
@@ -357,6 +365,18 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
                   rows="3"
                   class="mb-2.5 w-full rounded-lg border border-brand-border p-2.5 text-sm text-brand-brown focus:border-brand-orange focus:outline-none"
                 />
+                <div class="mb-2.5 flex flex-wrap gap-2">
+                  <button
+                    v-for="option in REVIEW_CONTEXT_TAGS"
+                    :key="option.value"
+                    type="button"
+                    class="rounded-[20px] border-2 border-brand-orange px-2.5 py-0.5 text-xs transition-colors"
+                    :class="editContextTags.includes(option.value) ? 'bg-brand-orange text-white' : 'text-brand-orange hover:bg-brand-orange hover:text-white'"
+                    @click="toggleEditContextTag(option.value)"
+                  >
+                    {{ t(option.labelKey) }}
+                  </button>
+                </div>
                 <div class="flex gap-2.5">
                   <button
                     type="button"
@@ -390,7 +410,22 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
                      卡片用的 `.review-item p` 規則（specificity 比 `.review-text`
                      高）蓋掉了這裡原本想要的樣式，實際渲染出來是 13px 灰色，
                      不是設計稿看起來想要的 16px 深咖啡色。照實際結果遷移。 -->
-                <p class="mb-5 text-[0.8125rem] leading-[1.6] text-[#666]">{{ review.text }}</p>
+                <p class="mb-2.5 text-[0.8125rem] leading-[1.6] text-[#666]">{{ review.text }}</p>
+                <!-- Phase 4「情境式心得」：評論者當初複選的情境標籤，用比
+                     店家標籤（.category button）小一號、無底色的版本呈現，
+                     視覺上明確是「這則評論附帶的資訊」，不是店家本身的
+                     固定標籤。非必填欄位，沒選任何標籤時整排不顯示——但
+                     不管有沒有標籤都保留 mb-5，維持卡片下緣間距一致，
+                     不會因為這則剛好沒填標籤，底部間距就跟著變窄。 -->
+                <div class="mb-5 flex flex-wrap gap-1.5">
+                  <span
+                    v-for="tagValue in review.contextTags"
+                    :key="tagValue"
+                    class="rounded-full border border-brand-border px-2 py-0.5 text-xs text-brand-brown-light"
+                  >
+                    {{ t(REVIEW_CONTEXT_TAGS.find((o) => o.value === tagValue)?.labelKey ?? tagValue) }}
+                  </span>
+                </div>
               </template>
             </div>
           </div>

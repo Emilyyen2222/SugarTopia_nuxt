@@ -28,6 +28,15 @@ const loadingShopField = ref(true);
 const reviewText = ref("");
 const submitting = ref(false);
 
+// Phase 4「情境式心得」：複選式情境標籤，非必填。用陣列存目前選中的
+// value（跟 category.vue 的 filterState.features 同一種「複選陣列」寫法）。
+const selectedContextTags = ref<string[]>([]);
+function toggleContextTag(value: string) {
+  selectedContextTags.value = selectedContextTags.value.includes(value)
+    ? selectedContextTags.value.filter((v) => v !== value)
+    : [...selectedContextTags.value, value];
+}
+
 // 5 顆星星，position 1～5（畫面上從左到右），value 直接等於 position——
 // 點第幾顆星，評分就是幾分，跟大部分星等 selector 的直覺一致。
 const stars = [
@@ -93,7 +102,7 @@ async function handleSubmit() {
   submitting.value = true;
 
   try {
-    await submitReview(selectedShopId.value, rating.value, reviewText.value.trim());
+    await submitReview(selectedShopId.value, rating.value, reviewText.value.trim(), selectedContextTags.value);
     show(t("writeReview.postedToast"));
     await router.push(`/shop/${encodeURIComponent(selectedShopId.value)}`);
   } catch (error) {
@@ -152,6 +161,25 @@ async function handleSubmit() {
             @click="selectedPosition = star.position"
           >
             <svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z" /></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Phase 4「情境式心得」：跟分類頁篩選 chip 同一套視覺（圓角外框、
+           選中變實心橘底），非必填，使用者可以直接送出不勾任何一個。 -->
+      <div class="mb-[15px]">
+        <label class="mb-[5px] block text-sm text-brand-brown">{{ t("writeReview.contextTagsLabel") }}</label>
+        <p class="mb-2 text-xs text-brand-brown-light">{{ t("writeReview.contextTagsHint") }}</p>
+        <div class="flex flex-wrap gap-2">
+          <button
+            v-for="option in REVIEW_CONTEXT_TAGS"
+            :key="option.value"
+            type="button"
+            class="rounded-[20px] border-2 border-brand-orange px-3 py-1 text-sm transition-colors"
+            :class="selectedContextTags.includes(option.value) ? 'bg-brand-orange text-white' : 'text-brand-orange hover:bg-brand-orange hover:text-white'"
+            @click="toggleContextTag(option.value)"
+          >
+            {{ t(option.labelKey) }}
           </button>
         </div>
       </div>

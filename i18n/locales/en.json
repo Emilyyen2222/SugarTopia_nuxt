@@ -188,6 +188,16 @@
     "loginToReviewToast": "Please log in to write a review.",
     "chooseShopToast": "Please choose which shop you're reviewing.",
     "chooseRatingToast": "Please pick a star rating.",
-    "postedToast": "Thanks! Your review has been posted."
+    "postedToast": "Thanks! Your review has been posted.",
+    "contextTagsLabel": "What was it like?",
+    "contextTagsHint": "Optional — pick any that fit your visit.",
+    "contextTags": {
+      "workFriendly": "Work Friendly",
+      "quiet": "Quiet",
+      "outlets": "Has Outlets",
+      "soloFriendly": "Solo Friendly",
+      "instagrammable": "Instagrammable",
+      "longWait": "Long Wait"
+    }
   }
 }

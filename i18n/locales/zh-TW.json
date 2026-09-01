@@ -188,6 +188,16 @@
     "loginToReviewToast": "要先登入才能寫評論。",
     "chooseShopToast": "請選擇你要評論的店家。",
     "chooseRatingToast": "請選一個星等評分。",
-    "postedToast": "謝謝！你的評論已經送出了。"
+    "postedToast": "謝謝！你的評論已經送出了。",
+    "contextTagsLabel": "這次體驗怎麼樣？",
+    "contextTagsHint": "非必填，符合的話可以複選。",
+    "contextTags": {
+      "workFriendly": "適合工作",
+      "quiet": "安靜",
+      "outlets": "有插座",
+      "soloFriendly": "適合一個人",
+      "instagrammable": "拍照好看",
+      "longWait": "排隊要等一下"
+    }
   }
 }

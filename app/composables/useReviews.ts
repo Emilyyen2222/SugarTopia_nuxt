@@ -19,6 +19,10 @@ export interface Review {
   shopName?: string;
   shopNameZh?: string;
   shopImage?: string;
+  // Phase 4「情境式心得」：使用者寫評論時複選的情境標籤（適合工作、安靜、
+  // 有插座……），固定字典見 composables/reviewContextTags.ts，後端也會
+  // 過濾掉不在字典裡的值，這裡收到的一定是乾淨的子集。
+  contextTags: string[];
 }
 
 export function useReviews() {
@@ -50,17 +54,17 @@ export function useReviews() {
     return apiFetch<{ total: number; reviews: Review[] }>(`/api/reviews/latest?limit=${limit}`);
   }
 
-  async function submitReview(shopId: string, rating: number, text: string) {
+  async function submitReview(shopId: string, rating: number, text: string, contextTags: string[] = []) {
     return apiFetch(`/api/shops/${encodeURIComponent(shopId)}/reviews`, {
       method: "POST",
-      body: { rating, text },
+      body: { rating, text, context_tags: contextTags },
     });
   }
 
-  async function updateReview(reviewId: number, rating: number, text: string) {
+  async function updateReview(reviewId: number, rating: number, text: string, contextTags: string[] = []) {
     return apiFetch<Review>(`/api/reviews/${reviewId}`, {
       method: "PUT",
-      body: { rating, text },
+      body: { rating, text, context_tags: contextTags },
     });
   }
 

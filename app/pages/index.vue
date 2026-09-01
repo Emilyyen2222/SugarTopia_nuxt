@@ -295,7 +295,7 @@ onMounted(() => {
       >
         <div class="flex h-full flex-col rounded-2xl bg-brand-gold p-[15px]">
           <div class="flex items-center gap-[15px]">
-            <img src="/img/profile.jpg" :alt="review.reviewerName" class="h-[50px] w-[50px] rounded-full object-cover" />
+            <ReviewerAvatar :name="review.reviewerName" :size="50" />
             <div class="text-left">
               <p class="m-0 text-[0.9375rem] font-bold text-black">{{ review.reviewerName }}</p>
               <p class="mt-2 text-[0.8125rem] text-brand-brown">{{ formatDate(review.createdAt) }}</p>

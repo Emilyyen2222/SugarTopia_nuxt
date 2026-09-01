@@ -328,7 +328,7 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
         <div v-else class="flex flex-col gap-[30px]">
           <div v-for="review in reviews" :key="review.id" data-testid="review-item" class="rounded-xl bg-white p-[15px] shadow-[0_4px_15px_rgba(0,0,0,0.05)] transition-transform duration-300 hover:-translate-y-[5px]">
             <div class="w-[200px]">
-              <img src="/img/profile.jpg" :alt="review.reviewerName" class="mb-[15px] h-[70px] w-[70px] rounded-full border-[3px] border-brand-orange object-cover" />
+              <ReviewerAvatar :name="review.reviewerName" :size="70" class="mb-[15px] border-[3px] border-brand-orange" />
               <div>
                 <h4 class="mb-[5px] text-[18px] text-brand-brown">{{ review.reviewerName }}</h4>
                 <p class="mb-2.5 text-sm text-[#666]">{{ formatDate(review.createdAt) }}</p>

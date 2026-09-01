@@ -291,11 +291,21 @@ onMounted(() => {
          手法，只是每張卡片寬度不同）：桌機版每張卡片抓「約 1/4 容器寬度」，
          一列剛好露出 4 張多一點點（peek 一小截第 5 張，提示還能往右滑）；
          手機版維持原本「一次一張、露一點下一張的邊」。 -->
+    <!-- 使用者發現卡片高度對不齊：問題出在 review-card／裡面那層都用了
+         h-full（height: 100%），但 .review-grid 自己的高度是「不固定、
+         由內容決定」（沒有寫死高度，橫向可捲動）。height: 100% 在容器
+         高度不固定時是「未定義的百分比」，瀏覽器對這種情況的實際行為
+         不穩定，反而讓 flex 預設的 align-items: stretch（本來就會自動把
+         同一列的項目撐成一樣高）失效——因為只要子項目自己「有指定高度」
+         （即使算出來等於 auto），stretch 就不會介入。拿掉這兩個 h-full，
+         改回讓 stretch 自己處理，行為才會一致（跟之前 CategoryCard.vue
+         那次 h-full 有效的情況不一樣：那邊是 CSS grid 有明確的列高可以
+         參照，這裡是 flex + 高度不固定的容器，percentage height 的坑）。 -->
     <div v-if="reviews.length" class="review-grid flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 detail-md:gap-4">
       <div
         v-for="review in reviews"
         :key="review.id"
-        class="review-card h-full w-[23%] min-w-[23%] shrink-0 snap-start detail-md:w-[82%] detail-md:min-w-[82%] detail-md:snap-center"
+        class="review-card w-[23%] min-w-[23%] shrink-0 snap-start detail-md:w-[82%] detail-md:min-w-[82%] detail-md:snap-center"
       >
         <div class="flex h-full flex-col rounded-2xl bg-brand-gold p-[15px]">
           <div class="flex items-center gap-[15px]">

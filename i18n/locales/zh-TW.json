@@ -125,7 +125,8 @@
     "reviewEditFailed": "無法儲存變更，請稍後再試。",
     "reviewDeleteFailed": "無法刪除這則評論，請稍後再試。",
     "reviewEditInvalid": "請選擇評分並輸入至少 2 個字。",
-    "confirmDeleteReview": "確定要刪除這則評論嗎？此動作無法復原。"
+    "confirmDeleteReview": "確定要刪除這則評論嗎？此動作無法復原。",
+    "aiTagHint": "AI 從評論文字分析出來的，不是評論者自己勾選的。"
   },
   "favorites": {
     "title": "我的最愛",

@@ -425,6 +425,20 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
                   >
                     {{ t(REVIEW_CONTEXT_TAGS.find((o) => o.value === tagValue)?.labelKey ?? tagValue) }}
                   </span>
+                  <!-- Phase 4「AI 標籤整理」：AI 從評論文字自動分析出來的
+                       標籤，故意用完全不同的樣式（淡紫底色 + ✨ 圖示）跟
+                       上面使用者自己勾的標籤分開，讓人一眼看出「這是 AI
+                       判斷的，不是本人親自勾選」，不是為了好看而已，是
+                       誠實標示資料來源。 -->
+                  <span
+                    v-for="tagValue in review.aiContextTags"
+                    :key="`ai-${tagValue}`"
+                    class="flex items-center gap-1 rounded-full border border-[#d8c6f0] bg-[#f3ecfb] px-2 py-0.5 text-xs text-[#6b4ea3]"
+                    :title="t('shop.aiTagHint')"
+                  >
+                    <span aria-hidden="true">✨</span>
+                    {{ t(REVIEW_CONTEXT_TAGS.find((o) => o.value === tagValue)?.labelKey ?? tagValue) }}
+                  </span>
                 </div>
               </template>
             </div>

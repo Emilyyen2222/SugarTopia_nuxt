@@ -125,7 +125,8 @@
     "reviewEditFailed": "Could not save your changes. Please try again.",
     "reviewDeleteFailed": "Could not delete this review. Please try again.",
     "reviewEditInvalid": "Please pick a rating and write at least 2 characters.",
-    "confirmDeleteReview": "Delete this review? This cannot be undone."
+    "confirmDeleteReview": "Delete this review? This cannot be undone.",
+    "aiTagHint": "Detected by AI from the review text, not picked by the reviewer."
   },
   "favorites": {
     "title": "My Favorites",

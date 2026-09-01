@@ -23,6 +23,10 @@ export interface Review {
   // 有插座……），固定字典見 composables/reviewContextTags.ts，後端也會
   // 過濾掉不在字典裡的值，這裡收到的一定是乾淨的子集。
   contextTags: string[];
+  // Phase 4「AI 標籤整理」：AI 從評論文字自動分析出來的標籤，跟上面
+  // 使用者自己勾的分開存——顯示時要用不同樣式區分「使用者自選」跟
+  // 「AI 分析」，不能混在一起讓人以為全部都是使用者自己勾的。
+  aiContextTags: string[];
 }
 
 export function useReviews() {

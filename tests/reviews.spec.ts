@@ -25,6 +25,25 @@ async function signUp(page: Page, name = "Review Writer") {
 // 跟 vanilla 版本一樣：會真的寫評論進資料庫，序列執行。
 test.describe.configure({ mode: "serial" });
 
+const BACKEND_URL = process.env.SUGARTOPIA_API_URL || "http://127.0.0.1:8000";
+
+// 這個檔案裡「登入後寫評論會成功送出」那支測試會真的寫一筆評論進資料庫，
+// 而且後面「首頁 Latest Reviews」那支測試還要靠它留著才能驗證，所以不能
+// 在寫完當下就刪掉。改成整個檔案的測試都跑完後，用 afterAll 統一清掉——
+// 之前這裡沒有清乾淨，同一份評論內容跑幾次測試套件就會在正式資料庫裡
+// 越堆越多，使用者自己在網站上都看得到「真心推薦者」重複出現好幾次。
+// 現在有 DELETE /api/reviews/{id} 了，直接拿建立當下的 review id + token
+// 呼叫後端刪掉，不用再手動上資料庫清。
+let cleanupReviewId: number | null = null;
+let cleanupToken: string | null = null;
+
+test.afterAll(async ({ request }) => {
+  if (cleanupReviewId == null || !cleanupToken) return;
+  await request.delete(`${BACKEND_URL}/api/reviews/${cleanupReviewId}`, {
+    headers: { Authorization: `Bearer ${cleanupToken}` },
+  });
+});
+
 test.describe("評論功能", () => {
   test("店家詳情頁還沒有評論時，顯示友善的空狀態而不是假評論", async ({ page }) => {
     // 用 caramel-pudding-lab 而不是 cloud-nine-gelato：後者現在有一筆
@@ -57,7 +76,24 @@ test.describe("評論功能", () => {
     await page.waitForLoadState("networkidle");
     await page.fill("#review-text", "座位很舒服，抹茶千層真的好吃！");
     await page.getByRole("button", { name: "5 stars" }).click();
-    await page.click('button[type="submit"]');
+
+    // 送出評論的回應會帶回真正的 review id，記下來給檔案最後的 afterAll
+    // 清掉用；順便從 localStorage 記下這個帳號的登入 token（DELETE 需要
+    // 帶 Authorization），不用另外再登入一次。
+    const [response] = await Promise.all([
+      page.waitForResponse((res) => res.url().includes("/reviews") && res.request().method() === "POST"),
+      page.click('button[type="submit"]'),
+    ]);
+    const created = await response.json();
+    cleanupReviewId = created.id;
+    cleanupToken = await page.evaluate(() => {
+      try {
+        return JSON.parse(localStorage.getItem("sugartopia_auth") || "{}").token ?? null;
+      } catch {
+        return null;
+      }
+    });
+
     await page.waitForURL("**/shop/matcha-mori-house");
 
     const firstReview = page.getByTestId("review-item").first();

@@ -280,14 +280,29 @@ async function handleLogout() {
   .nav-menu.is-active {
     display: flex;
     flex-direction: column;
+    /* 這裡原本沒有覆寫 align-items，會沿用上面 .nav-menu 基本規則的
+       align-items: center——橫排（flex-direction: row）時 center 是對的
+       （置中對齊同一列的項目），但直排（column）時 align-items 管的是
+       水平方向，會讓「甜點分類」這種內容自身寬度較窄的項目在面板裡水平
+       置中，看起來像被推到偏右邊，不是貼齊面板左邊界。改成 flex-start
+       讓面板裡每一項都靠左對齊，跟外面漢堡按鈕的左邊界視覺對齊。 */
+    align-items: flex-start;
     position: absolute;
     top: 80px;
     left: 0;
     width: 50%;
     background-color: white;
     z-index: 1000;
-    padding: 10px 0;
+    padding: 14px 20px;
     border-radius: 0 0 12px 12px;
+    /* 原本只有 background-color: white，面板底色跟頁面本身的米白色背景
+       太接近，肉眼幾乎分不出「這是一塊獨立浮起來的選單」還是「頁面本身
+       的一部分」，看起來像沒有底色一樣、容易讓人搞不清楚選單範圍在哪。
+       補上邊框跟陰影，跟 CategoriesDropdown 展開的子選單（.nav-categories-panel）
+       用同一組視覺語言（border-brand-panel + 同樣的陰影數值），面板邊界
+       才會清楚浮出來。 */
+    border: 1px solid #f1e3c8;
+    box-shadow: 0 12px 32px rgba(58, 37, 19, 0.18);
     /* 這裡原本跟 vanilla 版本一樣有 overflow: hidden，圓角裁切乾淨是好看，
        但也會把 CategoriesDropdown 裡絕對定位的分類子選單一起裁掉，點開
        Categories 完全看不到任何分類——這是 vanilla 版本自己就有的既有

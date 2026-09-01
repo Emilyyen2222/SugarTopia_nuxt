@@ -280,18 +280,16 @@ onMounted(() => {
     <div class="review-header mb-8 flex items-center justify-between text-left">
       <h2 class="m-0 text-2xl font-bold text-brand-brown">{{ t("home.latestReviews") }}</h2>
     </div>
-    <!-- 手機版（detail-md 以下）從 2 欄 grid 改成左右滑動：窄螢幕硬擠兩欄，
-         每張卡片剩不到一半寬度，店名、圖片、文字全部被壓縮成一條，改成
-         一次一張卡片（露一點下一張的邊，提示可以滑）、用 scroll-snap 讓
-         滑動停在整張卡片上，比較好讀。桌機版 4 欄 grid 不受影響。 -->
-    <div
-      v-if="reviews.length"
-      class="review-grid grid grid-cols-4 gap-5 detail-md:flex detail-md:snap-x detail-md:snap-mandatory detail-md:gap-4 detail-md:overflow-x-auto detail-md:pb-2"
-    >
+    <!-- 原本桌機版是 4 欄 grid，一次全部攤開 8 張（2 排）。使用者要求改成
+         一列固定只看得到 4 張、左右滑動看其餘的（跟手機版同一種 scroll-snap
+         手法，只是每張卡片寬度不同）：桌機版每張卡片抓「約 1/4 容器寬度」，
+         一列剛好露出 4 張多一點點（peek 一小截第 5 張，提示還能往右滑）；
+         手機版維持原本「一次一張、露一點下一張的邊」。 -->
+    <div v-if="reviews.length" class="review-grid flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 detail-md:gap-4">
       <div
         v-for="review in reviews"
         :key="review.id"
-        class="review-card h-full w-full detail-md:w-[82%] detail-md:min-w-[82%] detail-md:shrink-0 detail-md:snap-center"
+        class="review-card h-full w-[23%] min-w-[23%] shrink-0 snap-start detail-md:w-[82%] detail-md:min-w-[82%] detail-md:snap-center"
       >
         <div class="flex h-full flex-col rounded-2xl bg-brand-gold p-[15px]">
           <div class="flex items-center gap-[15px]">

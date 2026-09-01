@@ -19,6 +19,7 @@
   },
   "home": {
     "slogan": "Let's Make Life Sweet, One Dessert at a Time.",
+    "valueProp": "Ask our AI to find Taipei dessert shops and cafes that match your mood and situation — not just a shop list.",
     "aiLabel": "SugarTopia AI",
     "aiHeading": "Ask for a dessert recommendation",
     "aiGreeting": "Hi! Tell me what dessert you want today, and I will recommend a sweet spot from our SugarTopia notes.",

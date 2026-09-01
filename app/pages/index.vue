@@ -186,8 +186,14 @@ onMounted(() => {
     <div class="pointer-events-none absolute right-0 top-0 h-full w-1/2 -z-10 bg-brand-orange detail-md:hidden" />
 
     <div class="left-side z-[1] flex w-1/2 flex-col items-start justify-center px-[150px] py-10 box-border detail-md:order-2 detail-md:w-full detail-md:px-5 detail-md:pt-6">
-      <p class="overlay-text mb-5 max-w-[400px] text-left text-[1.2rem] font-bold leading-[1.4] text-brand-brown">
+      <p class="overlay-text mb-2 max-w-[400px] text-left text-[1.2rem] font-bold leading-[1.4] text-brand-brown">
         {{ t("home.slogan") }}
+      </p>
+      <!-- slogan 本身偏抒情，沒有直接說「這個網站在做什麼」，補一行白話的
+           價值主張，讓使用者掃過去就懂這是什麼服務，不用自己猜或去點 AI
+           問答才知道。 -->
+      <p class="mb-5 max-w-[400px] text-left text-[0.9375rem] text-brand-brown-light">
+        {{ t("home.valueProp") }}
       </p>
 
       <div class="ai-chat-heading mb-4 max-w-[420px] text-left">

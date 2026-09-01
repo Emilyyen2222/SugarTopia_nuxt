@@ -19,6 +19,7 @@
   },
   "home": {
     "slogan": "每一份甜點，都是生活裡的小確幸。",
+    "valueProp": "用 AI 問答找到符合你心情、情境的台北甜點店與咖啡廳，不只是店家清單。",
     "aiLabel": "SugarTopia AI",
     "aiHeading": "問問看今天想吃什麼甜點",
     "aiGreeting": "嗨！告訴我你今天想吃什麼甜點，我會從 SugarTopia 收錄的店家裡幫你推薦。",

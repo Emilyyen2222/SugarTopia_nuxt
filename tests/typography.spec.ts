@@ -13,7 +13,7 @@ async function getRootFontSize(page: Page) {
 const pagesToCheck = [
   { path: "/", label: "首頁" },
   { path: "/category", label: "分類頁" },
-  { path: "/shop/matcha-mori-house", label: "店家詳情頁" },
+  { path: "/shop/ottimo-gelato-3qiw_m", label: "店家詳情頁" },
 ];
 
 test.describe("字體大小不會隨視窗寬度跑掉", () => {

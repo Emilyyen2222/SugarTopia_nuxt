@@ -3,14 +3,19 @@ import { test, expect } from "@playwright/test";
 // 對應 vanilla 版本 tests/category.spec.js。網址/選擇器改成這個專案的：
 // category.html?q= → /category?q=、shop_detail.html?id= → /shop/、
 // .map-link → aria-label="View {name}" 的連結、.filters .category-button
-// → aside 裡的分類按鈕。座標數字（25.05,121.5578 這幾組）直接對應後端
-// main.py 的 TAIPEI_DISTRICT_COORDINATES，兩個前端共用同一個後端，數字
-// 不會因為前端專案不同而變。
+// → aside 裡的分類按鈕。
+//
+// 原本這裡的測試店家（matcha-mori-house、Cupertino.keki、Paw & Pastry
+// Cafe）都是最初 7 家示意店家，座標用的是 main.py 的
+// TAIPEI_DISTRICT_COORDINATES（行政區中心點近似值）。使用者要求清掉
+// 示意資料、改用 admin 收錄工具批次匯入的真實店家之後，那 7 家整批拿掉
+// 了，改用真的收錄進來的店家（OttiMo Gelato、Cheese Duke），座標是
+// Google Places 給的真實精確經緯度，不是行政區近似值。
 test.describe("分類頁 /category", () => {
-  test("搜尋 matcha 可以找到後端真實的抹茶店家", async ({ page }) => {
-    await page.goto("/category?q=matcha");
+  test("搜尋店名可以找到後端真實的店家", async ({ page }) => {
+    await page.goto("/category?q=OttiMo");
     await expect(page.getByText("1 shop found")).toBeVisible();
-    await expect(page.getByRole("heading", { level: 2 }).first()).toContainText("Matcha Mori House");
+    await expect(page.getByRole("heading", { level: 2 }).first()).toContainText("OttiMo Gelato");
   });
 
   test("查無資料的分類要顯示友善的『沒有符合的店家』，不能顯示成『後端掛了』", async ({ page }) => {
@@ -25,29 +30,21 @@ test.describe("分類頁 /category", () => {
   });
 
   test("店家卡片的連結會帶上真實的 shop id，可以點進對應詳情頁", async ({ page }) => {
-    await page.goto("/category?q=matcha");
+    await page.goto("/category?q=OttiMo");
     const href = await page.locator('a[aria-label^="View"]').first().getAttribute("href");
-    expect(href).toBe("/shop/matcha-mori-house");
+    expect(href).toBe("/shop/ottimo-gelato-3qiw_m");
   });
 
   test("右下角的地圖會跟著搜尋結果動態更新，不再是寫死的固定位置", async ({ page }) => {
-    // 原本這裡用 q=cake 一次抓兩家店測「地圖跟著換」，但 cake 這種很泛用
-    // 的關鍵字，之後從 admin 收錄工具收錄越多真實店家，符合的家數只會
-    // 越來越多，斷言「剛好 2 家」很容易因為收錄新店家就跟著壞掉。改成
     // 分別用兩家「店名精準比對、幾乎不會跟未來收錄的新店家撞名」的店，
-        // 各自驗證地圖座標會換成該店所在行政區，一樣能證明地圖是動態的、
-    // 不是每家店都共用同一組寫死座標。
-    // matcha-mori-house 在松山區，渲染完結果後地圖應該自動對準它。
-    await page.goto("/category?q=matcha");
-    await expect(page.locator("#shopMapEmbed")).toHaveAttribute("src", /25\.05,121\.5578/);
+    // 各自驗證地圖座標會換成該店的真實座標（Google Places 給的精確經緯度，
+    // 不是行政區近似值），一樣能證明地圖是動態的、不是每家店都共用同一組
+    // 寫死座標。
+    await page.goto("/category?q=OttiMo");
+    await expect(page.locator("#shopMapEmbed")).toHaveAttribute("src", /25\.0333,121\.529/);
 
-    // Cupertino.keki 在大安區。
-    await page.goto("/category?q=Cupertino.keki");
-    await expect(page.locator("#shopMapEmbed")).toHaveAttribute("src", /25\.0263,121\.5432/);
-
-    // Paw & Pastry Cafe 在內湖區，證明不同店家對應到不同座標。
-    await page.goto("/category?q=Paw%20%26%20Pastry%20Cafe");
-    await expect(page.locator("#shopMapEmbed")).toHaveAttribute("src", /25\.0693,121\.5885/);
+    await page.goto("/category?q=Cheese%20Duke");
+    await expect(page.locator("#shopMapEmbed")).toHaveAttribute("src", /25\.0362,121\.567/);
   });
 
   test("側欄的分類篩選按鈕會換成只看那個分類，不會疊加在目前網址的搜尋條件上", async ({ page }) => {

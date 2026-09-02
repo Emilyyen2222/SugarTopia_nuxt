@@ -5,6 +5,16 @@ import { test, expect, type Page } from "@playwright/test";
 // label[for=starN] → button[aria-label="N stars"]（星等元件在 Vue 版本
 // 改成 JS 算填色而不是 CSS 選擇器技巧，見 write-review.vue 開頭的註解）、
 // .review-list .review-item → data-testid="review-item"。
+//
+// 原本這裡用的兩家店（caramel-pudding-lab 測空狀態、matcha-mori-house
+// 測實際寫評論流程）都是最初 7 家示意店家，使用者要求清掉示意資料、
+// 改用 admin 收錄工具批次匯入的真實店家之後，那 7 家整批拿掉了。改用
+// 兩家確定目前沒有評論的真實店家，一樣分成「空狀態測試用」跟「寫評論
+// 流程測試用」兩家不同的店——如果共用同一家，第二次重跑整個測試套件時
+// 那家店已經被寫過評論了，「空狀態」的斷言就會失敗。
+const EMPTY_SHOP_ID = "ottimo-gelato-3qiw_m";
+const WRITE_SHOP_ID = "cheese-duke-iiaqb4";
+const WRITE_SHOP_NAME = "Cheese Duke";
 function uniqueEmail() {
   return `playwright-review-${Date.now()}-${Math.floor(Math.random() * 10000)}@example.com`;
 }
@@ -46,23 +56,20 @@ test.afterAll(async ({ request }) => {
 
 test.describe("評論功能", () => {
   test("店家詳情頁還沒有評論時，顯示友善的空狀態而不是假評論", async ({ page }) => {
-    // 用 caramel-pudding-lab 而不是 cloud-nine-gelato：後者現在有一筆
-    // 使用者要求留著的展示評論（demo 帳號寫的），不再是空的，改用目前還
-    // 沒有任何評論的店家測「空狀態」這件事。
-    await page.goto("/shop/caramel-pudding-lab");
+    await page.goto(`/shop/${EMPTY_SHOP_ID}`);
     await expect(page.getByRole("heading", { name: "No reviews yet" })).toBeVisible();
   });
 
   test("從店家詳情頁點 Write a review 會帶著這間店的 id 過去，店名鎖定不能改", async ({ page }) => {
     await signUp(page);
-    await page.goto("/shop/matcha-mori-house");
+    await page.goto(`/shop/${WRITE_SHOP_ID}`);
     await page.getByRole("link", { name: /Write a review/ }).click();
-    await page.waitForURL("**/write-review?id=matcha-mori-house");
-    await expect(page.getByTestId("locked-shop-name")).toHaveText("Matcha Mori House");
+    await page.waitForURL(`**/write-review?id=${WRITE_SHOP_ID}`);
+    await expect(page.getByTestId("locked-shop-name")).toHaveText(WRITE_SHOP_NAME);
   });
 
   test("沒登入的人填完表單送出，會被導去登入頁，不會真的送出評論", async ({ page }) => {
-    await page.goto("/write-review?id=matcha-mori-house");
+    await page.goto(`/write-review?id=${WRITE_SHOP_ID}`);
     await page.waitForLoadState("networkidle");
     await page.fill("#review-text", "隨便寫一段測試用的評論內容");
     await page.getByRole("button", { name: "5 stars" }).click();
@@ -72,7 +79,7 @@ test.describe("評論功能", () => {
 
   test("登入後寫評論會成功送出，導回店家詳情頁並看到剛剛寫的內容", async ({ page }) => {
     await signUp(page, "真心推薦者");
-    await page.goto("/write-review?id=matcha-mori-house");
+    await page.goto(`/write-review?id=${WRITE_SHOP_ID}`);
     await page.waitForLoadState("networkidle");
     await page.fill("#review-text", "座位很舒服，抹茶千層真的好吃！");
     await page.getByRole("button", { name: "5 stars" }).click();
@@ -94,7 +101,7 @@ test.describe("評論功能", () => {
       }
     });
 
-    await page.waitForURL("**/shop/matcha-mori-house");
+    await page.waitForURL(`**/shop/${WRITE_SHOP_ID}`);
 
     const firstReview = page.getByTestId("review-item").first();
     await expect(firstReview.getByText("座位很舒服，抹茶千層真的好吃！")).toBeVisible();
@@ -106,7 +113,7 @@ test.describe("評論功能", () => {
     // 頁面上第一個 h2 其實是 hero 裡 AI 問答的標題「Ask for a dessert
     // recommendation」（DOM 順序在 Latest Reviews 前面），要把範圍限定在
     // .review-grid 裡才不會選錯。
-    await expect(page.locator(".review-grid .review-card h2").first()).toHaveText("Matcha Mori House");
+    await expect(page.locator(".review-grid .review-card h2").first()).toHaveText(WRITE_SHOP_NAME);
     await expect(page.locator(".review-grid").getByText("座位很舒服，抹茶千層真的好吃！").first()).toBeVisible();
   });
 
@@ -120,7 +127,7 @@ test.describe("評論功能", () => {
     // 誤判成通過，第一次寫的時候就踩到這個坑，改成明確等 > 1）。
     await expect.poll(() => page.locator("#dessert-shop-id option").count()).toBeGreaterThan(1);
     const options = await page.locator("#dessert-shop-id option").allTextContents();
-    expect(options).toContain("Matcha Mori House");
+    expect(options).toContain(WRITE_SHOP_NAME);
     expect(options.length).toBeGreaterThan(1);
   });
 

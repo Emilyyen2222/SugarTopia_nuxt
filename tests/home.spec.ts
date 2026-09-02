@@ -167,8 +167,13 @@ test.describe("首頁 /", () => {
     expect(hrefs).toContain("/category?q=Dogs%20Friendly");
     expect(hrefs).toHaveLength(4);
 
-    // 點選單外面應該要收起來，換一個確定在面板範圍外的目標。
-    await page.locator(".dessert-swiper img").first().click();
+    // 點選單外面應該要收起來，換一個確定在面板範圍外的目標。原本點的是
+    // `.dessert-swiper img`，但 Swiper 開了 loop（無縫循環播放）之後，
+    // 同一個 class 會對應到好幾張「複製的」slide（loop 模式的實作細節），
+    // .first() 選到的不一定是畫面上真的看得到、點得到的那張，容易被
+    // 判定成「被別的元素擋住」而點擊失敗。改點 .overlay-text（slogan 文字），
+    // 一定只有一個、位置固定，不會有這個問題。
+    await page.locator(".overlay-text").click();
     await expect(panel).toBeHidden();
   });
 });

@@ -47,6 +47,28 @@ const reviews = ref<Awaited<ReturnType<typeof getShopReviews>>["reviews"]>([]);
 const reviewsLoading = ref(true);
 const reviewsFailed = ref(false);
 
+// 評論分頁：原本這排頁碼按鈕是純裝飾（vanilla 版本遷移過來時就是假的，
+// 見下面模板拿掉之前的註解），改成真的會動的分頁。後端 GET
+// /api/shops/{id}/reviews 一次回傳全部評論、沒有 limit/offset 這種分頁
+// 參數，用現有資料量（一家店頂多幾十則）來看，前端自己切頁就夠了，不用
+// 為了這個再改後端 API、多一輪打 API 的往返——真的多到要伺服器端分頁
+// 是之後資料量大很多之後才需要考慮的事。
+const REVIEWS_PER_PAGE = 5;
+const currentPage = ref(1);
+const totalPages = computed(() => Math.max(1, Math.ceil(reviews.value.length / REVIEWS_PER_PAGE)));
+const paginatedReviews = computed(() => {
+  const start = (currentPage.value - 1) * REVIEWS_PER_PAGE;
+  return reviews.value.slice(start, start + REVIEWS_PER_PAGE);
+});
+// reviews 變動時（重新載入、編輯/刪除評論後),如果目前頁碼已經超出範圍
+// (例如刪光了最後一頁的評論)，退回最後一頁而不是停在一個空頁面上。
+watch(reviews, () => {
+  if (currentPage.value > totalPages.value) currentPage.value = totalPages.value;
+});
+function goToPage(page: number) {
+  currentPage.value = Math.min(Math.max(page, 1), totalPages.value);
+}
+
 // 編輯/刪除評論：只有本人能對自己的評論動作（後端 PUT/DELETE
 // /api/reviews/{id} 也會擋非本人，這裡只是不要讓按鈕出現在別人的評論下面）。
 // 編輯用行內表單，不跳去 /write-review（那個頁面是設計給「新增」用的，
@@ -127,6 +149,7 @@ async function loadShop() {
 async function loadReviews() {
   reviewsLoading.value = true;
   reviewsFailed.value = false;
+  currentPage.value = 1;
 
   try {
     const data = await getShopReviews(shopId.value);
@@ -334,7 +357,7 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
           </div>
         </template>
         <div v-else class="flex flex-col gap-[30px]">
-          <div v-for="review in reviews" :key="review.id" data-testid="review-item" class="rounded-xl bg-white p-[15px] shadow-[0_4px_15px_rgba(0,0,0,0.05)] transition-transform duration-300 hover:-translate-y-[5px]">
+          <div v-for="review in paginatedReviews" :key="review.id" data-testid="review-item" class="rounded-xl bg-white p-[15px] shadow-[0_4px_15px_rgba(0,0,0,0.05)] transition-transform duration-300 hover:-translate-y-[5px]">
             <div class="w-[200px]">
               <ReviewerAvatar :name="review.reviewerName" :size="70" class="mb-[15px] border-[3px] border-brand-orange" />
               <div>
@@ -445,25 +468,39 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
           </div>
         </div>
 
-        <!-- 跟 vanilla 版本一樣：分頁導航是裝飾用的，沒有真的分頁功能
-             （後端評論 API 一次回傳全部評論，沒有分頁參數）。 -->
-        <div class="mt-10 flex items-center justify-center gap-2.5 py-5">
-          <a href="#" class="flex h-10 w-10 items-center justify-center rounded-full border border-[#ddd] text-brand-brown transition hover:-translate-y-0.5 hover:bg-[#f5f5f5]" @click.prevent="show(t('common.demoPlaceholder'))">
+        <!-- 真的會動的分頁：原本這排是裝飾用的（不管點哪裡都是同一個 demo
+             提示），現在會真的切換頁碼、只有一頁時整排不顯示（沒必要看到
+             一組只能點自己的分頁按鈕）。頁碼邏輯見上面 REVIEWS_PER_PAGE／
+             paginatedReviews／goToPage 的註解。 -->
+        <div v-if="totalPages > 1" class="mt-10 flex items-center justify-center gap-2.5 py-5">
+          <button
+            type="button"
+            :disabled="currentPage === 1"
+            class="flex h-10 w-10 items-center justify-center rounded-full border border-[#ddd] text-brand-brown transition hover:-translate-y-0.5 hover:bg-[#f5f5f5] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:bg-transparent"
+            :aria-label="t('shop.previousPage')"
+            @click="goToPage(currentPage - 1)"
+          >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4"><path d="M15 18l-6-6 6-6" /></svg>
-          </a>
-          <a
-            v-for="n in 6"
+          </button>
+          <button
+            v-for="n in totalPages"
             :key="n"
-            href="#"
-            class="flex h-10 w-10 items-center justify-center rounded-full border text-[0.9375rem] no-underline transition"
-            :class="n === 1 ? 'border-brand-orange bg-brand-orange text-white' : 'border-[#ddd] text-brand-brown hover:-translate-y-0.5 hover:bg-[#f5f5f5]'"
-            @click.prevent="show(t('common.demoPlaceholder'))"
+            type="button"
+            class="flex h-10 w-10 items-center justify-center rounded-full border text-[0.9375rem] transition"
+            :class="n === currentPage ? 'border-brand-orange bg-brand-orange text-white' : 'border-[#ddd] text-brand-brown hover:-translate-y-0.5 hover:bg-[#f5f5f5]'"
+            @click="goToPage(n)"
           >
             {{ n }}
-          </a>
-          <a href="#" class="flex h-10 w-10 items-center justify-center rounded-full border border-[#ddd] text-brand-brown transition hover:-translate-y-0.5 hover:bg-[#f5f5f5]" @click.prevent="show(t('common.demoPlaceholder'))">
+          </button>
+          <button
+            type="button"
+            :disabled="currentPage === totalPages"
+            class="flex h-10 w-10 items-center justify-center rounded-full border border-[#ddd] text-brand-brown transition hover:-translate-y-0.5 hover:bg-[#f5f5f5] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:bg-transparent"
+            :aria-label="t('shop.nextPage')"
+            @click="goToPage(currentPage + 1)"
+          >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4"><path d="M9 18l6-6-6-6" /></svg>
-          </a>
+          </button>
         </div>
       </section>
     </template>

@@ -114,6 +114,8 @@
     "mostRecent": "最新發布",
     "reviewsLoading": "評論載入中……",
     "reviewsFailed": "現在暫時讀不到評論。",
+    "previousPage": "上一頁",
+    "nextPage": "下一頁",
     "noReviewsTitle": "目前還沒有評論",
     "beFirstPrefix": "當第一個",
     "beFirstSuffixFor": "為 {shopName} 留下評論。",

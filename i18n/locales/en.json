@@ -114,6 +114,8 @@
     "mostRecent": "Most Recent",
     "reviewsLoading": "Loading reviews...",
     "reviewsFailed": "Could not load reviews right now.",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
     "noReviewsTitle": "No reviews yet",
     "beFirstPrefix": "Be the first to",
     "beFirstSuffixFor": "for {shopName}.",

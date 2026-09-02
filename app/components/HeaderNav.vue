@@ -157,6 +157,19 @@ async function handleLogout() {
                （下面 nav-md:inline-flex 那顆），漢堡選單裡這顆變成完全
                重複的第二顆語言切換按鈕，一併拿掉，不留一個空殼 div。 -->
           <CategoriesDropdown />
+          <!-- 窄螢幕（≤1024px）「願望單」的入口：帳號 icon 只夠放一個
+               連結（現在是收藏），願望單放進漢堡選單面板裡，跟 Categories
+               排在一起，不用再往帳號 icon 那排擠第二顆圖示。只有登入時
+               才顯示——沒登入的話點進 /wishlist 會被導去登入頁，但與其
+               讓使用者點了才發現要登入，不如一開始就不顯示這個入口。 -->
+          <NuxtLink
+            v-if="isLoggedIn"
+            to="/wishlist"
+            class="block rounded-[10px] px-3 py-2.5 text-[0.9375rem] font-medium text-brand-brown no-underline hover:bg-brand-hover"
+            @click="closeMobileMenu"
+          >
+            {{ t("header.myWishlist") }}
+          </NuxtLink>
         </nav>
       </div>
 
@@ -191,6 +204,23 @@ async function handleLogout() {
           <span class="mr-2.5 ml-5 whitespace-nowrap text-[0.9375rem] font-semibold text-white nav-md:hidden">
             {{ t("header.hi", { name: user?.name }) }}
           </span>
+          <!-- 桌機版（>1024px）原本完全沒有任何連結能到「我的收藏」——唯一
+               的入口是下面那顆帳號 icon，但那顆是 nav-md:flex（只在
+               ≤1024px 才顯示），桌機版登入後其實點不到收藏頁，只是剛好
+               沒人抱怨過。這次一併補上桌機版的文字連結，順便把新的
+               「願望單」放在旁邊。 -->
+          <NuxtLink
+            to="/favorites"
+            class="mr-2.5 whitespace-nowrap text-[0.9375rem] text-white no-underline hover:underline nav-md:hidden"
+          >
+            {{ t("header.myFavorites") }}
+          </NuxtLink>
+          <NuxtLink
+            to="/wishlist"
+            class="mr-2.5 whitespace-nowrap text-[0.9375rem] text-white no-underline hover:underline nav-md:hidden"
+          >
+            {{ t("header.myWishlist") }}
+          </NuxtLink>
           <button
             type="button"
             class="whitespace-nowrap rounded-[9px] border border-white bg-transparent px-4 py-2 text-[0.9375rem] font-medium text-white hover:bg-brand-gold hover:text-brand-orange nav-md:hidden"

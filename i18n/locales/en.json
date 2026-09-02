@@ -15,6 +15,7 @@
     "logOut": "Log Out",
     "hi": "Hi, {name}",
     "myFavorites": "My Favorites",
+    "myWishlist": "My Wishlist",
     "loggedOut": "You have logged out."
   },
   "home": {
@@ -140,6 +141,26 @@
     "shopsSavedZero": "no shops saved",
     "shopsSavedOne": "{count} shop saved",
     "shopsSavedOther": "{count} shops saved"
+  },
+  "wishlist": {
+    "title": "My Wishlist",
+    "subtitle": "Not sure what to search for yet? Describe what you're after, in your own words.",
+    "pleaseLoginTitle": "Please log in first",
+    "pleaseLoginBody": "You need to be logged in to keep a wishlist.",
+    "inputLabel": "What are you hoping to find?",
+    "inputPlaceholder": "e.g. A quiet caramel pudding spot in Taipei where I can sit for a couple hours",
+    "addButton": "Add to wishlist",
+    "adding": "Adding...",
+    "loadingBody": "Loading your wishlist...",
+    "errorTitle": "Could not load your wishlist",
+    "emptyTitle": "Your wishlist is empty",
+    "emptyBody": "Add a note above about the kind of dessert shop you're hoping to find.",
+    "removeButton": "Remove",
+    "removing": "Removing...",
+    "textTooShortToast": "Please write at least 2 characters.",
+    "addedToast": "Added to your wishlist.",
+    "addFailedToast": "Could not add this. Please try again.",
+    "removeFailedToast": "Could not remove this. Please try again."
   },
   "auth": {
     "alreadyLoggedIn": "You're already logged in as {name}.",

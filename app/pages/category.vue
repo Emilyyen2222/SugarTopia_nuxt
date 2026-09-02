@@ -206,6 +206,26 @@ function toggleFilters() {
 function closeFilters() {
   filtersOpen.value = false;
 }
+
+// 窄螢幕（map-hide 以下）地圖 bottom sheet：桌機版側欄地圖在這個寬度
+// 本來就整個隱藏（見下面 map-hide:hidden），但 ShopCard 的「View on
+// map」按鈕原本沒有跟著隱藏——手機使用者點了按鈕文字會變成「Showing on
+// map」，畫面上卻完全沒有地圖可以看，看起來像壞掉了（這是使用者實測
+// 抓到的真的 bug，不是這次新增功能才發現）。與其把按鈕藏起來讓手機
+// 使用者完全用不到店家座標這個功能，改成點了之後真的跳出地圖——用跟
+// Filters 同一套 bottom sheet 手法，資料沿用同一份 mapLat／mapLng／
+// mapName／mapSrc（selectShop() 已經會更新，這裡不用重新算一次）。
+const mobileMapOpen = ref(false);
+function openMobileMap(shop: Shop) {
+  // scroll=true 保留桌機版原本「捲動到側欄地圖」的行為；在手機版（側欄
+  // 地圖本來就 map-hide:hidden）這個 scrollIntoView 對一個隱藏元素做，
+  // 瀏覽器就是安靜地不做任何事，不會出錯，不用另外判斷寬度。
+  selectShop(shop, true);
+  mobileMapOpen.value = true;
+}
+function closeMobileMap() {
+  mobileMapOpen.value = false;
+}
 </script>
 
 <template>
@@ -340,6 +360,36 @@ function closeFilters() {
       </div>
     </div>
 
+    <!-- 窄螢幕（map-hide 以下）地圖 bottom sheet：跟上面 Filters 用同一套
+         手法（半透明遮罩 + 從下滑出的白色浮層），資料沿用桌機版側欄地圖
+         同一份 mapSrc／mapLabel，不用另外算一次。見 openMobileMap() 的
+         註解——這是補上使用者在真手機上發現「View on map 按鈕點了沒
+         反應」這個既有缺口。 -->
+    <div v-if="mobileMapOpen" class="fixed inset-0 z-50 hidden map-hide:flex">
+      <div class="absolute inset-0 bg-brand-brown/45" @click="closeMobileMap" />
+      <div class="relative mt-auto flex max-h-[85vh] w-full flex-col rounded-t-[20px] bg-white shadow-[0_-8px_30px_rgba(0,0,0,0.15)]">
+        <div class="flex justify-center pt-2.5">
+          <div class="h-1 w-10 rounded-full bg-[#ddd]" />
+        </div>
+        <div class="flex items-center justify-between px-5 pb-1 pt-3.5">
+          <h2 class="min-w-0 truncate text-[1.0625rem] font-bold text-brand-brown">{{ mapLabel }}</h2>
+          <button type="button" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#f5f5f5]" @click="closeMobileMap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6F5B49" stroke-width="2.5">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        </div>
+        <iframe
+          :src="mapSrc"
+          title="Shop location map"
+          class="h-[65vh] w-full border-0"
+          allowfullscreen
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        />
+      </div>
+    </div>
+
     <!-- 搜尋結果 -->
     <section class="min-w-0 flex-1">
       <template v-if="loading">
@@ -410,7 +460,7 @@ function closeFilters() {
             :shop="shop"
             :index="index"
             :is-active-on-map="activeShopId === shop.id"
-            @view-on-map="selectShop(shop, true)"
+            @view-on-map="openMobileMap(shop)"
           />
         </div>
       </template>

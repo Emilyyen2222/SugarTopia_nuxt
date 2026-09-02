@@ -3,7 +3,8 @@ import { test, expect, type Page } from "@playwright/test";
 // 對應 vanilla 版本 tests/favorites.spec.js。.action-btn.save →
 // getByRole('button', {name: 'Save'|'Saved'})（文字本身就會隨收藏狀態
 // 切換，不需要另外對 class 斷言）；.auth-favorites → header 窄螢幕版的
-// 帳號 icon（aria-label="My Favorites"，見 HeaderNav.vue）。
+// 帳號 icon，登入時是 aria-label="Account menu" 的按鈕（點開漢堡選單，
+// 不是直接連去 /favorites，見 HeaderNav.vue）。
 //
 // 原本這個檔案測試用的店家是 matcha-mori-house，那是最初 7 家示意店家
 // 之一（dessert_data_sample.json），使用者要求把示意資料清掉、換成
@@ -88,11 +89,15 @@ test.describe("收藏功能", () => {
     await expect(page.getByRole("heading", { name: "Please log in first" })).toBeVisible();
   });
 
-  test("已登入的人在窄螢幕 header 會出現帳號連結，可以點過去我的收藏", async ({ page }) => {
+  test("已登入的人在窄螢幕點帳號 icon 會打開選單，裡面有我的最愛可以點過去", async ({ page }) => {
+    // 使用者要求把「我的最愛」「我的願望單」收進漢堡選單、header 不要
+    // 常駐顯示這兩個連結（見 HeaderNav.vue），這顆帳號 icon（≤1024px 才
+    // 顯示）現在是打開選單，不是直接連過去，「我的最愛」要點開選單才
+    // 看得到。
     await signUp(page);
-    // 這顆連結只在 ≤1024px（nav-md）才會顯示，見 HeaderNav.vue。
     await page.setViewportSize({ width: 900, height: 900 });
     await page.goto("/");
+    await page.getByRole("button", { name: "Account menu" }).click();
     await page.getByRole("link", { name: "My Favorites" }).click();
     await page.waitForURL("**/favorites");
   });

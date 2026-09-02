@@ -52,6 +52,23 @@ function closeMobileMenu() {
   mobileMenuOpen.value = false;
 }
 
+// 帳號選單（我的最愛／我的願望單／登出）：跟 CategoriesDropdown.vue 同一種
+// 「純用 Vue 的 v-if 開關、不依賴 CSS 媒體查詢」的下拉選單寫法，不是借用
+// .nav-menu 那組只在 ≤1380px 才有效的 is-active 機制——一開始想直接把
+// 「我的最愛」「我的願望單」塞進 .nav-menu（跟 Categories 共用），結果
+// 實測發現寬螢幕（>1380px）時 .nav-menu 預設就是 display:flex，is-active
+// 這個 class 在那個寬度完全沒有作用，兩個連結還是會直接攤開顯示在
+// header 上，沒有真的達到使用者要的「收進選單、header 保持乾淨」。
+// 獨立做一個不受那個斷點限制的選單，才會在所有寬度都是「點了才展開」。
+const accountMenuOpen = ref(false);
+const accountMenuEl = ref<HTMLElement | null>(null);
+function toggleAccountMenu() {
+  accountMenuOpen.value = !accountMenuOpen.value;
+}
+function closeAccountMenu() {
+  accountMenuOpen.value = false;
+}
+
 // 點漢堡選單裡任何一個會換頁的連結（Categories 面板裡的分類、write a
 // review）都要收合選單，不是只有點外面才收合。原本只靠個別連結各自的
 // @click="closeMobileMenu"，Categories 面板裡的連結是 CategoriesDropdown
@@ -59,17 +76,26 @@ function closeMobileMenu() {
 // 不用每個連結都手動接一次。
 watch(
   () => route.fullPath,
-  () => closeMobileMenu()
+  () => {
+    closeMobileMenu();
+    closeAccountMenu();
+  }
 );
 
 function handleClickOutside(event: MouseEvent) {
   if (headerLeftEl.value && !headerLeftEl.value.contains(event.target as Node)) {
     closeMobileMenu();
   }
+  if (accountMenuEl.value && !accountMenuEl.value.contains(event.target as Node)) {
+    closeAccountMenu();
+  }
 }
 
 function handleKeydown(event: KeyboardEvent) {
-  if (event.key === "Escape") closeMobileMenu();
+  if (event.key === "Escape") {
+    closeMobileMenu();
+    closeAccountMenu();
+  }
 }
 
 onMounted(() => {
@@ -156,20 +182,12 @@ async function handleLogout() {
                中英文切換則是使用者要求改放回 header 上跟帳號圖示放一起
                （下面 nav-md:inline-flex 那顆），漢堡選單裡這顆變成完全
                重複的第二顆語言切換按鈕，一併拿掉，不留一個空殼 div。 -->
+          <!-- 「我的最愛」「我的願望單」原本試著塞進這個 .nav-menu，跟
+               Categories 共用——但這裡在寬螢幕（>1380px）預設就是
+               display:flex，不受 mobileMenuOpen 控制，兩個連結在桌機版
+               還是會直接攤開顯示，沒有真的收起來。改成獨立的帳號選單
+               （accountMenuOpen，見下面），不跟這裡共用開關狀態。 -->
           <CategoriesDropdown />
-          <!-- 窄螢幕（≤1024px）「願望單」的入口：帳號 icon 只夠放一個
-               連結（現在是收藏），願望單放進漢堡選單面板裡，跟 Categories
-               排在一起，不用再往帳號 icon 那排擠第二顆圖示。只有登入時
-               才顯示——沒登入的話點進 /wishlist 會被導去登入頁，但與其
-               讓使用者點了才發現要登入，不如一開始就不顯示這個入口。 -->
-          <NuxtLink
-            v-if="isLoggedIn"
-            to="/wishlist"
-            class="block rounded-[10px] px-3 py-2.5 text-[0.9375rem] font-medium text-brand-brown no-underline hover:bg-brand-hover"
-            @click="closeMobileMenu"
-          >
-            {{ t("header.myWishlist") }}
-          </NuxtLink>
         </nav>
       </div>
 
@@ -181,7 +199,7 @@ async function handleLogout() {
       </div>
 
       <!-- 右欄：actions -->
-      <div class="flex items-center justify-self-end">
+      <div ref="accountMenuEl" class="relative flex items-center justify-self-end">
         <!-- whitespace-nowrap：這排全部強制單行，寧可整排在極窄的中間寬度
              區間被裁切／溢出，也不要讓短短兩三個字被硬拆成兩行（例如
              「Log In」拆成「Log／In」）——那種斷字方式比裁切還難看，也
@@ -201,32 +219,27 @@ async function handleLogout() {
         </button>
 
         <template v-if="isLoggedIn">
-          <span class="mr-2.5 ml-5 whitespace-nowrap text-[0.9375rem] font-semibold text-white nav-md:hidden">
-            {{ t("header.hi", { name: user?.name }) }}
-          </span>
-          <!-- 桌機版（>1024px）原本完全沒有任何連結能到「我的收藏」——唯一
-               的入口是下面那顆帳號 icon，但那顆是 nav-md:flex（只在
-               ≤1024px 才顯示），桌機版登入後其實點不到收藏頁，只是剛好
-               沒人抱怨過。這次一併補上桌機版的文字連結，順便把新的
-               「願望單」放在旁邊。 -->
-          <NuxtLink
-            to="/favorites"
-            class="mr-2.5 whitespace-nowrap text-[0.9375rem] text-white no-underline hover:underline nav-md:hidden"
-          >
-            {{ t("header.myFavorites") }}
-          </NuxtLink>
-          <NuxtLink
-            to="/wishlist"
-            class="mr-2.5 whitespace-nowrap text-[0.9375rem] text-white no-underline hover:underline nav-md:hidden"
-          >
-            {{ t("header.myWishlist") }}
-          </NuxtLink>
+          <!-- 「我的最愛」「我的願望單」原本是這裡各自一條常駐連結，使用者
+               要求收起來、header 保持乾淨，改成點「Hi, {name}」才展開的
+               帳號選單（accountMenuOpen，跟 CategoriesDropdown 同一種
+               v-if 開關寫法，不受任何寬度限制，任何螢幕寬度都是「點了
+               才展開」，不會像 .nav-menu 那樣在寬螢幕變成常駐攤開）。 -->
           <button
             type="button"
-            class="whitespace-nowrap rounded-[9px] border border-white bg-transparent px-4 py-2 text-[0.9375rem] font-medium text-white hover:bg-brand-gold hover:text-brand-orange nav-md:hidden"
-            @click="handleLogout"
+            class="ml-5 flex items-center gap-1 whitespace-nowrap text-[0.9375rem] font-semibold text-white nav-md:hidden"
+            @click.stop="toggleAccountMenu"
           >
-            {{ t("header.logOut") }}
+            {{ t("header.hi", { name: user?.name }) }}
+            <svg
+              class="shrink-0 transition-transform duration-150"
+              :class="{ 'rotate-180': accountMenuOpen }"
+              width="10"
+              height="7"
+              viewBox="0 0 12 8"
+              fill="none"
+            >
+              <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
           </button>
         </template>
         <template v-else>
@@ -261,10 +274,29 @@ async function handleLogout() {
              vanilla 版本這顆按鈕（.login_avatar／.auth-favorites）也沒有
              aria-label，純圖示連結沒有可讀的名字，這裡順便補上，螢幕
              閱讀器使用者才知道這顆按鈕是做什麼的；同時也讓測試有穩定的
-             文字可以定位，不用另外接一個只為了測試用的 class。 -->
+             文字可以定位，不用另外接一個只為了測試用的 class。
+             登入時這顆點下去打開的是跟桌機版同一個帳號選單
+             （accountMenuOpen），不是漢堡選單——帳號相關的連結（我的
+             最愛／願望單／登出）都集中在這一個選單裡，跟 Categories
+             那個漢堡選單是分開的兩件事。沒登入時維持原本行為，直接連去
+             登入頁。 -->
+        <button
+          v-if="isLoggedIn"
+          type="button"
+          :aria-label="t('header.accountMenu')"
+          class="hidden h-[47px] w-[47px] items-center justify-center rounded-lg border-2 border-brand-avatar bg-brand-avatar text-[1.6rem] text-brand-orange hover:scale-105 hover:text-white hover:shadow-md nav-md:flex"
+          @click.stop="toggleAccountMenu"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-[1.6rem] w-[1.6rem]">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="10" r="3" />
+            <path d="M6.2 18.5a6 6 0 0 1 11.6 0" />
+          </svg>
+        </button>
         <NuxtLink
-          :to="isLoggedIn ? '/favorites' : '/login'"
-          :aria-label="isLoggedIn ? t('header.myFavorites') : t('header.logIn')"
+          v-else
+          to="/login"
+          :aria-label="t('header.logIn')"
           class="hidden h-[47px] w-[47px] items-center justify-center rounded-lg border-2 border-brand-avatar bg-brand-avatar text-[1.6rem] text-brand-orange hover:scale-105 hover:text-white hover:shadow-md nav-md:flex"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-[1.6rem] w-[1.6rem]">
@@ -273,6 +305,31 @@ async function handleLogout() {
             <path d="M6.2 18.5a6 6 0 0 1 11.6 0" />
           </svg>
         </NuxtLink>
+
+        <!-- 帳號選單面板：「Hi, {name}」文字按鈕（桌機版）跟帳號 icon
+             （窄螢幕版）共用同一個面板、同一個 accountMenuOpen 開關，兩顆
+             觸發按鈕不會同時出現（各自的 nav-md 斷點互斥），面板固定貼齊
+             最外層容器（accountMenuEl，有 position: relative）的右邊，不用
+             另外為兩種寬度各寫一份定位邏輯。 -->
+        <div
+          v-if="isLoggedIn && accountMenuOpen"
+          class="absolute right-0 top-[calc(100%+10px)] z-[1100] w-[180px] rounded-2xl border border-brand-panel bg-white p-2 shadow-[0_12px_32px_rgba(58,37,19,0.18)]"
+        >
+          <NuxtLink to="/favorites" class="block rounded-[10px] px-3 py-2.5 text-[0.9375rem] font-medium text-brand-brown no-underline hover:bg-brand-hover" @click="closeAccountMenu">
+            {{ t("header.myFavorites") }}
+          </NuxtLink>
+          <NuxtLink to="/wishlist" class="block rounded-[10px] px-3 py-2.5 text-[0.9375rem] font-medium text-brand-brown no-underline hover:bg-brand-hover" @click="closeAccountMenu">
+            {{ t("header.myWishlist") }}
+          </NuxtLink>
+          <div class="my-1 border-t border-brand-panel" />
+          <button
+            type="button"
+            class="block w-full rounded-[10px] px-3 py-2.5 text-left text-[0.9375rem] font-medium text-brand-brown hover:bg-brand-hover"
+            @click="handleLogout(); closeAccountMenu();"
+          >
+            {{ t("header.logOut") }}
+          </button>
+        </div>
       </div>
     </div>
   </header>

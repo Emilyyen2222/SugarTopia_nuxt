@@ -16,6 +16,7 @@
     "hi": "Hi, {name}",
     "myFavorites": "My Favorites",
     "myWishlist": "My Wishlist",
+    "accountMenu": "Account menu",
     "loggedOut": "You have logged out."
   },
   "home": {

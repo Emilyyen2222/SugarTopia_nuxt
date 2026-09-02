@@ -16,6 +16,7 @@
     "hi": "嗨，{name}",
     "myFavorites": "我的最愛",
     "myWishlist": "我的願望單",
+    "accountMenu": "帳號選單",
     "loggedOut": "您已經登出了。"
   },
   "home": {

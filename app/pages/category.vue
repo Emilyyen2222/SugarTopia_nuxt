@@ -51,6 +51,21 @@ function shopMatches(shop: Shop) {
 
 const results = computed(() => shops.value.filter(shopMatches));
 
+// 店家清單改成「載入更多」分批顯示，而不是一次把 results 全部渲染出來——
+// 店家數量會一直長（目前已破百），全部塞進 DOM 會拖慢頁面，使用者也要滑
+// 很久。用 visibleCount 控制目前顯示到第幾筆，每次點「載入更多」再加一批；
+// results 一變（換分類、換篩選條件）就要重置回第一批，不然可能出現「篩選
+// 後剩不到 visibleCount 筆，但 visibleCount 還停在很大的數字」這種情況。
+const SHOPS_PER_PAGE = 20;
+const visibleCount = ref(SHOPS_PER_PAGE);
+const displayedResults = computed(() => results.value.slice(0, visibleCount.value));
+function loadMoreShops() {
+  visibleCount.value += SHOPS_PER_PAGE;
+}
+watch(results, () => {
+  visibleCount.value = SHOPS_PER_PAGE;
+});
+
 const queryText = computed(() => (route.query.q as string) || "");
 const locationText = computed(() => (route.query.location as string) || "");
 
@@ -455,13 +470,26 @@ function closeMobileMap() {
 
         <div v-else class="grid gap-6">
           <ShopCard
-            v-for="(shop, index) in results"
+            v-for="(shop, index) in displayedResults"
             :key="shop.id"
             :shop="shop"
             :index="index"
             :is-active-on-map="activeShopId === shop.id"
             @view-on-map="openMobileMap(shop)"
           />
+        </div>
+
+        <div v-if="visibleCount < results.length" class="mt-6 flex flex-col items-center gap-2">
+          <button
+            type="button"
+            class="h-12 rounded-lg border-2 border-brand-orange px-8 text-[0.9375rem] font-semibold text-brand-orange transition-colors hover:bg-brand-orange hover:text-white"
+            @click="loadMoreShops"
+          >
+            {{ t("category.loadMore") }}
+          </button>
+          <p class="text-sm text-brand-brown-light">
+            {{ t("category.showingCount", { shown: displayedResults.length, total: results.length }) }}
+          </p>
         </div>
       </template>
     </section>

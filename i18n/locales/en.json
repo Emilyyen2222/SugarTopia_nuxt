@@ -66,6 +66,8 @@
     "categoryLabel": "Category",
     "features": "Features",
     "seeMore": "See more",
+    "loadMore": "Load more",
+    "showingCount": "Showing {shown} of {total} shops",
     "demoDataWarning": "Using demo shop data because the backend shop API is unavailable.",
     "ratingFilterApplied": "Showing shops rated {stars} stars and up.",
     "showingOnMap": "Showing on map: {name}",

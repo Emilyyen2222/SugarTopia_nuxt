@@ -66,6 +66,8 @@
     "categoryLabel": "分類",
     "features": "特色",
     "seeMore": "顯示更多",
+    "loadMore": "載入更多",
+    "showingCount": "顯示 {shown} / {total} 家店",
     "demoDataWarning": "後端店家 API 暫時連不上，先顯示示範資料。",
     "ratingFilterApplied": "顯示 {stars} 星以上的店家。",
     "showingOnMap": "地圖顯示：{name}",

@@ -23,10 +23,16 @@ export function useApi() {
     path: string,
     options: Parameters<typeof $fetch>[1] = {}
   ): Promise<T> {
+    // FormData（大頭貼上傳用）不能手動塞 Content-Type: application/json——
+    // multipart/form-data 請求需要瀏覽器自己算出正確的 boundary 字串放進
+    // Content-Type，我們自己指定反而會讓後端解析不出檔案內容。其餘一般
+    // JSON 請求維持原本的預設值。
+    const isFormData = options?.body instanceof FormData;
+
     return $fetch<T>(`${baseUrl}${path}`, {
       ...options,
       headers: {
-        "Content-Type": "application/json",
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
         ...authHeaders(),
         ...(options?.headers as Record<string, string> | undefined),
       },

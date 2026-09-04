@@ -16,6 +16,7 @@
     "hi": "Hi, {name}",
     "myFavorites": "My Favorites",
     "myWishlist": "My Wishlist",
+    "editAvatar": "Edit Avatar",
     "accountMenu": "Account menu",
     "loggedOut": "You have logged out."
   },
@@ -146,6 +147,21 @@
     "shopsSavedZero": "no shops saved",
     "shopsSavedOne": "{count} shop saved",
     "shopsSavedOther": "{count} shops saved"
+  },
+  "profile": {
+    "title": "Edit Avatar",
+    "subtitle": "Upload a photo so people recognize you in your reviews.",
+    "pleaseLoginTitle": "Please log in first",
+    "pleaseLoginBody": "You need to be logged in to set an avatar.",
+    "uploadButton": "Upload photo",
+    "uploading": "Uploading...",
+    "removeButton": "Remove photo",
+    "removing": "Removing...",
+    "hint": "JPG, PNG or WebP, up to 5MB. Your photo will be cropped to a square.",
+    "uploadedToast": "Your avatar has been updated.",
+    "uploadFailedToast": "Could not upload this photo. Please try again.",
+    "removedToast": "Your avatar has been removed.",
+    "removeFailedToast": "Could not remove your avatar. Please try again."
   },
   "wishlist": {
     "title": "My Wishlist",

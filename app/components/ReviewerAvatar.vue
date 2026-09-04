@@ -1,12 +1,14 @@
 <script setup lang="ts">
 // 評論列表原本每個人的頭貼都是同一張寫死的哈士奇照片（/img/profile.jpg）
-// ——網站沒有頭貼上傳功能，之前遷移時就是直接沿用 vanilla 版本的假資料。
-// 這裡改成類似 Gravatar 預設樣式的做法：不用真的存照片，用姓名的第一個
-// 字＋依姓名算出的固定顏色圓底，同一個人每次看到的顏色都一樣（不是每次
-// 隨機换色），跟真的頭貼上傳比起來零後端/資料庫改動，缺點是終究不是
-// 「真人照片」——真的想做到大頭貼上傳，需要另外存欄位、另外做上傳 API，
-// 是更大的功能，先不做。
-const props = withDefaults(defineProps<{ name: string; size?: number }>(), { size: 50 });
+// ——網站原本沒有頭貼上傳功能，之前遷移時就是直接沿用 vanilla 版本的假
+// 資料。後來補上了真的大頭貼上傳（POST /api/users/me/avatar），但不是
+// 每個使用者都會去上傳——avatarUrl 是 null（沒上傳過）時，還是退回類似
+// Gravatar 預設樣式的做法：用姓名的第一個字＋依姓名算出的固定顏色圓底，
+// 同一個人每次看到的顏色都一樣（不是每次隨機换色）。
+const props = withDefaults(defineProps<{ name: string; avatarUrl?: string | null; size?: number }>(), {
+  avatarUrl: null,
+  size: 50,
+});
 
 // 用暖色調色盤（跟品牌橘/綠是同一個「溫暖甜點店」調性，不是隨便挑幾個
 // 鮮豔色），姓名 hash 出一個固定 index，同一個名字永遠對應同一個顏色。
@@ -25,7 +27,15 @@ const bgColor = computed(() => PALETTE[hashName(props.name || "") % PALETTE.leng
 </script>
 
 <template>
+  <img
+    v-if="avatarUrl"
+    :src="avatarUrl"
+    :alt="name"
+    class="shrink-0 rounded-full object-cover"
+    :style="{ width: `${size}px`, height: `${size}px` }"
+  />
   <div
+    v-else
     class="flex shrink-0 items-center justify-center rounded-full font-bold text-white"
     :style="{
       width: `${size}px`,

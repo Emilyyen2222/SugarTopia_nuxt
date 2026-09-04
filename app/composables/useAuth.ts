@@ -15,6 +15,7 @@ interface AuthUser {
   name: string;
   email: string;
   createdAt: string;
+  avatarUrl: string | null;
 }
 
 interface AuthState {
@@ -99,6 +100,30 @@ export function useAuth() {
     }
   }
 
+  // 上傳/刪除大頭貼都回傳最新的完整 user 物件（含新的 avatarUrl），直接
+  // 整個換掉 state 裡的 user 就好，不用自己組 avatarUrl——後端才知道
+  // ?v= 版本號要用哪個時間戳記，前端猜的話容易跟後端算出來的不一致。
+  async function uploadAvatar(file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    const data = await apiFetch<{ user: AuthUser }>("/api/users/me/avatar", {
+      method: "POST",
+      body: formData,
+    });
+    state.value = { ...state.value, user: data.user };
+    persist(state.value);
+    return data.user;
+  }
+
+  async function removeAvatar() {
+    const data = await apiFetch<{ user: AuthUser }>("/api/users/me/avatar", {
+      method: "DELETE",
+    });
+    state.value = { ...state.value, user: data.user };
+    persist(state.value);
+    return data.user;
+  }
+
   return {
     user: computed(() => state.value.user),
     token: computed(() => state.value.token),
@@ -106,5 +131,7 @@ export function useAuth() {
     signup,
     login,
     logout,
+    uploadAvatar,
+    removeAvatar,
   };
 }

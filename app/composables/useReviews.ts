@@ -9,6 +9,9 @@ export interface Review {
   text: string;
   createdAt: string;
   reviewerName: string;
+  // null 代表這個評論者沒上傳過真的大頭貼——ReviewerAvatar.vue 會退回
+  // 用姓名色塊+字母頂著，不是這裡要處理的事。
+  reviewerAvatarUrl: string | null;
   // 前端要知道「這則是不是我自己寫的」才能決定要不要顯示編輯／刪除
   // 按鈕（後端 PUT/DELETE /api/reviews/{id} 本來就會擋非本人，這裡只是
   // 讓按鈕一開始就不要顯示在別人的評論下面）。

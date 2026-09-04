@@ -321,6 +321,9 @@ async function handleLogout() {
           <NuxtLink to="/wishlist" class="block rounded-[10px] px-3 py-2.5 text-[0.9375rem] font-medium text-brand-brown no-underline hover:bg-brand-hover" @click="closeAccountMenu">
             {{ t("header.myWishlist") }}
           </NuxtLink>
+          <NuxtLink to="/profile" class="block rounded-[10px] px-3 py-2.5 text-[0.9375rem] font-medium text-brand-brown no-underline hover:bg-brand-hover" @click="closeAccountMenu">
+            {{ t("header.editAvatar") }}
+          </NuxtLink>
           <div class="my-1 border-t border-brand-panel" />
           <button
             type="button"

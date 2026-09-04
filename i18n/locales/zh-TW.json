@@ -16,6 +16,7 @@
     "hi": "嗨，{name}",
     "myFavorites": "我的最愛",
     "myWishlist": "我的願望單",
+    "editAvatar": "編輯大頭貼",
     "accountMenu": "帳號選單",
     "loggedOut": "您已經登出了。"
   },
@@ -146,6 +147,21 @@
     "shopsSavedZero": "還沒有收藏店家",
     "shopsSavedOne": "已收藏 {count} 家店",
     "shopsSavedOther": "已收藏 {count} 家店"
+  },
+  "profile": {
+    "title": "編輯大頭貼",
+    "subtitle": "上傳一張照片，讓其他人在評論裡認得出你。",
+    "pleaseLoginTitle": "請先登入",
+    "pleaseLoginBody": "要先登入才能設定大頭貼。",
+    "uploadButton": "上傳照片",
+    "uploading": "上傳中……",
+    "removeButton": "移除照片",
+    "removing": "移除中……",
+    "hint": "支援 JPG、PNG 或 WebP，最大 5MB，照片會被裁切成正方形。",
+    "uploadedToast": "大頭貼已更新。",
+    "uploadFailedToast": "無法上傳這張照片，請稍後再試。",
+    "removedToast": "大頭貼已移除。",
+    "removeFailedToast": "無法移除大頭貼，請稍後再試。"
   },
   "wishlist": {
     "title": "我的願望單",

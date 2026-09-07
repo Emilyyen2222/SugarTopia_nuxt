@@ -185,6 +185,7 @@
   },
   "auth": {
     "alreadyLoggedIn": "You're already logged in as {name}.",
+    "sessionExpiredToast": "Your session has expired. Please log in again.",
     "requestFailed": "Request failed.",
     "email": "Email",
     "emailPlaceholder": "Enter your email",

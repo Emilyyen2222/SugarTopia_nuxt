@@ -29,14 +29,47 @@ export function useApi() {
     // JSON 請求維持原本的預設值。
     const isFormData = options?.body instanceof FormData;
 
-    return $fetch<T>(`${baseUrl}${path}`, {
-      ...options,
-      headers: {
-        ...(isFormData ? {} : { "Content-Type": "application/json" }),
-        ...authHeaders(),
-        ...(options?.headers as Record<string, string> | undefined),
-      },
-    });
+    // 這一次呼叫送出去的時候，我們「以為」自己是登入的嗎？——後端 session
+    // 過期／被刪掉是使用者自己感覺不到的（畫面上還是顯示已登入，直到真的
+    // 點了什麼才會發現失敗），所以只有在「原本帶了 token 出去，結果後端
+    // 說 401」這個情況，才代表 session 真的過期了，需要自動登出＋導去
+    // 登入頁。登入頁本身回的 401（帳號密碼錯誤）不會誤觸這個邏輯，因為
+    // 那個當下根本沒有 token 可以帶出去。
+    const hadToken = Boolean(useAuthToken().value);
+
+    try {
+      return await $fetch<T>(`${baseUrl}${path}`, {
+        ...options,
+        headers: {
+          ...(isFormData ? {} : { "Content-Type": "application/json" }),
+          ...authHeaders(),
+          ...(options?.headers as Record<string, string> | undefined),
+        },
+      });
+    } catch (error) {
+      const status =
+        (error as { response?: { status?: number }; statusCode?: number; status?: number })
+          ?.response?.status ??
+        (error as { statusCode?: number })?.statusCode ??
+        (error as { status?: number })?.status;
+
+      if (status === 401 && hadToken) {
+        clearAuthState();
+        if (import.meta.client && useRoute().path !== "/login") {
+          // 不能在這裡用 useI18n()——它規定只能在元件 setup() 最上層呼叫，
+          // 這裡是深在一個 catch 區塊裡的非同步流程，不符合那個限制
+          // （實測會直接噴 SyntaxError）。改用 useNuxtApp().$i18n.t()，
+          // 這是 @nuxtjs/i18n 掛在全域 Nuxt app 上的同一份翻譯，沒有這個
+          // 呼叫位置的限制。
+          const { show } = useSiteMessage();
+          const { $i18n } = useNuxtApp();
+          show($i18n.t("auth.sessionExpiredToast"));
+          await navigateTo("/login");
+        }
+      }
+
+      throw error;
+    }
   }
 
   return { apiFetch, baseUrl };

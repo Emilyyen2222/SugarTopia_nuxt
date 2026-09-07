@@ -185,6 +185,7 @@
   },
   "auth": {
     "alreadyLoggedIn": "你已經以 {name} 的身分登入了。",
+    "sessionExpiredToast": "登入已經過期，請重新登入。",
     "requestFailed": "請求失敗。",
     "email": "電子郵件",
     "emailPlaceholder": "輸入你的電子郵件",

@@ -49,6 +49,17 @@ function persist(state: AuthState) {
   }
 }
 
+// 給 useApi.ts 的全域 401 攔截用：伺服器回 401（session 已經過期或被
+// 刪除）時，直接在這裡清掉登入狀態＋localStorage，不用等使用者自己發現
+// 「明明看起來是登入的，點什麼都失敗」。特意獨立匯出成一個函式（不是
+// 直接 export useAuthState），呼叫端只需要知道「清掉登入狀態」這個意圖，
+// 不需要拿到整個 state ref 自己改。
+export function clearAuthState() {
+  const state = useAuthState();
+  state.value = { user: null, token: null };
+  persist(state.value);
+}
+
 /** App.vue 掛載時呼叫一次，把 localStorage 裡的登入狀態讀回 useState。 */
 export function initAuth() {
   const state = useAuthState();

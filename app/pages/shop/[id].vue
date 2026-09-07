@@ -42,6 +42,15 @@ const displayTags = computed(() => {
 const displayDescription = computed(
   () => (shop.value && locale.value === "zh-TW" && shop.value.descriptionZh) || shop.value?.description || ""
 );
+// 完整營業時間：跟其他 display* 一樣依語言選對應版本，中文版缺資料時
+// 退回英文版（跟 displayTags 的退回邏輯一致），兩個都沒有就是真的沒有
+// 營業時間資料（Google 沒有這家店的資料，或這家店是補上這個欄位之前
+// 就收錄的舊資料）。
+const displayHours = computed(() => {
+  if (!shop.value) return [];
+  return locale.value === "zh-TW" && shop.value.hoursZh?.length ? shop.value.hoursZh : shop.value.hours ?? [];
+});
+const hoursExpanded = ref(false);
 
 const reviews = ref<Awaited<ReturnType<typeof getShopReviews>>["reviews"]>([]);
 const reviewsLoading = ref(true);
@@ -285,12 +294,21 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
             </span>
           </div>
 
-          <!-- 跟 vanilla 版本一樣：這整塊營業資訊是固定的示範內容，不是這間店的真實資料。 -->
+          <!-- 完整營業時間是真實資料（見 useShops.ts 的 Shop.hours 註解），
+               網站／電話／地址這幾行仍然是固定示範內容——後端 shop 物件
+               目前沒有這幾個欄位，這次只處理營業時間，跟 vanilla 版本一樣
+               先保留其餘假資料，不擴大這次的改動範圍。 -->
           <div class="text-[0.9375rem] text-brand-brown">
             <div class="p-[5px]">
-              <span>{{ t("shop.closed") }}</span>
-              <span class="ml-1">11:30 AM-7:30 PM</span>
-              <a href="#" class="pl-[5px] text-[#FFA518]" @click.prevent="show(t('shop.seeHoursToast'))">{{ t("shop.seeHours") }}</a>
+              <template v-if="displayHours.length">
+                <button type="button" class="text-[#FFA518] underline" @click="hoursExpanded = !hoursExpanded">
+                  {{ hoursExpanded ? t("shop.hideHours") : t("shop.seeHours") }}
+                </button>
+                <ul v-if="hoursExpanded" class="mt-1.5 space-y-0.5 text-sm text-brand-brown-light">
+                  <li v-for="line in displayHours" :key="line">{{ line }}</li>
+                </ul>
+              </template>
+              <span v-else class="text-brand-brown-light">{{ t("shop.hoursUnavailable") }}</span>
             </div>
             <div class="p-[5px]">cinnamonrollsstudio.com.tw</div>
             <div class="p-[5px]">02-2250 5431</div>

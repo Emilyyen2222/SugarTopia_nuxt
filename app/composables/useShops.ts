@@ -24,6 +24,14 @@ export interface Shop {
   lng: number | null;
   source?: string;
   googleMapsUrl?: string;
+  // 完整營業時間：Google Places 回傳的一週七天固定格式（例如
+  // "Monday: 9:00 AM – 6:00 PM"），不是「現在有沒有營業」這種即時狀態
+  // ——後端只在店家被收錄的當下抓一次存起來，不是每次看店家頁都重新問
+  // Google，所以這裡不會有 openNow 這種欄位。舊資料／樣本店可能是空
+  // 陣列（Google 沒有這家店的營業時間資料，或這家店是在補上這個功能
+  // 之前就收錄的），前端要處理「沒有資料」的情況。
+  hours?: string[];
+  hoursZh?: string[];
 }
 
 // 後端存的圖片路徑是相對路徑（例如 "img/lp.jpg"），這在 vanilla 版本沒問題，

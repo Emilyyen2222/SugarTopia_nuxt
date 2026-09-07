@@ -198,6 +198,38 @@ async function toggleSave() {
   }
 }
 
+// 分享：優先用瀏覽器原生的分享面板（navigator.share，手機瀏覽器/部分
+// 桌機瀏覽器有支援，會跳出系統的「分享到...」選單），沒有支援的環境
+// （多數桌機瀏覽器）退回複製連結到剪貼簿。兩種都不用動到後端——分享的
+// 內容就是目前這個頁面的網址，不需要後端另外產生短網址或社群卡片這種
+// 更複雜的機制。
+async function handleShare() {
+  const shareData = {
+    title: displayName.value,
+    text: t("shop.shareText", { name: displayName.value }),
+    url: window.location.href,
+  };
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+    } catch (error) {
+      // AbortError：使用者自己按取消，不是真的失敗，不用跳錯誤訊息。
+      if (error instanceof Error && error.name !== "AbortError") {
+        show(t("shop.shareFailedToast"));
+      }
+    }
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+    show(t("shop.linkCopiedToast"));
+  } catch {
+    show(t("shop.shareFailedToast"));
+  }
+}
+
 watch(
   shopId,
   async () => {
@@ -298,7 +330,7 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
         <button
           type="button"
           class="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-brand-orange px-6 py-3 text-[0.9375rem] text-white transition hover:-translate-y-0.5 hover:bg-[#e89615]"
-          @click="show(t('shop.shareToast'))"
+          @click="handleShare"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" /></svg>
           {{ t("shop.share") }}

@@ -233,6 +233,9 @@
     "chooseShopToast": "請選擇你要評論的店家。",
     "chooseRatingToast": "請選一個星等評分。",
     "postedToast": "謝謝！你的評論已經送出了。",
+    "postedButPhotosFailedToast": "評論已經送出，但照片上傳失敗了。",
+    "tooManyPhotosToast": "最多只能附上 {count} 張照片。",
+    "photosSelectedCount": "已選擇 {count} 張照片",
     "contextTagsLabel": "這次體驗怎麼樣？",
     "contextTagsHint": "非必填，符合的話可以複選。",
     "contextTags": {

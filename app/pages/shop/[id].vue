@@ -463,6 +463,14 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
                     {{ t(REVIEW_CONTEXT_TAGS.find((o) => o.value === tagValue)?.labelKey ?? tagValue) }}
                   </span>
                 </div>
+                <!-- 評論照片：v-if 整排不顯示，跟情境標籤那排不一樣——標籤
+                     那排刻意保留固定間距（見上面註解），照片沒有的話留一排
+                     空縮圖框反而更奇怪，直接不渲染。 -->
+                <div v-if="review.photos.length" class="mb-5 flex flex-wrap gap-2">
+                  <a v-for="photoUrl in review.photos" :key="photoUrl" :href="photoUrl" target="_blank" rel="noopener noreferrer">
+                    <img :src="photoUrl" alt="" class="h-20 w-20 rounded-lg border border-brand-border object-cover" />
+                  </a>
+                </div>
               </template>
             </div>
           </div>

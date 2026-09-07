@@ -14,7 +14,7 @@ import type { Shop } from "~/composables/useShops";
 const route = useRoute();
 const router = useRouter();
 const { fetchShop, fetchShops } = useShops();
-const { submitReview } = useReviews();
+const { submitReview, uploadReviewPhotos } = useReviews();
 const { isLoggedIn } = useAuth();
 const { show } = useSiteMessage();
 const { t } = useI18n();
@@ -35,6 +35,21 @@ function toggleContextTag(value: string) {
   selectedContextTags.value = selectedContextTags.value.includes(value)
     ? selectedContextTags.value.filter((v) => v !== value)
     : [...selectedContextTags.value, value];
+}
+
+// 評論照片：跟後端 REVIEW_PHOTOS_MAX_PER_REVIEW 對齊（main.py），前端先
+// 擋一次能給即時的提示，後端還是會再驗一次一樣的上限（不能只信前端）。
+const REVIEW_PHOTOS_MAX = 4;
+const selectedPhotoFiles = ref<File[]>([]);
+function handlePhotoSelect(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const files = Array.from(input.files ?? []);
+  if (files.length > REVIEW_PHOTOS_MAX) {
+    show(t("writeReview.tooManyPhotosToast", { count: REVIEW_PHOTOS_MAX }));
+    selectedPhotoFiles.value = files.slice(0, REVIEW_PHOTOS_MAX);
+  } else {
+    selectedPhotoFiles.value = files;
+  }
 }
 
 // 5 顆星星，position 1～5（畫面上從左到右），value 直接等於 position——
@@ -102,8 +117,23 @@ async function handleSubmit() {
   submitting.value = true;
 
   try {
-    await submitReview(selectedShopId.value, rating.value, reviewText.value.trim(), selectedContextTags.value);
-    show(t("writeReview.postedToast"));
+    const created = await submitReview(selectedShopId.value, rating.value, reviewText.value.trim(), selectedContextTags.value);
+
+    // 照片上傳是送出評論成功後另外的一步（見 useReviews.ts 的
+    // uploadReviewPhotos() 註解），照片上傳失敗不該讓使用者以為整則評論
+    // 都沒送出——評論本身已經存進去了，只是提示訊息換成專門講照片失敗
+    // 的那一句，還是照常導去店家頁面。
+    if (selectedPhotoFiles.value.length) {
+      try {
+        await uploadReviewPhotos(created.id, selectedPhotoFiles.value);
+        show(t("writeReview.postedToast"));
+      } catch {
+        show(t("writeReview.postedButPhotosFailedToast"));
+      }
+    } else {
+      show(t("writeReview.postedToast"));
+    }
+
     await router.push(`/shop/${encodeURIComponent(selectedShopId.value)}`);
   } catch (error) {
     show(error instanceof Error ? error.message : t("shop.requestFailed"));
@@ -186,9 +216,17 @@ async function handleSubmit() {
 
       <div class="mb-[15px]">
         <label for="photo-upload" class="mb-[5px] block text-sm text-brand-brown">{{ t("writeReview.sharePhotos") }}</label>
-        <!-- 跟 vanilla 版本一樣：這個欄位沒有真的接上傳功能，submitReview()
-             只送出評分跟文字，這裡選了照片也不會真的送出去。 -->
-        <input id="photo-upload" type="file" accept="image/*" multiple class="w-full rounded-[5px] border border-brand-gold p-[10px]" />
+        <input
+          id="photo-upload"
+          type="file"
+          accept="image/*"
+          multiple
+          class="w-full rounded-[5px] border border-brand-gold p-[10px]"
+          @change="handlePhotoSelect"
+        />
+        <p v-if="selectedPhotoFiles.length" class="mt-1.5 text-xs text-brand-brown-light">
+          {{ t("writeReview.photosSelectedCount", { count: selectedPhotoFiles.length }) }}
+        </p>
       </div>
 
       <button

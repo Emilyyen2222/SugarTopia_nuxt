@@ -233,6 +233,9 @@
     "chooseShopToast": "Please choose which shop you're reviewing.",
     "chooseRatingToast": "Please pick a star rating.",
     "postedToast": "Thanks! Your review has been posted.",
+    "postedButPhotosFailedToast": "Your review was posted, but the photos could not be uploaded.",
+    "tooManyPhotosToast": "You can attach at most {count} photos.",
+    "photosSelectedCount": "{count} photo(s) selected",
     "contextTagsLabel": "What was it like?",
     "contextTagsHint": "Optional — pick any that fit your visit.",
     "contextTags": {

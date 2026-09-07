@@ -30,6 +30,10 @@ export interface Review {
   // 使用者自己勾的分開存——顯示時要用不同樣式區分「使用者自選」跟
   // 「AI 分析」，不能混在一起讓人以為全部都是使用者自己勾的。
   aiContextTags: string[];
+  // 評論照片：一則評論可以有 0～REVIEW_PHOTOS_MAX_PER_REVIEW（後端定義，
+  // 目前是 4）張照片，剛建立的評論一定是空陣列——照片是拿到 review id
+  // 之後才用另一支 POST /api/reviews/{id}/photos 上傳的，不是同一步存進去。
+  photos: string[];
 }
 
 export function useReviews() {
@@ -62,7 +66,10 @@ export function useReviews() {
   }
 
   async function submitReview(shopId: string, rating: number, text: string, contextTags: string[] = []) {
-    return apiFetch(`/api/shops/${encodeURIComponent(shopId)}/reviews`, {
+    // 回傳型別標成 Review（不是原本沒指定的 unknown）——送出評論之後
+    // 馬上要用回傳的 review.id 呼叫 uploadReviewPhotos()，需要拿得到這個
+    // 欄位，不能只是丟出去不管回傳值。
+    return apiFetch<Review>(`/api/shops/${encodeURIComponent(shopId)}/reviews`, {
       method: "POST",
       body: { rating, text, context_tags: contextTags },
     });
@@ -79,5 +86,34 @@ export function useReviews() {
     return apiFetch(`/api/reviews/${reviewId}`, { method: "DELETE" });
   }
 
-  return { formatDate, getShopReviews, getLatestReviews, submitReview, updateReview, deleteReview };
+  // 評論照片是送出評論成功、拿到 review id 之後另外呼叫的一步（不是
+  // submitReview() 本身的一部分）——理由見 Review.photos 上面的註解。
+  async function uploadReviewPhotos(reviewId: number, files: File[]) {
+    const formData = new FormData();
+    for (const file of files) formData.append("files", file);
+    return apiFetch<{ photos: string[] }>(`/api/reviews/${reviewId}/photos`, {
+      method: "POST",
+      body: formData,
+    });
+  }
+
+  async function deleteReviewPhoto(reviewId: number, photoUrl: string) {
+    // photoUrl 是完整網址（.../api/reviews/{reviewId}/photos/{photoId}），
+    // 最後一段路徑就是 photo id，不用另外維護一份 id 對照表。
+    const photoId = photoUrl.split("/").pop();
+    return apiFetch<{ photos: string[] }>(`/api/reviews/${reviewId}/photos/${photoId}`, {
+      method: "DELETE",
+    });
+  }
+
+  return {
+    formatDate,
+    getShopReviews,
+    getLatestReviews,
+    submitReview,
+    updateReview,
+    deleteReview,
+    uploadReviewPhotos,
+    deleteReviewPhoto,
+  };
 }

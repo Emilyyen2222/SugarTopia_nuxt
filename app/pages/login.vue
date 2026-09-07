@@ -75,11 +75,7 @@ async function handleSubmit() {
             <input type="checkbox" />
             <span class="text-sm leading-snug">{{ t("auth.rememberMe") }}</span>
           </label>
-          <a
-            href="#"
-            class="text-brand-orange no-underline hover:underline"
-            @click.prevent="show(t('auth.forgotPasswordToast'))"
-          >{{ t("auth.forgotPassword") }}</a>
+          <NuxtLink to="/forgot-password" class="text-brand-orange no-underline hover:underline">{{ t("auth.forgotPassword") }}</NuxtLink>
         </div>
 
         <button

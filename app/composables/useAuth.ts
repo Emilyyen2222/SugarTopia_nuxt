@@ -135,6 +135,22 @@ export function useAuth() {
     return data.user;
   }
 
+  // 忘記密碼／重設密碼都不涉及目前的登入狀態（forgotPassword 甚至不用
+  // 登入就能呼叫），不用碰 state，單純轉呼叫後端就好。
+  async function forgotPassword(email: string) {
+    return apiFetch<{ message: string }>("/api/auth/forgot-password", {
+      method: "POST",
+      body: { email },
+    });
+  }
+
+  async function resetPassword(token: string, password: string) {
+    return apiFetch<{ message: string }>("/api/auth/reset-password", {
+      method: "POST",
+      body: { token, password },
+    });
+  }
+
   return {
     user: computed(() => state.value.user),
     token: computed(() => state.value.token),
@@ -144,5 +160,7 @@ export function useAuth() {
     logout,
     uploadAvatar,
     removeAvatar,
+    forgotPassword,
+    resetPassword,
   };
 }

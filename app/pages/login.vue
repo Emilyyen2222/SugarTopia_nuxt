@@ -7,6 +7,7 @@
 const { login, user } = useAuth();
 const { show } = useSiteMessage();
 const router = useRouter();
+const route = useRoute();
 const { t } = useI18n();
 
 const email = ref("");
@@ -16,12 +17,26 @@ const password = ref("");
 const rememberMe = ref(true);
 const isSubmitting = ref(false);
 
-// 進頁面時如果已經登入，導回首頁——對應 auth.js 裡
-// 「data-auth-form 存在 + 使用者已登入」那段邏輯。
+// 從別的頁面被「你要先登入」擋下來的時候（例如測驗結果頁點了某家店、
+// 想收藏、想加照片……），那些頁面會帶著 ?redirect=<原本那一頁> 導來這裡
+// （見 useApi.ts 的 401 攔截、shop/[id].vue、write-review.vue），登入完
+// 應該送回原本那一頁，而不是每次都固定丟回首頁——不然使用者剛做完的
+// 操作（測驗結果、正在填的表單內容）等於白做，要重新找一次路。只接受
+// 「/ 開頭、且不是 //」這種站內相對路徑，不然 redirect 參數只要被改成
+// 外部網址（例如 //evil.example.com）就會變成開放重導向的資安漏洞。
+function resolveRedirectTarget() {
+  const raw = route.query.redirect;
+  const target = Array.isArray(raw) ? raw[0] : raw;
+  if (target && target.startsWith("/") && !target.startsWith("//")) return target;
+  return "/";
+}
+
+// 進頁面時如果已經登入，導回首頁（或帶進來的 redirect 目標）——對應
+// auth.js 裡「data-auth-form 存在 + 使用者已登入」那段邏輯。
 onMounted(() => {
   if (user.value) {
     show(t("auth.alreadyLoggedIn", { name: user.value.name }));
-    router.push("/");
+    router.push(resolveRedirectTarget());
   }
 });
 
@@ -30,7 +45,7 @@ async function handleSubmit() {
   try {
     const loggedInUser = await login(email.value.trim(), password.value, rememberMe.value);
     show(t("auth.welcomeBack", { name: loggedInUser.name }));
-    router.push("/");
+    router.push(resolveRedirectTarget());
   } catch (error: any) {
     show(error?.data?.detail || t("auth.requestFailed"));
   } finally {

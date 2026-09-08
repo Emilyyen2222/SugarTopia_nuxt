@@ -55,7 +55,8 @@ export function useApi() {
 
       if (status === 401 && hadToken) {
         clearAuthState();
-        if (import.meta.client && useRoute().path !== "/login") {
+        const currentRoute = useRoute();
+        if (import.meta.client && currentRoute.path !== "/login") {
           // 不能在這裡用 useI18n()——它規定只能在元件 setup() 最上層呼叫，
           // 這裡是深在一個 catch 區塊裡的非同步流程，不符合那個限制
           // （實測會直接噴 SyntaxError）。改用 useNuxtApp().$i18n.t()，
@@ -64,7 +65,10 @@ export function useApi() {
           const { show } = useSiteMessage();
           const { $i18n } = useNuxtApp();
           show($i18n.t("auth.sessionExpiredToast"));
-          await navigateTo("/login");
+          // session 過期是使用者自己感覺不到的中斷，登入完應該送回原本
+          // 那一頁繼續做剛剛的事，不是丟回首頁（見 login.vue 的
+          // resolveRedirectTarget()）。
+          await navigateTo({ path: "/login", query: { redirect: currentRoute.fullPath } });
         }
       }
 

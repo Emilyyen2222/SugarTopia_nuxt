@@ -56,6 +56,25 @@ const displayLocation = computed(
   () => (shop.value && locale.value === "zh-TW" && shop.value.locationZh) || shop.value?.location || ""
 );
 
+// 網站連結顯示文字：Google Places 給的 websiteUri 常常是外送平台的頁面
+// （UberEats／Foodpanda……），網址本身又臭又長、還帶一堆追蹤用的 query
+// string（utm_source 這種），整條印出來畫面會被撐爆、使用者也看不出來
+// 這是連去哪裡。不用真的接一個縮網址服務（那要嘛自己另外開一個資料庫
+// 存對照表，要嘛依賴第三方 API，兩者都是不成比例的重量級解法）——只取
+// 網域名稱當顯示文字就夠了，href 還是完整原始網址，點下去一樣能正確
+// 導去該去的地方，只是畫面上乾淨很多。網址格式不合法（理論上不會發生，
+// Google Places 給的一定是合法網址，但還是留個防呆）就照原樣顯示，不讓
+// 這裡噴錯把整頁弄壞。
+const displayWebsiteLabel = computed(() => {
+  const url = shop.value?.website;
+  if (!url) return "";
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+});
+
 const reviews = ref<Awaited<ReturnType<typeof getShopReviews>>["reviews"]>([]);
 const reviewsLoading = ref(true);
 const reviewsFailed = ref(false);
@@ -188,7 +207,9 @@ async function loadFavoriteState() {
 async function toggleSave() {
   if (!isLoggedIn.value) {
     show(t("shop.loginToSaveToast"));
-    await navigateTo("/login");
+    // 帶著這一頁的網址一起導去登入頁，登入完才能送回這一頁，而不是每次
+    // 都固定丟回首頁（見 login.vue 的 resolveRedirectTarget()）。
+    await navigateTo({ path: "/login", query: { redirect: route.fullPath } });
     return;
   }
 
@@ -264,7 +285,7 @@ async function loadShopPhotos() {
 function handleAddPhotoClick() {
   if (!isLoggedIn.value) {
     show(t("shop.loginToAddPhotoToast"));
-    navigateTo("/login");
+    navigateTo({ path: "/login", query: { redirect: route.fullPath } });
     return;
   }
   photoFileInput.value?.click();
@@ -376,7 +397,7 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
               <span v-else class="text-brand-brown-light">{{ t("shop.hoursUnavailable") }}</span>
             </div>
             <div v-if="shop.website" class="p-[5px]">
-              <a :href="shop.website" target="_blank" rel="noopener noreferrer" class="text-[#FFA518] underline">{{ shop.website }}</a>
+              <a :href="shop.website" target="_blank" rel="noopener noreferrer" class="text-[#FFA518] underline">{{ displayWebsiteLabel }} ↗</a>
             </div>
             <div v-if="shop.phone" class="p-[5px]">
               <a :href="`tel:${shop.phone}`" class="text-brand-brown no-underline hover:underline">{{ shop.phone }}</a>

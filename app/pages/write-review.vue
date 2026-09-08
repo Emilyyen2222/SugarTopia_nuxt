@@ -100,7 +100,7 @@ onMounted(loadShopField);
 async function handleSubmit() {
   if (!isLoggedIn.value) {
     show(t("writeReview.loginToReviewToast"));
-    await navigateTo("/login");
+    await navigateTo({ path: "/login", query: { redirect: route.fullPath } });
     return;
   }
 

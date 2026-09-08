@@ -24,6 +24,77 @@ interface PlaceResult {
 const { isLoggedIn } = useAuth();
 const { apiFetch } = useApi();
 const { show } = useSiteMessage();
+const { fetchShops } = useShops();
+
+// 管理已收錄店家：原本這個工具只能新增，沒有編輯功能——已經加進資料庫
+// 的店家，分類/標籤打錯或想補標籤（例如 Kids Friendly、Hot and New
+// 這種店家本身沒主動填、事後才想到要補的標籤），只能直接改資料庫，很
+// 不方便。這裡補一個簡單的「搜尋已收錄店家 → 編輯分類/標籤」流程，
+// 用既有的 PUT /api/shops/curated/{id}。
+interface CuratedShopSummary {
+  id: string;
+  name: string;
+  category: string;
+  categoryZh: string;
+  tags: string[];
+  tagsZh: string[];
+}
+const manageQuery = ref("");
+const managedShops = ref<CuratedShopSummary[]>([]);
+const managedShopsLoading = ref(false);
+const editDraftByShopId = reactive<Record<string, { category: string; categoryZh: string; tags: string; tagsZh: string }>>({});
+const editingShopId = ref<string | null>(null);
+const savingShopId = ref<string | null>(null);
+
+function startEditingShop(shop: CuratedShopSummary) {
+  editDraftByShopId[shop.id] = {
+    category: shop.category,
+    categoryZh: shop.categoryZh,
+    tags: shop.tags.join(", "),
+    tagsZh: shop.tagsZh.join(", "),
+  };
+  editingShopId.value = shop.id;
+}
+
+async function searchManagedShops() {
+  const q = manageQuery.value.trim();
+  if (!q) return;
+
+  managedShopsLoading.value = true;
+  try {
+    managedShops.value = (await fetchShops({ q })) as CuratedShopSummary[];
+  } catch {
+    managedShops.value = [];
+  } finally {
+    managedShopsLoading.value = false;
+  }
+}
+
+async function saveShopEdit(shopId: string) {
+  const draft = editDraftByShopId[shopId];
+  if (!draft) return;
+
+  savingShopId.value = shopId;
+  try {
+    const data = await apiFetch<{ shop: CuratedShopSummary }>(`/api/shops/curated/${encodeURIComponent(shopId)}`, {
+      method: "PUT",
+      body: {
+        category: draft.category.trim(),
+        category_zh: draft.categoryZh.trim(),
+        tags: splitTags(draft.tags),
+        tags_zh: splitTags(draft.tagsZh),
+      },
+    });
+    const index = managedShops.value.findIndex((shop) => shop.id === shopId);
+    if (index !== -1) managedShops.value[index] = data.shop;
+    editingShopId.value = null;
+    show(`已更新：${data.shop.name}`);
+  } catch {
+    show("更新失敗，稍後再試一次。");
+  } finally {
+    savingShopId.value = null;
+  }
+}
 
 const query = ref("");
 const searching = ref(false);
@@ -180,6 +251,64 @@ async function addShop(place: PlaceResult) {
               @click="addShop(place)"
             >
               {{ addingPlaceId === place.placeId ? "加入中…" : "加入 SugarTopia" }}
+            </button>
+          </template>
+        </div>
+      </div>
+
+      <hr class="my-10 border-brand-border" />
+
+      <h2 class="mb-2 text-lg font-bold text-brand-brown">管理已收錄店家</h2>
+      <p class="mb-6 text-sm text-brand-brown-light">
+        搜尋已經在 SugarTopia 裡的店家，修改分類/標籤（例如補上 Kids Friendly、Hot and New 這類事後才想到要加的標籤）。
+      </p>
+
+      <form class="mb-6 flex gap-2.5" @submit.prevent="searchManagedShops">
+        <input
+          v-model="manageQuery"
+          type="text"
+          placeholder="搜尋已收錄的店名"
+          class="min-w-0 flex-1 rounded-lg border border-brand-border px-4 py-2.5 text-sm text-brand-brown focus:border-brand-orange focus:outline-none"
+        />
+        <button
+          type="submit"
+          class="shrink-0 rounded-lg bg-brand-orange px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#e89615] disabled:opacity-50"
+          :disabled="managedShopsLoading || !manageQuery.trim()"
+        >
+          {{ managedShopsLoading ? "搜尋中…" : "搜尋" }}
+        </button>
+      </form>
+
+      <div v-if="managedShops.length" class="flex flex-col gap-4">
+        <div v-for="shop in managedShops" :key="shop.id" class="rounded-2xl border border-brand-border bg-white p-4">
+          <h3 class="mb-2 text-base font-bold text-brand-brown">{{ shop.name }}</h3>
+
+          <template v-if="editingShopId === shop.id">
+            <div class="mb-2 grid grid-cols-2 gap-2">
+              <input v-model="editDraftByShopId[shop.id].category" type="text" placeholder="分類（英文）" class="rounded-lg border border-brand-border px-3 py-2 text-xs text-brand-brown focus:border-brand-orange focus:outline-none" />
+              <input v-model="editDraftByShopId[shop.id].categoryZh" type="text" placeholder="分類（中文）" class="rounded-lg border border-brand-border px-3 py-2 text-xs text-brand-brown focus:border-brand-orange focus:outline-none" />
+              <input v-model="editDraftByShopId[shop.id].tags" type="text" placeholder="標籤（英文，逗號分隔）" class="rounded-lg border border-brand-border px-3 py-2 text-xs text-brand-brown focus:border-brand-orange focus:outline-none" />
+              <input v-model="editDraftByShopId[shop.id].tagsZh" type="text" placeholder="標籤（中文，逗號分隔）" class="rounded-lg border border-brand-border px-3 py-2 text-xs text-brand-brown focus:border-brand-orange focus:outline-none" />
+            </div>
+            <div class="flex gap-2">
+              <button
+                type="button"
+                class="rounded-lg bg-brand-brown px-4 py-2 text-xs font-medium text-white transition hover:bg-brand-brown/90 disabled:opacity-50"
+                :disabled="savingShopId === shop.id"
+                @click="saveShopEdit(shop.id)"
+              >
+                {{ savingShopId === shop.id ? "儲存中…" : "儲存" }}
+              </button>
+              <button type="button" class="rounded-lg border border-brand-border px-4 py-2 text-xs font-medium text-brand-brown" @click="editingShopId = null">取消</button>
+            </div>
+          </template>
+          <template v-else>
+            <p class="mb-2 text-xs text-brand-brown-light">{{ shop.category }} / {{ shop.categoryZh }}</p>
+            <div class="mb-3 flex flex-wrap gap-1.5">
+              <span v-for="tag in shop.tags" :key="tag" class="rounded-full bg-brand-cream px-2.5 py-0.5 text-xs text-brand-brown">{{ tag }}</span>
+            </div>
+            <button type="button" class="rounded-lg border border-brand-border px-4 py-2 text-xs font-medium text-brand-brown transition hover:bg-brand-cream" @click="startEditingShop(shop)">
+              編輯
             </button>
           </template>
         </div>

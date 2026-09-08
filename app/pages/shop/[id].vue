@@ -12,15 +12,15 @@
 // 對應的後端欄位、也從來不會被真正的使用者看到。這裡照真正會被使用者看到
 // 的動態版本遷移，不是照靜態佔位內容。
 //
-// business-info（營業時間／官網／電話／地址）在 vanilla 版本裡也是完全
-// 寫死的假資料，loadShopDetail() 從頭到尾沒有更新這幾個欄位，所以不管
-// 點進來的是哪間真實店家，看到的都是同一組肉桂捲工作室的假營業資訊。
-// 這裡照樣忠實遷移這個既有的「有點怪」的行為，沒有偷偷幫它補真的資料
-// （後端 shop 物件本來就沒有 hours/website/phone/address 這些欄位）。
-import type { Shop } from "~/composables/useShops";
+// business-info（營業時間／官網／電話／地址）原本是完全寫死的假資料，
+// 不管點進來的是哪間真實店家，看到的都是同一組肉桂捲工作室的假營業
+// 資訊——這個問題已經修掉了，見 displayHours／displayLocation／
+// shop.phone／shop.website 這幾個欄位，都是真的從 Google Places 收錄
+// 進來的資料。
+import type { Shop, ShopPhoto } from "~/composables/useShops";
 
 const route = useRoute();
-const { fetchShop, buildStars } = useShops();
+const { fetchShop, buildStars, getShopPhotos, uploadShopPhotos, deleteShopPhoto } = useShops();
 const { getFavoriteShops, addFavorite, removeFavorite } = useFavorites();
 const { getShopReviews, formatDate, updateReview, deleteReview } = useReviews();
 const { isLoggedIn, user } = useAuth();
@@ -243,12 +243,71 @@ async function handleShare() {
   }
 }
 
+// 店家相簿：任何登入的人都可以幫這家店加照片（不用是店家本人的評論），
+// 跟評論照片是兩件不同的事——見 useShops.ts 的 getShopPhotos() 註解。
+const shopPhotos = ref<ShopPhoto[]>([]);
+const photoFileInput = ref<HTMLInputElement | null>(null);
+const uploadingShopPhoto = ref(false);
+const deletingShopPhotoId = ref<number | null>(null);
+
+async function loadShopPhotos() {
+  try {
+    const data = await getShopPhotos(shopId.value);
+    shopPhotos.value = data.photos;
+  } catch {
+    // 相簿是錦上添花的展示內容，載入失敗就維持空陣列，不用跳錯誤訊息
+    // 打斷使用者看店家頁——店家本身的核心資訊（loadShop()）失敗才需要。
+    shopPhotos.value = [];
+  }
+}
+
+function handleAddPhotoClick() {
+  if (!isLoggedIn.value) {
+    show(t("shop.loginToAddPhotoToast"));
+    navigateTo("/login");
+    return;
+  }
+  photoFileInput.value?.click();
+}
+
+async function handlePhotoFilesSelected(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const files = Array.from(input.files ?? []);
+  input.value = "";
+  if (!files.length) return;
+
+  uploadingShopPhoto.value = true;
+  try {
+    const data = await uploadShopPhotos(shopId.value, files);
+    shopPhotos.value = data.photos;
+    show(t("shop.photoUploadedToast"));
+  } catch (error: any) {
+    show(error?.data?.detail || t("shop.photoUploadFailedToast"));
+  } finally {
+    uploadingShopPhoto.value = false;
+  }
+}
+
+async function handleDeleteShopPhoto(photoId: number) {
+  if (!window.confirm(t("shop.confirmDeletePhoto"))) return;
+
+  deletingShopPhotoId.value = photoId;
+  try {
+    const data = await deleteShopPhoto(shopId.value, photoId);
+    shopPhotos.value = data.photos;
+  } catch {
+    show(t("shop.photoDeleteFailedToast"));
+  } finally {
+    deletingShopPhotoId.value = null;
+  }
+}
+
 watch(
   shopId,
   async () => {
     await loadShop();
     if (!notFound.value) {
-      await Promise.all([loadReviews(), loadFavoriteState()]);
+      await Promise.all([loadReviews(), loadFavoriteState(), loadShopPhotos()]);
     }
   },
   { immediate: true }
@@ -350,13 +409,22 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
           {{ t("shop.writeReview") }}
         </NuxtLink>
+        <input
+          ref="photoFileInput"
+          type="file"
+          accept="image/*"
+          multiple
+          class="hidden"
+          @change="handlePhotoFilesSelected"
+        />
         <button
           type="button"
-          class="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-brand-orange px-6 py-3 text-[0.9375rem] text-white transition hover:-translate-y-0.5 hover:bg-[#e89615]"
-          @click="show(t('shop.addPhotoToast'))"
+          :disabled="uploadingShopPhoto"
+          class="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-brand-orange px-6 py-3 text-[0.9375rem] text-white transition hover:-translate-y-0.5 hover:bg-[#e89615] disabled:opacity-60"
+          @click="handleAddPhotoClick"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" /></svg>
-          {{ t("shop.addPhoto") }}
+          {{ uploadingShopPhoto ? t("shop.uploadingPhoto") : t("shop.addPhoto") }}
         </button>
         <button
           type="button"
@@ -377,6 +445,29 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
           {{ isFavorited ? t("shop.saved") : t("shop.save") }}
         </button>
       </div>
+
+      <!-- 店家相簿：跟評論照片是分開的一批資料（見 handleAddPhotoClick()
+           的註解），沒有照片就整段不顯示，不用留一個空相簿框。 -->
+      <section v-if="shopPhotos.length" class="mb-10">
+        <h2 class="mb-[15px] text-xl font-bold text-brand-brown">{{ t("shop.photosTitle") }}</h2>
+        <div class="flex flex-wrap gap-3">
+          <div v-for="photo in shopPhotos" :key="photo.id" class="group relative">
+            <a :href="photo.url" target="_blank" rel="noopener noreferrer">
+              <img :src="photo.url" :alt="displayName" class="h-28 w-28 rounded-lg border border-brand-border object-cover" />
+            </a>
+            <button
+              v-if="user?.id === photo.uploaderId"
+              type="button"
+              :disabled="deletingShopPhotoId === photo.id"
+              class="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-100"
+              :aria-label="t('shop.deletePhoto')"
+              @click="handleDeleteShopPhoto(photo.id)"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 6l12 12M18 6L6 18" /></svg>
+            </button>
+          </div>
+        </div>
+      </section>
 
       <!-- 評論區塊 -->
       <section class="my-10">

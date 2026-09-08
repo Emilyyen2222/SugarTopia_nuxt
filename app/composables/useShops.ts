@@ -80,5 +80,39 @@ export function useShops() {
     return "★★★★★".slice(0, rounded) + "☆☆☆☆☆".slice(0, 5 - rounded);
   }
 
-  return { fetchShops, fetchShop, buildStars };
+  // 店家層級的使用者投稿照片（不綁在某一則評論下面）——沒有內嵌在
+  // fetchShop() 回傳的物件裡，是另外一支 API，店家詳情頁載入時自己
+  // 再打一次。這跟評論照片的做法不一樣：評論列表本來就要抓，照片
+  // 順便一起回傳很自然；但店家相簿是選配的展示內容，多數瀏覽情境
+  // 用不到，沒必要每次讀店家資料都跟著抓一份相簿。
+  async function getShopPhotos(shopId: string) {
+    return apiFetch<{ photos: ShopPhoto[] }>(`/api/shops/${encodeURIComponent(shopId)}/photos`);
+  }
+
+  async function uploadShopPhotos(shopId: string, files: File[]) {
+    const formData = new FormData();
+    for (const file of files) formData.append("files", file);
+    return apiFetch<{ photos: ShopPhoto[] }>(`/api/shops/${encodeURIComponent(shopId)}/photos`, {
+      method: "POST",
+      body: formData,
+    });
+  }
+
+  async function deleteShopPhoto(shopId: string, photoId: number) {
+    return apiFetch<{ photos: ShopPhoto[] }>(`/api/shops/${encodeURIComponent(shopId)}/photos/${photoId}`, {
+      method: "DELETE",
+    });
+  }
+
+  return { fetchShops, fetchShop, buildStars, getShopPhotos, uploadShopPhotos, deleteShopPhoto };
+}
+
+export interface ShopPhoto {
+  id: number;
+  url: string;
+  uploaderName: string;
+  // 用來跟目前登入使用者的 id 比對，決定要不要顯示刪除按鈕——不能用
+  // uploaderName 比對，兩個使用者的顯示名稱可能剛好一樣。
+  uploaderId: number;
+  createdAt: string;
 }

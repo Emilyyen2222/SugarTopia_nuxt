@@ -51,6 +51,10 @@ const displayHours = computed(() => {
   return locale.value === "zh-TW" && shop.value.hoursZh?.length ? shop.value.hoursZh : shop.value.hours ?? [];
 });
 const hoursExpanded = ref(false);
+// 地址：跟其他 display* 欄位一樣依語言選版本，退回邏輯也一致。
+const displayLocation = computed(
+  () => (shop.value && locale.value === "zh-TW" && shop.value.locationZh) || shop.value?.location || ""
+);
 
 const reviews = ref<Awaited<ReturnType<typeof getShopReviews>>["reviews"]>([]);
 const reviewsLoading = ref(true);
@@ -294,10 +298,12 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
             </span>
           </div>
 
-          <!-- 完整營業時間是真實資料（見 useShops.ts 的 Shop.hours 註解），
-               網站／電話／地址這幾行仍然是固定示範內容——後端 shop 物件
-               目前沒有這幾個欄位，這次只處理營業時間，跟 vanilla 版本一樣
-               先保留其餘假資料，不擴大這次的改動範圍。 -->
+          <!-- 網站／電話／地址現在都是真實資料了（見 useShops.ts 的
+               Shop.phone／website／location 註解）——網站、電話是 Google
+               沒有資料就整行不顯示（不是顯示空白或佔位文字，那樣看起來
+               像壞掉），地址一定有（Google 的 formattedAddress），
+               「Get Directions」如果有真實的 Google Maps 連結就整段包成
+               連結，點了會開 Google Maps 導航到這家店。 -->
           <div class="text-[0.9375rem] text-brand-brown">
             <div class="p-[5px]">
               <template v-if="displayHours.length">
@@ -310,11 +316,18 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
               </template>
               <span v-else class="text-brand-brown-light">{{ t("shop.hoursUnavailable") }}</span>
             </div>
-            <div class="p-[5px]">cinnamonrollsstudio.com.tw</div>
-            <div class="p-[5px]">02-2250 5431</div>
+            <div v-if="shop.website" class="p-[5px]">
+              <a :href="shop.website" target="_blank" rel="noopener noreferrer" class="text-[#FFA518] underline">{{ shop.website }}</a>
+            </div>
+            <div v-if="shop.phone" class="p-[5px]">
+              <a :href="`tel:${shop.phone}`" class="text-brand-brown no-underline hover:underline">{{ shop.phone }}</a>
+            </div>
             <div class="p-[5px]">
               <strong>{{ t("shop.getDirections") }}</strong>
-              <p>No. 5, Lane 500, Section 1, Neihu Rd, Neihu District, Taipei City, 114</p>
+              <a v-if="shop.googleMapsUrl" :href="shop.googleMapsUrl" target="_blank" rel="noopener noreferrer" class="block hover:underline">
+                <p>{{ displayLocation }}</p>
+              </a>
+              <p v-else>{{ displayLocation }}</p>
             </div>
           </div>
         </div>

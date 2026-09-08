@@ -32,6 +32,12 @@ export interface Shop {
   // 之前就收錄的），前端要處理「沒有資料」的情況。
   hours?: string[];
   hoursZh?: string[];
+  // 電話／網站：跟 hours 一樣是 Google Places 收錄當下存下來的真實資料，
+  // 空字串代表 Google 對這家店沒有這筆資料（不是抓取失敗）。地址不需要
+  // 額外的欄位——location／locationZh 本來就是 Google 的 formattedAddress，
+  // 早就有了，只是店家詳情頁一直沒有真的顯示出來。
+  phone?: string;
+  website?: string;
 }
 
 // 後端存的圖片路徑是相對路徑（例如 "img/lp.jpg"），這在 vanilla 版本沒問題，

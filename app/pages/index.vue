@@ -75,18 +75,22 @@ async function submitChat() {
   chatInput.value = "";
   chatBusy.value = true;
 
-  const loadingIndex = chatMessages.value.push({ role: "assistant", text: "思考中..." }) - 1;
+  const loadingIndex = chatMessages.value.push({ role: "assistant", text: t("home.aiThinking") }) - 1;
   await nextTick();
   chatMessagesEl.value?.scrollTo({ top: chatMessagesEl.value.scrollHeight });
 
   try {
+    // language：讓後端的固定回覆（額度用完、問題超出範圍的罐頭訊息……）
+    // 能跟著目前介面語言走，不會不管中英文模式都固定跳出中文——這幾句
+    // 是後端寫死的字串，不是 Gemini 自由生成的內容，之前一直沒有把
+    // 這個資訊傳給後端，所以後端只能永遠假設是中文。
     const data = await apiFetch<{ reply: unknown }>("/api/chat", {
       method: "POST",
-      body: { message },
+      body: { message, language: locale.value },
     });
-    chatMessages.value[loadingIndex].text = formatReply(data.reply) || "SugarTopia AI 目前有點忙，請稍後再試。";
+    chatMessages.value[loadingIndex].text = formatReply(data.reply) || t("home.aiBusyFallback");
   } catch (error: any) {
-    chatMessages.value[loadingIndex].text = error?.data?.detail || "連不上後端，請稍後再試。";
+    chatMessages.value[loadingIndex].text = error?.data?.detail || t("home.aiRequestFailedToast");
   } finally {
     chatBusy.value = false;
     await nextTick();

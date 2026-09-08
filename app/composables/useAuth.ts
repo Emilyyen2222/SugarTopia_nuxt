@@ -111,6 +111,12 @@ export function initAuth() {
 export function useAuth() {
   const state = useAuthState();
   const { apiFetch } = useApi();
+  // useI18n() 一定要在這裡（useAuth() 呼叫當下，也就是元件 setup() 最
+  // 上層執行的時候）拿，不能等到 forgotPassword() 真的被呼叫（按下表單
+  // 送出鈕）才臨時呼叫——那時候已經離開 setup() 的同步執行範圍，useI18n()
+  // 會直接噴「Must be called at the top of a setup function」（跟
+  // useApi.ts 的 401 攔截曾經踩過的雷一樣）。
+  const { locale } = useI18n();
 
   async function signup(name: string, email: string, password: string) {
     const data = await apiFetch<{ user: AuthUser; token: string }>(
@@ -167,10 +173,12 @@ export function useAuth() {
 
   // 忘記密碼／重設密碼都不涉及目前的登入狀態（forgotPassword 甚至不用
   // 登入就能呼叫），不用碰 state，單純轉呼叫後端就好。
+  // 讓重設密碼信跟著使用者當下的介面語言走（跟 index.vue 呼叫 /api/chat
+  // 時傳 language 是同一個道理）。
   async function forgotPassword(email: string) {
     return apiFetch<{ message: string }>("/api/auth/forgot-password", {
       method: "POST",
-      body: { email },
+      body: { email, language: locale.value },
     });
   }
 

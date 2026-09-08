@@ -129,30 +129,41 @@ async function handleLogout() {
 </script>
 
 <template>
-  <header class="header fixed left-0 top-0 z-[1000] h-20 w-full text-[1rem]">
-    <!-- 左右兩色背景，跟置中機制（Grid）完全獨立，維持 vanilla 版本原本
-         「左邊米色漸層、右邊橘色」的視覺。 -->
-    <div
-      class="pointer-events-none absolute left-0 top-0 h-full w-1/2"
-      style="background: linear-gradient(to left, #fcdc94, #fff)"
-    />
-    <div class="pointer-events-none absolute right-0 top-0 h-full w-1/2 bg-brand-orange" />
+  <!-- 浮動玻璃感改版（2026-09）：原本是滿版貼頂、80px 高、實色「左米金
+       右橘」雙色分割背景。跟 Emily 一起在 Artifact 上比過三個方向
+       （https://claude.ai/code/artifact/2219e265-a567-45e7-b883-68bee88e96e7）
+       之後，選定「浮動玻璃藥丸」：整條收成膠囊形、離頁面邊緣留白，拿掉
+       雙色分割，改成單一半透明米色面 + backdrop-blur。取捨很明確：換掉了
+       原本到處在重複用的雙色分割識別，換來的是比較輕、比較不佔空間的
+       觀感——這是 Emily 自己確認過、比起保守方案更喜歡的方向。
 
-    <div class="relative z-[1] mx-auto grid h-full max-w-[1200px] grid-cols-[1fr_auto_1fr] items-center px-5">
+       外層 <header> 維持原本的 h-20（80px）+ fixed，不是為了視覺（外層
+       本身透明），是為了讓其他頁面既有的 mt-24／pt-24／h-20 這類「幫
+       header 讓出空間」的間距數字不用整批重算——藥丸本身只有 62px 高，
+       置中放在這個 80px 的透明容器裡，上下各留 9px 的浮空間距。外層加
+       pointer-events-none、藥丸本身加 pointer-events-auto：藥丸兩側、
+       上下露出底圖的空白區域不應該擋住底下頁面內容的點擊（例如首頁
+       hero 區塊），只有藥丸實際覆蓋到的範圍才吃得到滑鼠事件。 -->
+  <header class="pointer-events-none fixed left-0 top-0 z-[1000] flex h-20 w-full items-center justify-center px-4 text-[1rem] nav-sm:px-2.5">
+    <div
+      class="pointer-events-auto relative z-[1] grid h-[62px] w-full max-w-[1200px] grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-full border border-white/60 bg-brand-cream/75 px-5 shadow-[0_8px_24px_rgba(58,37,19,0.14)] backdrop-blur-xl backdrop-saturate-150 nav-sm:h-14 nav-sm:px-3"
+    >
       <!-- 左欄：漢堡、搜尋欄、Categories -->
-      <div ref="headerLeftEl" class="header-left flex items-center gap-[22px] nav-sm:gap-2">
+      <div ref="headerLeftEl" class="header-left flex items-center gap-[18px] nav-sm:gap-1.5">
         <!-- 三顆圖示按鈕（漢堡、搜尋、下面 template 裡的帳號頭像）統一成
-             47×47px 正方形、8px 圓角（rounded-lg）——原本三顆是三套不同時期
-             各自加的尺寸／圓角寫法，湊在一起看起來像拼裝的，這裡統一成同一組
-             視覺語言，帳號頭像本來就是這個尺寸，不用改，另外兩顆對齊它。 -->
+             圓形（rounded-full）、半透明白底、細邊框，是玻璃藥丸這個新
+             視覺語言的一部分——原本是 47×47px 方形、3px 粗橘色邊框，
+             在單色玻璃底上會太搶、也跟藥丸的圓弧感衝突，改成跟藥丸同一
+             種「輕」的語言。尺寸也跟著縮小（38px），配合藥丸只有 62px
+             高（原本 header 整條就有 80px 高，方形按鈕塞得下）。 -->
         <div
           id="mobile-menu"
-          class="menu-toggle hidden h-[47px] w-[47px] cursor-pointer flex-col items-center justify-center gap-[3px] rounded-lg border-[3px] border-brand-orange bg-white hover:scale-105 hover:bg-brand-gold hover:shadow-md nav-lg:flex"
+          class="menu-toggle hidden h-[38px] w-[38px] cursor-pointer flex-col items-center justify-center gap-[3px] rounded-full border border-brand-brown/15 bg-white/60 hover:bg-white/90 hover:shadow-md nav-lg:flex"
           @click.stop="toggleMobileMenu"
         >
-          <span class="h-[3px] w-4 bg-brand-orange" />
-          <span class="h-[3px] w-4 bg-brand-orange" />
-          <span class="h-[3px] w-4 bg-brand-orange" />
+          <span class="h-[2px] w-3.5 bg-brand-brown" />
+          <span class="h-[2px] w-3.5 bg-brand-brown" />
+          <span class="h-[2px] w-3.5 bg-brand-brown" />
         </div>
 
         <div class="search-bar flex items-center gap-1.5 nav-sm:gap-0">
@@ -160,12 +171,12 @@ async function handleLogout() {
             v-model="searchQuery"
             type="text"
             :placeholder="t('header.searchPlaceholder')"
-            class="search-input h-[47px] w-[160px] rounded border border-[#ddd] px-2 text-[0.8rem] nav-sm:hidden"
+            class="search-input h-[38px] w-[150px] rounded-full border border-brand-brown/15 bg-white/60 px-3.5 text-[0.8rem] placeholder:text-brand-brown-light nav-sm:hidden"
             @keydown.enter="handleSearchSubmit"
           />
           <button
             type="button"
-            class="flex h-[47px] w-[47px] items-center justify-center rounded-lg bg-brand-orange text-white"
+            class="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-brand-orange text-white hover:bg-brand-orange-dark"
             @click="handleSearchSubmit"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -198,14 +209,23 @@ async function handleLogout() {
         </nav>
       </div>
 
-      <!-- 中欄：logo，Grid 天生置中，不用 position: fixed -->
+      <!-- 中欄：logo，Grid 天生置中，不用 position: fixed。高度上限跟著
+           藥丸的 62px（窄螢幕 56px）縮小，原本 clamp(40px,13vw,70px) 是
+           照 80px 高的滿版 header 抓的，直接套用會在玻璃藥丸裡溢出、
+           撐爆圓角邊界。 -->
       <div class="logo-container justify-self-center">
         <NuxtLink to="/">
-          <img src="/img/logo.svg" alt="Sugar.Topia" class="h-[clamp(40px,13vw,70px)] w-auto transition-transform nav-sm:h-[clamp(32px,11vw,70px)] hover:scale-90" />
+          <img src="/img/logo.svg" alt="Sugar.Topia" class="h-[clamp(30px,9vw,44px)] w-auto transition-transform nav-sm:h-[clamp(26px,8vw,38px)] hover:scale-90" />
         </NuxtLink>
       </div>
 
-      <!-- 右欄：actions -->
+      <!-- 右欄：actions。原本這排文字/按鈕是白色（border-white/text-white），
+           因為右半邊底色是實色橘。玻璃藥丸拿掉雙色分割後整條都是同一種
+           半透明米色，白色文字在這個底色上幾乎看不見——這是這次改版
+           連動要處理的顏色問題，不是單純換個形狀而已。全部改成跟藥丸
+           左側一致的深棕色系（brand-brown），「Sign Up」原本是白底橘字
+           的次要按鈕，現在改成實色橘底白字，讓它在單色底上還能維持
+           「這是主要行動」的視覺重量。 -->
       <div ref="accountMenuEl" class="relative flex items-center justify-self-end">
         <!-- whitespace-nowrap：這排全部強制單行，寧可整排在極窄的中間寬度
              區間被裁切／溢出，也不要讓短短兩三個字被硬拆成兩行（例如
@@ -219,7 +239,7 @@ async function handleLogout() {
              按鈕）。 -->
         <button
           type="button"
-          class="mr-6 whitespace-nowrap rounded-full border border-white/70 px-3 py-1 text-[0.8125rem] font-medium text-white transition-colors hover:border-white hover:bg-white hover:text-brand-orange nav-md:hidden"
+          class="mr-5 whitespace-nowrap rounded-full border border-brand-brown/20 bg-white/50 px-3 py-1 text-[0.75rem] font-medium text-brand-brown transition-colors hover:border-brand-orange hover:bg-white hover:text-brand-orange-dark nav-md:hidden"
           @click="toggleLocale"
         >
           {{ otherLocaleName }}
@@ -233,7 +253,7 @@ async function handleLogout() {
                才展開」，不會像 .nav-menu 那樣在寬螢幕變成常駐攤開）。 -->
           <button
             type="button"
-            class="ml-5 flex items-center gap-1 whitespace-nowrap text-[0.9375rem] font-semibold text-white nav-md:hidden"
+            class="ml-4 flex items-center gap-1 whitespace-nowrap text-[0.9375rem] font-semibold text-brand-brown nav-md:hidden"
             @click.stop="toggleAccountMenu"
           >
             {{ t("header.hi", { name: user?.name }) }}
@@ -252,13 +272,13 @@ async function handleLogout() {
         <template v-else>
           <NuxtLink
             to="/login"
-            class="ml-5 mr-1 whitespace-nowrap rounded-[9px] border border-white px-4 py-2 text-[0.9375rem] text-white no-underline hover:bg-brand-gold nav-md:hidden"
+            class="ml-4 mr-1 whitespace-nowrap rounded-full border border-brand-brown/25 px-4 py-1.5 text-[0.875rem] text-brand-brown no-underline hover:bg-brand-hover nav-md:hidden"
           >
             {{ t("header.logIn") }}
           </NuxtLink>
           <NuxtLink
             to="/signup"
-            class="whitespace-nowrap rounded-[9px] border border-white bg-white px-4 py-2 text-[0.9375rem] text-brand-orange no-underline hover:bg-brand-gold nav-md:hidden"
+            class="whitespace-nowrap rounded-full bg-brand-orange px-4 py-1.5 text-[0.875rem] font-medium text-white no-underline hover:bg-brand-orange-dark nav-md:hidden"
           >
             {{ t("header.signUp") }}
           </NuxtLink>
@@ -266,12 +286,13 @@ async function handleLogout() {
 
         <!-- 中英文切換（窄螢幕版）：之前收進漢堡選單面板，怕使用者想不到
              要點開漢堡選單才找得到，改放回 header 上、跟帳號圖示放一起。
-             顏色跟桌機版那顆一樣用白色（border-white/text-white），不是
-             橘色——這裡是 header 右半邊的橘色底色，一開始寫成橘色邊框
-             配橘色文字，等於橘色疊橘色，完全看不見，是這次修正的重點。 -->
+             顏色改成深棕色系（border-brand-brown/20、text-brand-brown），
+             不是原本的白色——原本白色是配合右半邊實色橘背景，玻璃藥丸
+             拿掉雙色分割之後白色文字在半透明米色底上幾乎看不見，這裡
+             一併修正。 -->
         <button
           type="button"
-          class="mr-2 hidden whitespace-nowrap rounded-full border border-white/70 px-3 py-1 text-[0.8125rem] font-medium text-white transition-colors hover:border-white hover:bg-white hover:text-brand-orange nav-md:inline-flex"
+          class="mr-1.5 hidden whitespace-nowrap rounded-full border border-brand-brown/20 bg-white/50 px-3 py-1 text-[0.75rem] font-medium text-brand-brown transition-colors hover:border-brand-orange hover:bg-white hover:text-brand-orange-dark nav-md:inline-flex"
           @click="toggleLocale"
         >
           {{ otherLocaleName }}
@@ -286,15 +307,17 @@ async function handleLogout() {
              （accountMenuOpen），不是漢堡選單——帳號相關的連結（我的
              最愛／願望單／登出）都集中在這一個選單裡，跟 Categories
              那個漢堡選單是分開的兩件事。沒登入時維持原本行為，直接連去
-             登入頁。 -->
+             登入頁。尺寸從 47px 縮到 38px、方形改圓形，理由跟上面漢堡/
+             搜尋按鈕一樣：配合玻璃藥丸只有 62px 高，也統一成同一種圓形
+             圖示語言。 -->
         <button
           v-if="isLoggedIn"
           type="button"
           :aria-label="t('header.accountMenu')"
-          class="hidden h-[47px] w-[47px] items-center justify-center rounded-lg border-2 border-brand-avatar bg-brand-avatar text-[1.6rem] text-brand-orange hover:scale-105 hover:text-white hover:shadow-md nav-md:flex"
+          class="hidden h-[38px] w-[38px] items-center justify-center rounded-full border-2 border-brand-avatar bg-brand-avatar text-[1.3rem] text-brand-orange hover:scale-105 hover:text-white hover:shadow-md nav-md:flex"
           @click.stop="toggleAccountMenu"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-[1.6rem] w-[1.6rem]">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-[1.3rem] w-[1.3rem]">
             <circle cx="12" cy="12" r="10" />
             <circle cx="12" cy="10" r="3" />
             <path d="M6.2 18.5a6 6 0 0 1 11.6 0" />
@@ -304,9 +327,9 @@ async function handleLogout() {
           v-else
           to="/login"
           :aria-label="t('header.logIn')"
-          class="hidden h-[47px] w-[47px] items-center justify-center rounded-lg border-2 border-brand-avatar bg-brand-avatar text-[1.6rem] text-brand-orange hover:scale-105 hover:text-white hover:shadow-md nav-md:flex"
+          class="hidden h-[38px] w-[38px] items-center justify-center rounded-full border-2 border-brand-avatar bg-brand-avatar text-[1.3rem] text-brand-orange hover:scale-105 hover:text-white hover:shadow-md nav-md:flex"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-[1.6rem] w-[1.6rem]">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-[1.3rem] w-[1.3rem]">
             <circle cx="12" cy="12" r="10" />
             <circle cx="12" cy="10" r="3" />
             <path d="M6.2 18.5a6 6 0 0 1 11.6 0" />
@@ -320,7 +343,7 @@ async function handleLogout() {
              另外為兩種寬度各寫一份定位邏輯。 -->
         <div
           v-if="isLoggedIn && accountMenuOpen"
-          class="absolute right-0 top-[calc(100%+10px)] z-[1100] w-[180px] rounded-2xl border border-brand-panel bg-white p-2 shadow-[0_12px_32px_rgba(58,37,19,0.18)]"
+          class="absolute right-0 top-[calc(100%+14px)] z-[1100] w-[180px] rounded-2xl border border-brand-panel bg-white p-2 shadow-[0_12px_32px_rgba(58,37,19,0.18)]"
         >
           <NuxtLink to="/favorites" class="block rounded-[10px] px-3 py-2.5 text-[0.9375rem] font-medium text-brand-brown no-underline hover:bg-brand-hover" @click="closeAccountMenu">
             {{ t("header.myFavorites") }}
@@ -373,13 +396,24 @@ async function handleLogout() {
        讓面板裡每一項都靠左對齊，跟外面漢堡按鈕的左邊界視覺對齊。 */
     align-items: flex-start;
     position: absolute;
-    top: 80px;
+    /* 原本寫死 top: 80px，是配合舊版滿版 80px 高的 header，面板剛好貼齊
+       header 下緣。玻璃藥丸改版後這個定位的參考點（最近的 position:
+       relative 祖先）變成藥丸本身，藥丸只有 62px 高（窄螢幕 56px），
+       寫死 80px 會讓面板跟藥丸之間空出一段不上不下的空隙。改成
+       calc(100% + 10px)：不管藥丸在哪個斷點是幾 px 高，面板都固定貼著
+       藥丸下緣、留 10px 浮空間距，跟藥丸本身「浮起來」的語言一致。 */
+    top: calc(100% + 10px);
     left: 0;
     width: 50%;
     background-color: white;
     z-index: 1000;
     padding: 14px 20px;
-    border-radius: 0 0 12px 12px;
+    /* 原本只有下面兩個角圓角（面板緊貼在滿版 header 下緣，上緣視覺上
+       跟 header 是連在一起的一塊）。玻璃藥丸改版後面板浮在藥丸下方、
+       跟藥丸之間有間距，不再是「同一塊」的視覺，四個角都圓一致才對，
+       圓角數值跟藥丸／帳號選單面板（見上面 template 的
+       rounded-2xl，20px）維持同一組語言。 */
+    border-radius: 20px;
     /* 原本只有 background-color: white，面板底色跟頁面本身的米白色背景
        太接近，肉眼幾乎分不出「這是一塊獨立浮起來的選單」還是「頁面本身
        的一部分」，看起來像沒有底色一樣、容易讓人搞不清楚選單範圍在哪。

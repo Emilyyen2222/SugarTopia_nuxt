@@ -359,7 +359,16 @@ const writeReviewHref = computed(() => `/write-review${shop.value ? `?id=${encod
       <!-- 店家標題區塊 -->
       <div class="flex items-stretch gap-2 detail-md:flex-col">
         <div class="relative flex-1 overflow-hidden rounded-[20px] bg-[#FCDC94] p-[30px] shadow-[0_4px_15px_rgba(0,0,0,0.05)] detail-md:w-full detail-xs:mx-2.5 detail-xs:w-auto">
-          <h1 class="mb-[15px] text-[0.8rem] font-bold text-brand-brown">{{ displayName }}</h1>
+          <!-- 這裡原本是 text-[0.8rem]（12.8px）——店名是這整頁的 <h1>，
+               卻被設成比內文說明文字（下面 text-base／16px）還小，是一個
+               既有的 bug，不是刻意的設計。先試過字級系統的 text-h1
+               （36px，「頁面標題」那一級），但店名長度落差很大（很多真實
+               店名很長，例如這家「朵朵嚐嚐貓咪中途咖啡廳（無接待12歲以下
+               孩童）」），36px 遇到長店名會佔掉整張卡片、換行後份量過重。
+               改用 text-h2（26px，「區塊標題」那一級）——這頁本身也是嵌在
+               一張卡片裡的標題，不是全螢幕的行銷主視覺，h2 的份量更合適，
+               短店名跟長店名都不會失衡。 -->
+          <h1 class="mb-[15px] font-bold text-brand-brown text-h2">{{ displayName }}</h1>
           <p class="text-base text-brand-brown">{{ displayDescription }}</p>
 
           <!-- 跟 vanilla 版本一樣：style.css 有一條全站通用的 `.rating span`

@@ -63,6 +63,40 @@ export default <Partial<Config>>{
       fontFamily: {
         sans: ["Poppins", "Huninn", "sans-serif"],
       },
+      // 字級系統（2026-09）：在這之前每個頁面的每個文字元素都是各自用
+      // Tailwind 的任意值語法（text-[19px]、text-[0.9375rem]……）現場
+      // 決定一個看起來順眼的數字，光首頁一頁就有 8 種彼此接近但不完全
+      // 一樣的字級混在一起，這是「標題沒有視覺重量」這類問題的根本
+      // 原因——不是排版沒對齊，是從來沒有「這是主標、這是內文」的比例
+      // 規則存在。
+      //
+      // 這 8 級是從現有畫面實際在用的數字收斂出來的（不是憑空發明），
+      // 用 1.25（大三度）的比例往上疊，每一級都配好對應的行距／字距，
+      // 不是只有大小數字。跟 Emily 在 Artifact 上實際套到 Hero slogan／
+      // 分類方塊／評論卡片這三個真實區塊比對過
+      // （https://claude.ai/code/artifact/b709fb2b-57a4-43e1-86c9-b3d81a2e08a2），
+      // display 原本照數學比例算出來是 48-60px，套到中文 slogan 上發現
+      // 太大，第一輪先手動下修到 34-40px；實際套上首頁看過真實效果後，
+      // Emily 覺得還是比原本（1.2rem／19.2px）的份量重、沒有原本精緻，
+      // 又再降了一次，改成 26-28px。這一級因此變得比 h1（36px）還小，
+      // 打破了原本「display 該是最大級」的排序——目前刻意保留這個不一致，
+      // 因為首頁 slogan 這個原本設想的主要使用情境已經改回不用這一級（見
+      // index.vue 的 overlay-text），這個級距先當作「之後如果有需要一個
+      // 比 h1 更保守的大字級」的備用選項，不是目前有任何地方在用。
+      //
+      // 之後任何頁面的文字大小都從這 8 個裡面選（text-caption／
+      // text-small／text-body／text-body-lg／text-h3／text-h2／text-h1／
+      // text-display），不會再有現場憑感覺打任意數值的情況。
+      fontSize: {
+        caption: ["12px", { lineHeight: "1.5", letterSpacing: "0.04em" }],
+        small: ["13px", { lineHeight: "1.5" }],
+        body: ["15px", { lineHeight: "1.7" }],
+        "body-lg": ["17px", { lineHeight: "1.65" }],
+        h3: ["20px", { lineHeight: "1.35" }],
+        h2: ["26px", { lineHeight: "1.25", letterSpacing: "-0.01em" }],
+        h1: ["36px", { lineHeight: "1.15", letterSpacing: "-0.01em" }],
+        display: ["clamp(26px, 3vw, 28px)", { lineHeight: "1.3", letterSpacing: "-0.005em" }],
+      },
     },
   },
 };

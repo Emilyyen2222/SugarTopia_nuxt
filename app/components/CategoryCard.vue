@@ -31,10 +31,15 @@ const { t } = useI18n();
            h-12 w-12 正方形容器 + object-contain，8 個圖示視覺大小才會
            一致——之前用 h-12 w-auto，寬高比不一樣的圖示（例如比較瘦長的
            咖啡杯）算出來的寬度會比別的圖示窄一截，看起來明顯變小。 -->
-      <img :src="`/img/${image}`" :alt="t(labelKey)" class="h-12 w-12 object-contain" />
+      <!-- h-14 w-14：字級系統上線後順便放大一點（原本 h-12 w-12），圖示
+           太小、文字太克制是「分類方塊鬆散」問題的一部分——文字改用
+           text-h3（字級系統裡「卡片標題」那一級）之後，圖示也要跟著放大
+           一點才會匹配得起來，不然文字份量上去了、圖示還是原本大小，
+           反而更失衡。 -->
+      <img :src="`/img/${image}`" :alt="t(labelKey)" class="h-14 w-14 object-contain" />
       <!-- min-w-0：flex 子項目預設不會主動縮小去符合容器寬度（flexbox 常見
            的坑），沒有這個窄卡片會被長店名文字撐出邊框外。 -->
-      <p class="w-full min-w-0 text-center text-sm font-semibold text-brand-orange md:text-base">{{ t(labelKey) }}</p>
+      <p class="w-full min-w-0 text-center font-semibold text-brand-orange text-h3">{{ t(labelKey) }}</p>
     </div>
   </NuxtLink>
 </template>

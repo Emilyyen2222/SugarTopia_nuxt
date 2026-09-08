@@ -190,13 +190,20 @@ onMounted(() => {
     <div class="pointer-events-none absolute right-0 top-0 h-full w-1/2 -z-10 bg-brand-orange detail-md:hidden" />
 
     <div class="left-side z-[1] flex w-1/2 flex-col items-start justify-center px-[150px] py-10 box-border detail-md:order-2 detail-md:w-full detail-md:px-5 detail-md:pt-6">
+      <!-- 這裡原本套過 text-display，Emily 實際看過首頁真實效果後覺得
+           份量比原本重、不夠精緻，改回原本的大小（text-[1.2rem]／
+           19.2px）——字級系統不是每個地方都得套用新級距，這裡就是個
+           刻意的例外，保留原樣。display 這一級的定義也跟著往下修過
+           （見 tailwind.config.ts），但這裡不再使用它。 -->
       <p class="overlay-text mb-2 max-w-[400px] text-left text-[1.2rem] font-bold leading-[1.4] text-brand-brown">
         {{ t("home.slogan") }}
       </p>
       <!-- slogan 本身偏抒情，沒有直接說「這個網站在做什麼」，補一行白話的
            價值主張，讓使用者掃過去就懂這是什麼服務，不用自己猜或去點 AI
-           問答才知道。 -->
-      <p class="mb-5 max-w-[400px] text-left text-[0.9375rem] text-brand-brown-light">
+           問答才知道。原本 text-[0.9375rem] 換成 text-body-lg（字級系統
+           裡「被強調過的內文」那一級），比純粹的內文（text-body）大一點，
+           因為這行是首頁少數幾句真正要讓人讀完的文字，不是次要說明。 -->
+      <p class="mb-5 max-w-[400px] text-left text-brand-brown-light text-body-lg">
         {{ t("home.valueProp") }}
       </p>
 
@@ -249,7 +256,7 @@ onMounted(() => {
     <div class="category-header mb-8 flex items-center justify-between text-left">
       <!-- 這裡改用 h1（原本 Latest Reviews 那個 <h1> 隨著區塊搬到後面，
            跟著改回 h2）：搬到最上面的區塊，語意上比較適合當頁面的主標題。 -->
-      <h1 class="m-0 text-2xl font-bold text-brand-brown">{{ t("home.categories") }}</h1>
+      <h1 class="m-0 font-bold text-brand-brown text-h2">{{ t("home.categories") }}</h1>
       <NuxtLink to="/category" class="category-view-all text-sm text-brand-orange no-underline hover:underline">{{ t("home.viewAll") }}</NuxtLink>
     </div>
     <!-- 桌機版：4 欄 grid，一列放完 8 張（不變）。 -->
@@ -288,7 +295,7 @@ onMounted(() => {
   <!-- Latest Reviews -->
   <div class="latest_review_section mx-auto max-w-[1000px] px-5 py-16 text-center">
     <div class="review-header mb-8 flex items-center justify-between text-left">
-      <h2 class="m-0 text-2xl font-bold text-brand-brown">{{ t("home.latestReviews") }}</h2>
+      <h2 class="m-0 font-bold text-brand-brown text-h2">{{ t("home.latestReviews") }}</h2>
     </div>
     <!-- 原本桌機版是 4 欄 grid，一次全部攤開 8 張（2 排）。使用者要求改成
          一列固定只看得到 4 張、左右滑動看其餘的（跟手機版同一種 scroll-snap
@@ -312,21 +319,33 @@ onMounted(() => {
         class="review-card w-[23%] min-w-[23%] shrink-0 snap-start detail-md:w-[82%] detail-md:min-w-[82%] detail-md:snap-center"
       >
         <div class="flex h-full flex-col rounded-2xl bg-brand-gold p-[15px]">
+          <!-- 字級系統套用：原本姓名（0.9375rem／15px）、日期（0.8125rem／
+               13px）、店名（1.125rem／18px）三個級距彼此太接近，眼睛不
+               知道該先看哪裡；店名還沒有截斷保護，長店名（例如「小春日和
+               動物雜貨‧珈琲」）會把整張卡片的節奏撐亂。改成：姓名/日期
+               降級成 small／caption（次要資訊，先被看到但不搶戲），店名
+               升級成 text-h3 並加 line-clamp-1（卡片標題該有的份量，長店
+               名截斷不撐版），評分改成獨立的小標籤（跟姓名/日期同一個
+               量級但用底色跟顏色區隔開，不是純文字混在一起）。 -->
           <div class="flex items-center gap-[15px]">
             <ReviewerAvatar :name="review.reviewerName" :avatar-url="review.reviewerAvatarUrl" :size="50" />
             <div class="text-left">
-              <p class="m-0 text-[0.9375rem] font-bold text-black">{{ review.reviewerName }}</p>
-              <p class="mt-2 text-[0.8125rem] text-brand-brown">{{ formatDate(review.createdAt) }}</p>
+              <p class="m-0 font-semibold text-black text-small">{{ review.reviewerName }}</p>
+              <p class="mt-1 text-brand-brown-light text-caption">{{ formatDate(review.createdAt) }}</p>
             </div>
           </div>
           <div class="py-[15px] text-left">
-            <h2 class="m-0 mb-1.5 text-[1.125rem] font-bold text-black">{{ (locale === "zh-TW" ? review.shopNameZh : review.shopName) || review.shopId }}</h2>
+            <!-- font-semibold 不是 font-bold：卡片本身很密（大頭貼＋姓名＋
+                 日期＋店名＋評分＋照片＋摘要全擠在一張窄卡片裡），20px
+                 再配 bold 份量感過重，降一階字重維持大小不變，看起來
+                 比較不擁擠，跟姓名/日期的層級差距還是很清楚。 -->
+            <h2 class="m-0 mb-2 line-clamp-1 font-semibold text-black text-h3">{{ (locale === "zh-TW" ? review.shopNameZh : review.shopName) || review.shopId }}</h2>
             <!-- 跟 shop 卡片一樣：全站通用的 `.rating span` 規則把這裡蓋成綠色小字。 -->
-            <div class="mb-2.5 text-base">
-              <span class="text-[10px] text-brand-green">{{ buildStars(review.rating) }}</span>
+            <div class="mb-2.5">
+              <span class="rounded-full bg-brand-green/10 px-2 py-0.5 font-bold text-brand-green text-small">{{ buildStars(review.rating) }}</span>
             </div>
             <img v-if="review.shopImage" :src="resolveShopImage(review.shopImage)" :alt="review.shopName" class="my-2.5 block h-[130px] w-full rounded-lg object-cover" />
-            <p class="review-text my-2.5 line-clamp-3 text-[0.9375rem] text-[#555]">{{ review.text }}</p>
+            <p class="review-text my-2.5 line-clamp-3 text-[#555] text-body">{{ review.text }}</p>
             <NuxtLink :to="`/shop/${review.shopId}`" class="read-more text-sm text-brand-green no-underline hover:underline">{{ t("common.readMore") }}</NuxtLink>
           </div>
         </div>

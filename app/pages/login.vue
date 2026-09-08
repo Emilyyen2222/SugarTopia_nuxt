@@ -11,6 +11,9 @@ const { t } = useI18n();
 
 const email = ref("");
 const password = ref("");
+// 預設勾選，維持這個 checkbox 加上真的功能之前的既有行為（一律記住）當
+// 預設值，只有使用者主動取消勾選才會改成「這次瀏覽階段結束就登出」。
+const rememberMe = ref(true);
 const isSubmitting = ref(false);
 
 // 進頁面時如果已經登入，導回首頁——對應 auth.js 裡
@@ -25,7 +28,7 @@ onMounted(() => {
 async function handleSubmit() {
   isSubmitting.value = true;
   try {
-    const loggedInUser = await login(email.value.trim(), password.value);
+    const loggedInUser = await login(email.value.trim(), password.value, rememberMe.value);
     show(t("auth.welcomeBack", { name: loggedInUser.name }));
     router.push("/");
   } catch (error: any) {
@@ -72,7 +75,7 @@ async function handleSubmit() {
 
         <div class="mb-5 flex items-center justify-between">
           <label class="flex items-center gap-2 text-brand-brown">
-            <input type="checkbox" />
+            <input v-model="rememberMe" type="checkbox" />
             <span class="text-sm leading-snug">{{ t("auth.rememberMe") }}</span>
           </label>
           <NuxtLink to="/forgot-password" class="text-brand-orange no-underline hover:underline">{{ t("auth.forgotPassword") }}</NuxtLink>

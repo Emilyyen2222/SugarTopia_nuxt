@@ -188,6 +188,13 @@ async function handleLogout() {
                還是會直接攤開顯示，沒有真的收起來。改成獨立的帳號選單
                （accountMenuOpen，見下面），不跟這裡共用開關狀態。 -->
           <CategoriesDropdown />
+          <!-- 甜點人格測驗：刻意只放在漢堡選單裡（不是首頁橫幅、不是常駐
+               的桌機導覽連結），維持「不特別推播、靠使用者自己找到／分享
+               連結」的低調入口，只是原本完全沒有任何站內連結能到這頁，
+               只能手動打網址，這裡補一個最基本的入口。 -->
+          <NuxtLink to="/quiz" class="px-1 py-2 font-medium text-brand-brown no-underline hover:text-brand-gold">
+            {{ t("header.quizLink") }}
+          </NuxtLink>
         </nav>
       </div>
 

@@ -104,7 +104,16 @@ export function useShops() {
     });
   }
 
-  return { fetchShops, fetchShop, buildStars, getShopPhotos, uploadShopPhotos, deleteShopPhoto };
+  // 甜點人格測驗結果頁用：拿一組人格 key（hermit／worker／visual／hype／
+  // intel，跟後端 main.py 的 QUIZ_PERSONAS 對應）換回配對到的真實店家。
+  // 配對邏輯（用哪些分類標籤、怎麼排序）全部在後端，這裡單純轉呼叫。
+  async function matchQuizPersona(persona: string, limit = 1) {
+    return apiFetch<{ persona: string; shops: Shop[] }>(
+      `/api/quiz/match?persona=${encodeURIComponent(persona)}&limit=${limit}`
+    );
+  }
+
+  return { fetchShops, fetchShop, buildStars, getShopPhotos, uploadShopPhotos, deleteShopPhoto, matchQuizPersona };
 }
 
 export interface ShopPhoto {

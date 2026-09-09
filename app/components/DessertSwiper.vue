@@ -42,30 +42,28 @@ const slides = ref<{ src: string; credit: HeroPhoto | null }[]>(
   FALLBACK_IMAGES.map((image) => ({ src: `/img/${image}`, credit: null }))
 );
 
-// Swiper 實例存起來，等 API 抓到真正的照片、把 slides 換掉之後要用
-// 它強制重新計算——這是輪播圖「沒在轉」這個 bug 的根因：Swiper 掛載當下
-// 是拿 FALLBACK_IMAGES（6 張）算好 loop 模式需要的複製幻燈片／索引，
-// 之後 onMounted 的非同步請求才把 slides 換成 API 抓到的真實照片（9 張），
-// 這時候 DOM 雖然會跟著 Vue 的響應式更新重新渲染，但 Swiper 內部在
-// loop 模式下自己算好、快取起來的那份幻燈片複製本／索引對照表不會
-// 自動重算，autoplay 定時器繼續跑，但實際上在一份過期的幻燈片清單裡
-// 打轉，肉眼看起來就是「輪播卡住不動」。
-const swiperInstance = ref<SwiperInstance | null>(null);
+// swiper.update() 不夠：試過在 slides 換成真實照片後手動呼叫
+// swiper.update()，實測還是會卡住——Swiper 在 loop 模式下自己算好、
+// 快取起來的那份幻燈片複製本／索引對照表，只有 update() 沒辦法讓它
+// 完全重建，loop 相關的內部狀態還是對不上新的幻燈片清單。
+//
+// 改用更粗暴但確實有效的做法：把 <Swiper> 元件的 :key 綁在「現在是
+// 本地備用圖還是 API 抓到的真實照片」這個布林值上。key 改變時 Vue
+// 會把整個 <Swiper> 當成不同的元件，直接銷毀重建，而不是嘗試就地
+// 更新現有的實例——新的 Swiper 實例從一開始就是拿正確的 9 張照片
+// 初始化，不會有任何 loop 快取對不上新舊資料的問題。
+const heroPhotosLoaded = ref(false);
 
 onMounted(async () => {
   try {
     const data = await apiFetch<{ photos: HeroPhoto[] }>("/api/hero-photos");
     if (data.photos.length) {
       slides.value = data.photos.map((photo) => ({ src: photo.url, credit: photo }));
-      // 等 Vue 真的把新的 <SwiperSlide> DOM 元素渲染出來之後，再呼叫
-      // update()：Swiper 官方文件建議的做法，讓它重新掃描目前的幻燈片
-      // 數量、重建 loop 模式需要的複製幻燈片，autoplay 才會照著新的
-      // 這 9 張繼續轉，不會卡在舊的那份快取裡。
-      await nextTick();
-      swiperInstance.value?.update();
+      heroPhotosLoaded.value = true;
     }
     // photos 是空陣列（後端有回應，但 Pexels 那批快取是空的）就維持
-    // FALLBACK_IMAGES，不用特別處理。
+    // FALLBACK_IMAGES，不用特別處理（heroPhotosLoaded 維持 false，
+    // key 不會變，不會多一次沒必要的重建）。
   } catch {
     // 後端本身打不通（例如本機沒開後端）也維持 FALLBACK_IMAGES，輪播圖
     // 不能因為這支非核心的 API 掛掉就整塊消失。
@@ -78,7 +76,6 @@ onMounted(async () => {
 // 不用 Swiper 元件本身複雜的 render-prop 寫法。
 const activeIndex = ref(0);
 function handleSwiper(swiper: SwiperInstance) {
-  swiperInstance.value = swiper;
   activeIndex.value = swiper.realIndex;
 }
 function handleSlideChange(swiper: SwiperInstance) {
@@ -91,6 +88,7 @@ const activeCredit = computed(() => slides.value[activeIndex.value]?.credit ?? n
   <ClientOnly>
     <div class="dessert-swiper-wrapper">
       <Swiper
+        :key="heroPhotosLoaded ? 'remote' : 'local'"
         class="dessert-swiper"
         :modules="[Autoplay, Navigation, Pagination]"
         :space-between="30"
